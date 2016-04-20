@@ -1,7 +1,6 @@
 package de.wwu.criticalsystems.libhpng.model;
 
 import javax.xml.bind.annotation.*;
-//import java.util.List;
 
 @XmlRootElement (name = "places")
 @XmlSeeAlso({DiscretePlace.class, ContinuousPlace.class})

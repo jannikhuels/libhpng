@@ -1,21 +1,28 @@
 package de.wwu.criticalsystems.libhpng.model;
 
-public abstract class DiscreteArc extends Arc{
+import javax.xml.bind.annotation.*;
+
+@XmlRootElement (name = "discreteArc")
+public class DiscreteArc extends Arc{
+	
+	public DiscreteArc(){}
  
 	public DiscreteArc(String id, Double weight, Place connectedPlace,
-			Transition connectedTransition, ArcType direction) {
+			Transition connectedTransition, DiscreteArcType direction) {
 		super(id, weight, connectedPlace, connectedTransition);
 		this.direction = direction;
 	}
+	
+	public static enum DiscreteArcType{input, output}
 
-	public ArcType getDirection() {
+	public DiscreteArcType getDirection() {
 		return direction;
 	}
 
-	public void setDirection(ArcType direction) {
+	public void setDirection(DiscreteArcType direction) {
 		this.direction = direction;
 	}
 
-	private ArcType direction;
+	private DiscreteArcType direction;
 	
 }

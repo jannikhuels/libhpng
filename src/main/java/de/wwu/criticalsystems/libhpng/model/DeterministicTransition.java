@@ -5,6 +5,8 @@ import javax.xml.bind.annotation.*;
 @XmlRootElement( name = "deterministicTransition" )
 public class DeterministicTransition extends Transition{
 
+	public DeterministicTransition(){}
+	
 	public DeterministicTransition(String id, Boolean enabled, Double weight,
 			Integer priority, Double firingTime, Double clock) {
 		super(id, enabled);

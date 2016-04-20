@@ -1,24 +1,32 @@
 package de.wwu.criticalsystems.libhpng.model;
 
-import java.util.List;
+import java.util.ArrayList;
 
+import javax.xml.bind.annotation.*;
 
+@XmlRootElement( name = "dynamicContinuousTransition" )
 public class DynamicContinuousTransition extends Transition{
+	
+	public DynamicContinuousTransition(){}
 
 	public DynamicContinuousTransition(String id, Boolean enabled,
-			List<DynamicContinuousDependency> dependencies) {
+			ArrayList<DynamicContinuousDependency> dependencies) {
 		super(id, enabled);
 		this.dependencies = dependencies;
 	}
 	
-	public List<DynamicContinuousDependency> getDependencies() {
+	public ArrayList<DynamicContinuousDependency> getDependencies() {
 		return dependencies;
 	}
 
-	public void setDependencies(List<DynamicContinuousDependency> dependencies) {
+	/*public void setDependencies(ArrayList<DynamicContinuousDependency> dependencies) {
 		this.dependencies = dependencies;
-	}
+	}*/
 	
-	private List<DynamicContinuousDependency> dependencies;
+
+	@XmlElements({
+	    @XmlElement(name="pid", type=DynamicContinuousDependency.class),
+	})
+	private ArrayList <DynamicContinuousDependency> dependencies = new ArrayList<DynamicContinuousDependency>();
 	
 }

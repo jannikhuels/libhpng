@@ -2,8 +2,11 @@ package de.wwu.criticalsystems.libhpng.model;
 
 import javax.xml.bind.annotation.*;
 
-@XmlTransient
+@XmlRootElement (name = "arcs")
+@XmlSeeAlso({ContinuousArc.class, DiscreteArc.class, GuardArc.class})
 public abstract class Arc {
+	
+	public Arc(){}
 
 	public Arc(String id, Double weight, Place connectedPlace, 
 			Transition connectedTransition) {
@@ -16,12 +19,14 @@ public abstract class Arc {
 	public String getId() {
 		return id;
 	}
+	@XmlAttribute (name = "id")
 	public void setId(String id) {
 		this.id = id;
 	}
 	public Double getWeight() {
 		return weight;
 	}
+	@XmlAttribute (name = "weight")
 	public void setWeight(Double weight) {
 		this.weight = weight;
 	}
@@ -38,9 +43,28 @@ public abstract class Arc {
 		this.connectedTransition = connectedTransition;
 	}
 	
+	public String getFromNode() {
+		return fromNode;
+	}
+
+	/*public void setFromNode(String fromNode) {
+		this.fromNode = fromNode;
+	}*/
+
+	public String getToNode() {
+		return toNode;
+	}
+
+	/*public void setToNode(String toNode) {
+		this.toNode = toNode;
+	}*/
+
 	private String id;
 	private Double weight;
 	private Place connectedPlace;
 	private Transition connectedTransition;
-	
+	@XmlAttribute (name = "fromNode")
+	private String fromNode;
+	@XmlAttribute (name = "toNode")
+	private String toNode;
 }

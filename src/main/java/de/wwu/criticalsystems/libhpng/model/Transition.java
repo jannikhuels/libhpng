@@ -16,9 +16,8 @@ public abstract class Transition {
 
 	public String getId() {
 		return id;
-	}
-	
-	@XmlAttribute (name = "id")
+	}	
+	@XmlAttribute (name = "id") @XmlID
 	public void setId(String id) {
 		this.id = id;
 	}

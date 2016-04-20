@@ -6,6 +6,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement( name = "immediateTransition" )
 public class ImmediateTransition extends Transition {
 
+	public ImmediateTransition(){}
+	
 	public ImmediateTransition(String id, Boolean enabled, Double weight,
 			Integer priority) {
 		super(id, enabled);

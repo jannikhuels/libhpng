@@ -11,7 +11,6 @@ public class HPnGModel {
 		return places;
 	}
 
-
 	public ArrayList<Transition> getTransitions() {
 		return transitions;
 	}
@@ -38,13 +37,19 @@ public class HPnGModel {
 	@XmlElementWrapper(name="transitions")
 	@XmlElements({
 	    @XmlElement(name="deterministicTransition", type=DeterministicTransition.class),
-	    @XmlElement(name="continuousTransition", type=ContinuousTransition.class),
+	    @XmlElement(name="fluidTransition", type=ContinuousTransition.class),
 	    @XmlElement(name="generalTransition", type=GeneralTransition.class),
 	    @XmlElement(name="immediateTransition", type=ImmediateTransition.class),
 	    @XmlElement(name="dynamicContinuousTransition", type=DynamicContinuousTransition.class),
 	})
 	private ArrayList <Transition> transitions = new ArrayList<Transition>();
 	
+	@XmlElementWrapper(name="arcs")
+	@XmlElements({
+	    @XmlElement(name="continuousArc", type=ContinuousArc.class),
+	    @XmlElement(name="discreteArc", type=DiscreteArc.class),
+	    @XmlElement(name="guardArc", type=GuardArc.class),
+	})
 	private ArrayList <Arc> arcs = new ArrayList<Arc>();
 	
 }
