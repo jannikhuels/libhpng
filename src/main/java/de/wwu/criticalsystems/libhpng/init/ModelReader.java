@@ -1,6 +1,7 @@
 package de.wwu.criticalsystems.libhpng.init;
 
 import java.io.File;
+import java.util.Collections;
 
 import de.wwu.criticalsystems.libhpng.model.*;
 import de.wwu.criticalsystems.libhpng.model.ContinuousArc.ContinuousArcType;
@@ -8,20 +9,21 @@ import de.wwu.criticalsystems.libhpng.model.DiscreteArc.DiscreteArcType;
 
 public class ModelReader {
 	
-	public HPnGModel readModel(String filePath){
+	public HPnGModel readModel(String filePath){	
 		
+		//Read model from XML
     	File xmlFile = new File(filePath);
     	XMLReader xmlReader = new XMLReader();
 		HPnGModel model = xmlReader.readXmlIntoModel(xmlFile);
 		
-		boolean fromNodeFound = false;
-		boolean toNodeFound = false;
-		
+		//Set connectedPlace and connectedTransition for all arcs			
 		for(Arc arc: model.getArcs()){
-
+			boolean fromNodeFound = false;
+			boolean toNodeFound = false;	
+			
 		    for(Place place: model.getPlaces()){
 		    	
-		        if(fromNodeFound == false && place.getId().equals(arc.getFromNode())){
+		        if(!fromNodeFound && place.getId().equals(arc.getFromNode())){
 		        	
 		        	fromNodeFound = true;
 		        	arc.setConnectedPlace(place);		        			        	
@@ -34,9 +36,9 @@ public class ModelReader {
 		        	}
 		        	break;
 		        		
-		        } else if (toNodeFound == false && place.getId().equals(arc.getToNode())){
+		        } else if (!toNodeFound && place.getId().equals(arc.getToNode())){
 		        	
-		        	toNodeFound = false;
+		        	toNodeFound = true;
 		        	arc.setConnectedPlace(place);
 		        	if(arc.getClass().equals(ContinuousArc.class)){
 		        		ContinuousArcType dir = ContinuousArcType.input;
@@ -50,23 +52,32 @@ public class ModelReader {
 		    }
 		        
 	        for(Transition transition: model.getTransitions()){
-		        if(fromNodeFound == false && transition.getId().equals(arc.getFromNode())){
+		        if(!fromNodeFound && transition.getId().equals(arc.getFromNode())){
 		        	
 		        	fromNodeFound = true;
 		        	arc.setConnectedTransition(transition);		        			       
 		        	break;
 		        		
-		        } else if (toNodeFound == false && transition.getId().equals(arc.getToNode())){
+		        } else if (!toNodeFound && transition.getId().equals(arc.getToNode())){
 		        	
-		        	toNodeFound = false;
+		        	toNodeFound = true;
 		        	arc.setConnectedTransition(transition);
 		        	break;
 		        }	        	
-		    }		
-		}
+		    }	
+	        
+	        if (!fromNodeFound)
+	        	System.out.println("Model error: 'fromNode' for arc " + arc.getId() + " could not be matched to any place or transition");	        
+	        if (!toNodeFound)
+	        	System.out.println("Model error: 'toNode' for arc " + arc.getId() + " could not be matched to any place or transition");
+	      }
 		
-		//TODO: errormessage wenn nicht alles gefunden bzw. direction nicht gesetzt
-		
+		//Sort lists
+		Collections.sort(model.getPlaces(), new PlaceComparator());
+		Collections.sort(model.getTransitions(), new TransitionComparator());
+		Collections.sort(model.getArcs(), new ArcComparator());
+		System.out.print(model.getArcs().get(0).getId());
+
 		return model;
 	}
 }

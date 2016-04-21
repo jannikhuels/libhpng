@@ -15,6 +15,7 @@ public class XMLReader {
 		HPnGModel model=null;
     	JAXBContext jaxbContext;
     	
+    	//extract information from xml file into HPnG model
 		try {
 			jaxbContext = JAXBContext.newInstance(HPnGModel.class);
 	    	Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();

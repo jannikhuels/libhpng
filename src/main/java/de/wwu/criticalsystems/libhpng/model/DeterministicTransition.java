@@ -18,24 +18,21 @@ public class DeterministicTransition extends Transition{
 	
 	public Double getWeight() {
 		return weight;
-	}
-	
+	}	
 	@XmlAttribute(name = "weight")
 	public void setWeight(Double weight) {
 		this.weight = weight;
 	}
 	public Integer getPriority() {
 		return priority;
-	}
-	
+	}	
 	@XmlAttribute(name = "priority")
 	public void setPriority(Integer priority) {
 		this.priority = priority;
 	}
 	public Double getFiringTime() {
 		return firingTime;
-	}
-	
+	}	
 	@XmlAttribute(name = "discTime")
 	public void setFiringTime(Double firingTime) {
 		this.firingTime = firingTime;
