@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import javax.xml.bind.annotation.*;
 //import java.util.List;
 
+import de.wwu.criticalsystems.libhpng.model.DiscreteArc.DiscreteArcType;
+
 @XmlRootElement (name = "places")
 @XmlSeeAlso({DeterministicTransition.class, ContinuousTransition.class, ImmediateTransition.class, GeneralTransition.class, DynamicContinuousTransition.class})
 public abstract class Transition {
@@ -42,4 +44,26 @@ public abstract class Transition {
 	private Boolean enabled;
 	private ArrayList<Arc> connectedArcs = new ArrayList<Arc>();
 
+	public void fireTransition(){
+		
+		DiscretePlace place;
+		
+		for (Arc arc: connectedArcs){
+			
+			if (arc.getClass().equals(DiscreteArc.class)){
+				place = (DiscretePlace)arc.getConnectedPlace();
+				
+				if (((DiscreteArc)arc).getDirection() == DiscreteArcType.input) 
+					//input for place = output for transition -> add tokens
+					place.setNumberOfTokens(place.getNumberOfTokens() + arc.getWeight().intValue());
+				else //output for place = input for transition -> reduce tokens
+					place.setNumberOfTokens(place.getNumberOfTokens() - arc.getWeight().intValue());
+				
+			}
+		}
+		
+		if (this.getClass().equals(DeterministicTransition.class)){
+			((DeterministicTransition)this).setClock(0.0);
+		} //TODO: else if (GeneralTransition) ?
+	}	
 }

@@ -249,26 +249,4 @@ public class HPnGModel {
 		}
 	}	
 	
-	public void fireTransition(Transition transition){
-		
-		DiscretePlace place;
-		
-		for (Arc arc: transition.getConnectedArcs()){
-			
-			if (arc.getClass().equals(DiscreteArc.class)){
-				place = (DiscretePlace)arc.getConnectedPlace();
-				
-				if (((DiscreteArc)arc).getDirection() == DiscreteArcType.input) 
-					//input for place = output for transition -> add tokens
-					place.setNumberOfTokens(place.getNumberOfTokens() + arc.getWeight().intValue());
-				else //output for place = input for transition -> reduce tokens
-					place.setNumberOfTokens(place.getNumberOfTokens() - arc.getWeight().intValue());
-				
-			}
-		}
-		
-		if (transition.getClass().equals(DeterministicTransition.class)){
-			((DeterministicTransition)transition).setClock(0.0);
-		} //TODO: else if (GeneralTransition) ?
-	}	
 }
