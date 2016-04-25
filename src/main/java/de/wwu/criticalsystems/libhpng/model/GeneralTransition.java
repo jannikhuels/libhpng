@@ -10,12 +10,12 @@ public class GeneralTransition extends Transition{
 	public GeneralTransition(){}
 
 	public GeneralTransition(String id, Boolean enabled, Double weight,
-			Integer priority, CDFFunction distribution, Double enablingtime) {
+			Integer priority, CDFFunction distribution, Double enablingTime) {
 		super(id, enabled);
 		this.weight = weight;
 		this.priority = priority;
 		this.distribution = distribution;
-		this.enablingtime = enablingtime;
+		this.enablingTime = enablingTime;
 	}
 	
 	@XmlType
@@ -47,11 +47,11 @@ public class GeneralTransition extends Transition{
 	public void setDistribution(CDFFunction distribution) {
 		this.distribution = distribution;
 	}
-	public Double getEnablingtime() {
-		return enablingtime;
+	public Double getEnablingTime() {
+		return enablingTime;
 	}
-	public void setEnablingtime(Double enablingtime) {
-		this.enablingtime = enablingtime;
+	public void setEnablingTime(Double enablingTime) {
+		this.enablingTime = enablingTime;
 	}
 	
 	public ArrayList<CDFFunctionParameter> getParameters() {
@@ -65,7 +65,9 @@ public class GeneralTransition extends Transition{
 	private CDFFunction distribution;	
 	private Double weight;
 	private Integer priority;
-	private Double enablingtime;
+	private Double enablingTime;
+	//private Boolean oneShot = true;
+	//private Boolean hasFired = false;
 	
 	@XmlElements({
 	    @XmlElement(name="parameter", type=CDFFunctionParameter.class),

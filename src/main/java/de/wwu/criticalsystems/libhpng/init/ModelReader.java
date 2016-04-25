@@ -25,12 +25,12 @@ public class ModelReader {
 		
 		return model;
 		
-	}
+	}	
 	
 	private void setConnectedPlacesAndTransitions(){
 		for(Arc arc: model.getArcs()){
-			boolean fromNodeFound = false;
-			boolean toNodeFound = false;	
+			Boolean fromNodeFound = false;
+			Boolean toNodeFound = false;	
 			
 		    for(Place place: model.getPlaces()){
 		    	
@@ -107,11 +107,13 @@ public class ModelReader {
 		for(Transition transition: model.getTransitions())
 			Collections.sort(transition.getConnectedArcs(),new ArcComparatorForTransitions());
 	}
+		
 	
 	private void setInitialMarking(){
 			
 		model.checkGuardArcs();
 		model.updateEnabling();
 		model.updateFluidRates();
-	}		
+	}
+	
 }

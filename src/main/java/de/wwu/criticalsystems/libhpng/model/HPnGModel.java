@@ -55,13 +55,12 @@ public class HPnGModel {
 	})
 	private ArrayList <Arc> arcs = new ArrayList<Arc>();
 	
-	
-	
+		
 	//updates enabling status for all transitions, but does not include a new check of guard arc conditions 
 	public void updateEnabling(){		
 		
 		for(Transition transition: transitions){			
-			boolean enabled = true;
+			Boolean enabled = true;
 			
 			for (Arc arc: transition.getConnectedArcs()){
 					
@@ -140,6 +139,27 @@ public class HPnGModel {
 	}
 	
 	
+	public void advanceMarking(Double timeDelta){
+		
+		for (Place place: places){
+			if (place.getClass().equals(ContinuousPlace.class)){
+				Double fluid = ((ContinuousPlace)place).getFluidLevel();
+				fluid += ((ContinuousPlace)place).getDrift() * timeDelta;
+				((ContinuousPlace)place).setFluidLevel(fluid);
+			}
+		}
+		
+		for (Transition transition: transitions){
+			if (transition.getClass().equals(DeterministicTransition.class) && transition.getEnabled()){
+				((DeterministicTransition)transition).setClock(((DeterministicTransition)transition).getClock() + timeDelta);
+			} else if  (transition.getClass().equals(GeneralTransition.class) && transition.getEnabled()){
+				//TODO: eventuell später anpassen (one shot und mehr shot transitions)
+				((GeneralTransition)transition).setEnablingTime(((GeneralTransition)transition).getEnablingTime() + timeDelta);
+				
+			}
+		}
+	}
+	
 	private void getInFluxAndOutFlux(ContinuousPlace place, Double inFlux, Double outFlux){
 		
 		inFlux = 0.0;
@@ -162,18 +182,17 @@ public class HPnGModel {
 	
 	private void rateAdaption(ContinuousPlace place, double flux){
 		
-		int arcIndex = 0;
-		int arcIndex2;
-		int currentPriority;
-		double fluxRequired;
-		double sum = 0.0;
-		double sharedFlux;
+		Integer arcIndex = 0;
+		Integer arcIndex2;
+		Integer currentPriority;
+		Double fluxRequired;
+		Double sum = 0.0;
+		Double sharedFlux;
 		ArrayList<ContinuousArc> priorityArcs = new ArrayList<ContinuousArc>();
 		
 		while(arcIndex < arcs.size() && flux > 0.0){	
 			if (arcs.get(arcIndex).getConnectedPlace().getId().equals(place.getId()) && arcs.get(arcIndex).getClass().equals(ContinuousArc.class)){
 							
-				
 				currentPriority = ((ContinuousArc)arcs.get(arcIndex)).getPriority();
 				fluxRequired = 0.0;
 				priorityArcs.clear();
@@ -228,5 +247,28 @@ public class HPnGModel {
 			}			
 			arcIndex++;
 		}
+	}	
+	
+	public void fireTransition(Transition transition){
+		
+		DiscretePlace place;
+		
+		for (Arc arc: transition.getConnectedArcs()){
+			
+			if (arc.getClass().equals(DiscreteArc.class)){
+				place = (DiscretePlace)arc.getConnectedPlace();
+				
+				if (((DiscreteArc)arc).getDirection() == DiscreteArcType.input) 
+					//input for place = output for transition -> add tokens
+					place.setNumberOfTokens(place.getNumberOfTokens() + arc.getWeight().intValue());
+				else //output for place = input for transition -> reduce tokens
+					place.setNumberOfTokens(place.getNumberOfTokens() - arc.getWeight().intValue());
+				
+			}
+		}
+		
+		if (transition.getClass().equals(DeterministicTransition.class)){
+			((DeterministicTransition)transition).setClock(0.0);
+		} //TODO: else if (GeneralTransition) ?
 	}	
 }
