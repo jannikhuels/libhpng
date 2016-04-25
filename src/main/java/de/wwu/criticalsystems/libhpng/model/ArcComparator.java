@@ -41,9 +41,7 @@ public class ArcComparator implements Comparator<Arc>{
 	  
 		PlaceComparator placeComparator = new PlaceComparator();
 		TransitionComparator transitionComparator = new TransitionComparator();
-		
-		//System.out.println(a1.getId() + "_" + a1Type + "  "+  a2.getId() + "_"+ a2Type);
-		
+
 		if (a1Type < a2Type || (a1Type == a2Type && placeComparator.compare(a1.getConnectedPlace(),a2.getConnectedPlace()) == -1) || (a1Type == a2Type && placeComparator.compare(a1.getConnectedPlace(),a2.getConnectedPlace()) == 0 && transitionComparator.compare(a1.getConnectedTransition(),a2.getConnectedTransition()) == -1))
 			return -1;
 

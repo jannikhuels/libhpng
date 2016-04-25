@@ -21,5 +21,14 @@ public class ContinuousTransition extends Transition{
 		this.fluidRate = fluidRate;
 	}
 
+	public Double getCurrentFluid() {
+		return currentFluid;
+	}
+
+	public void setCurrentFluid(Double currentFluid) {
+		this.currentFluid = currentFluid;
+	}
+
 	private Double fluidRate;
+	private Double currentFluid;
 }

@@ -9,14 +9,25 @@ import de.wwu.criticalsystems.libhpng.model.DiscreteArc.DiscreteArcType;
 
 public class ModelReader {
 	
+	private HPnGModel model;
+	
 	public HPnGModel readModel(String filePath){	
 		
 		//Read model from XML
     	File xmlFile = new File(filePath);
     	XMLReader xmlReader = new XMLReader();
-		HPnGModel model = xmlReader.readXmlIntoModel(xmlFile);
+		model = xmlReader.readXmlIntoModel(xmlFile);
 		
-		//Set connectedPlace and connectedTransition for all arcs			
+		setConnectedPlacesAndTransitions();
+		setUpperBoundaryInfinityValues();
+		sortLists();
+		setInitialMarking();
+		
+		return model;
+		
+	}
+	
+	private void setConnectedPlacesAndTransitions(){
 		for(Arc arc: model.getArcs()){
 			boolean fromNodeFound = false;
 			boolean toNodeFound = false;	
@@ -55,13 +66,15 @@ public class ModelReader {
 		        if(!fromNodeFound && transition.getId().equals(arc.getFromNode())){
 		        	
 		        	fromNodeFound = true;
-		        	arc.setConnectedTransition(transition);		        			       
+		        	arc.setConnectedTransition(transition);	
+		        	transition.getConnectedArcs().add(arc);
 		        	break;
 		        		
 		        } else if (!toNodeFound && transition.getId().equals(arc.getToNode())){
 		        	
 		        	toNodeFound = true;
 		        	arc.setConnectedTransition(transition);
+		        	transition.getConnectedArcs().add(arc);
 		        	break;
 		        }	        	
 		    }	
@@ -71,13 +84,34 @@ public class ModelReader {
 	        if (!toNodeFound)
 	        	System.out.println("Model error: 'toNode' for arc " + arc.getId() + " could not be matched to any place or transition");
 	      }
-		
-		//Sort lists
+	}
+	
+	private void setUpperBoundaryInfinityValues(){
+		for(Place place: model.getPlaces()){
+			if (place.getClass().equals(ContinuousPlace.class)){
+				if (((ContinuousPlace)place).getUpperBoundary() == null || ((ContinuousPlace)place).getUpperBoundary().equals(("infinity")) | ((ContinuousPlace)place).getUpperBoundary().equals(("inf")))
+					((ContinuousPlace)place).setUpperBoundaryInfinity(true);
+				else
+					((ContinuousPlace)place).setUpperBoundaryInfinity(false);
+			}
+		}
+	}
+	
+	
+	private void sortLists(){
+	
 		Collections.sort(model.getPlaces(), new PlaceComparator());
 		Collections.sort(model.getTransitions(), new TransitionComparator());
 		Collections.sort(model.getArcs(), new ArcComparator());
-		System.out.print(model.getArcs().get(0).getId());
-
-		return model;
+		
+		for(Transition transition: model.getTransitions())
+			Collections.sort(transition.getConnectedArcs(),new ArcComparatorForTransitions());
 	}
+	
+	private void setInitialMarking(){
+			
+		model.checkGuardArcs();
+		model.updateEnabling();
+		model.updateFluidRates();
+	}		
 }

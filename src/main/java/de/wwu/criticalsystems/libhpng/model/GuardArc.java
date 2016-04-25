@@ -21,5 +21,33 @@ public class GuardArc extends Arc{
 		this.inhibitor = inhibitor;
 	}
 
+	public Boolean getConditionFulfilled() {
+		return conditionFulfilled;
+	}
+
+	public void setConditionFulfilled(Boolean conditionFulfilled) {
+		this.conditionFulfilled = conditionFulfilled;
+	}
+
 	private Boolean inhibitor;
+	private Boolean conditionFulfilled;
+	
+	
+	public void checkCondition(){
+		
+		Place p = this.getConnectedPlace();
+		
+		conditionFulfilled = true;
+		if (p.getClass().equals(DiscretePlace.class)){			
+			if (((DiscretePlace)p).getNumberOfTokens() < this.getWeight())
+				conditionFulfilled = false;						
+		} else {			
+			if (((ContinuousPlace)p).getFluidLevel() < this.getWeight())
+				conditionFulfilled = false;		
+		}
+		
+		if (inhibitor) 
+			conditionFulfilled = !conditionFulfilled;
+	
+	}
 }

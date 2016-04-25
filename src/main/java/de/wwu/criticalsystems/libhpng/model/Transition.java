@@ -1,5 +1,7 @@
 package de.wwu.criticalsystems.libhpng.model;
 
+import java.util.ArrayList;
+
 import javax.xml.bind.annotation.*;
 //import java.util.List;
 
@@ -28,10 +30,16 @@ public abstract class Transition {
 		this.enabled = enabled;
 	}
 	
+	public ArrayList<Arc> getConnectedArcs() {
+		return connectedArcs;
+	}
+
+	public void setConnectedArcs(ArrayList<Arc> connectedArcs) {
+		this.connectedArcs = connectedArcs;
+	}
+
 	private String id;
 	private Boolean enabled;
-	/*private List<Arc> inputArcs;
-	private List<Arc> outputArcs;
-	private List<Arc> guardArcs;*/
+	private ArrayList<Arc> connectedArcs = new ArrayList<Arc>();
 
 }

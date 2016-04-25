@@ -9,17 +9,17 @@
     <continuousPlace capacity="10" id="right" level="0"/>
   </places>
   <transitions> 
-      <fluidTransition id="tf1" rate="2"/>
-    <fluidTransition id="tf2" rate="1"/>
+  	<immediateTransition id="ti1" priority="3" weight="1.0E0"/>
     <deterministicTransition discTime = "2.0" id="td1" priority="0" weight="1.0E0"/>
     <generalTransition cdf="foldednormal" id="grid_repaired" priority="0" weight="1.0E0">
       <parameter name="mu" value="1"/>
       <parameter name="sigma" value="2"/>
-      </generalTransition>
-      <dynamicContinuousTransition id="t_underflow" priority="0" weight="1.0E0">
+     </generalTransition>
+     <fluidTransition id="tf1" rate="2"/>
+    <fluidTransition id="tf2" rate="1"/>
+     <dynamicContinuousTransition id="t_underflow" priority="0" weight="1.0E0">
       <pid coef="-1">tf1</pid>>
-    </dynamicContinuousTransition>
-       <immediateTransition id="ti1" priority="3" weight="1.0E0"/>
+    </dynamicContinuousTransition>     
     </transitions>
   <arcs>
     <discreteArc fromNode="pd1" id="da1" priority="1" share="1.0E0"

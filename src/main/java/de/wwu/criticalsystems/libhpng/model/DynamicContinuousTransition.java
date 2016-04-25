@@ -24,9 +24,19 @@ public class DynamicContinuousTransition extends Transition{
 	}*/
 	
 
+	public Double getCurrentFluid() {
+		return currentFluid;
+	}
+
+	public void setCurrentFluid(Double currentFluid) {
+		this.currentFluid = currentFluid;
+	}
+
 	@XmlElements({
 	    @XmlElement(name="pid", type=DynamicContinuousDependency.class),
 	})
 	private ArrayList <DynamicContinuousDependency> dependencies = new ArrayList<DynamicContinuousDependency>();
+	
+	private Double currentFluid;
 	
 }
