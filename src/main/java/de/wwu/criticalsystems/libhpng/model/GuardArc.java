@@ -15,7 +15,6 @@ public class GuardArc extends Arc{
 	public Boolean getInhibitor() {
 		return inhibitor;
 	}
-
 	@XmlAttribute(name = "isInhibitor")
 	public void setInhibitor(Boolean inhibitor) {
 		this.inhibitor = inhibitor;
@@ -24,19 +23,16 @@ public class GuardArc extends Arc{
 	public Boolean getConditionFulfilled() {
 		return conditionFulfilled;
 	}
-
 	public void setConditionFulfilled(Boolean conditionFulfilled) {
 		this.conditionFulfilled = conditionFulfilled;
 	}
 
 	private Boolean inhibitor;
 	private Boolean conditionFulfilled;
-	
-	
-	public void checkCondition(){
 		
-		Place p = this.getConnectedPlace();
+	public Boolean checkCondition(){
 		
+		Place p = this.getConnectedPlace();		
 		conditionFulfilled = true;
 		if (p.getClass().equals(DiscretePlace.class)){			
 			if (((DiscretePlace)p).getNumberOfTokens() < this.getWeight())
@@ -44,10 +40,7 @@ public class GuardArc extends Arc{
 		} else {			
 			if (((ContinuousPlace)p).getFluidLevel() < this.getWeight())
 				conditionFulfilled = false;		
-		}
-		
-		if (inhibitor) 
-			conditionFulfilled = !conditionFulfilled;
-	
+		}		
+		return conditionFulfilled;
 	}
 }

@@ -23,6 +23,7 @@ public class DeterministicTransition extends Transition{
 	public void setWeight(Double weight) {
 		this.weight = weight;
 	}
+	
 	public Integer getPriority() {
 		return priority;
 	}	
@@ -30,6 +31,7 @@ public class DeterministicTransition extends Transition{
 	public void setPriority(Integer priority) {
 		this.priority = priority;
 	}
+	
 	public Double getFiringTime() {
 		return firingTime;
 	}	
@@ -37,6 +39,7 @@ public class DeterministicTransition extends Transition{
 	public void setFiringTime(Double firingTime) {
 		this.firingTime = firingTime;
 	}
+	
 	public Double getClock() {
 		return clock;
 	}
@@ -48,5 +51,4 @@ public class DeterministicTransition extends Transition{
 	private Integer priority;
 	private Double firingTime;
 	private Double clock;
-	
 }

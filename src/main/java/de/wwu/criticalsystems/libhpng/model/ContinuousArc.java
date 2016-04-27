@@ -24,6 +24,7 @@ public class ContinuousArc extends Arc{
 	public void setDirection(ContinuousArcType direction) {
 		this.direction = direction;
 	}
+	
 	public Double getShare() {
 		return share;
 	}
@@ -31,6 +32,7 @@ public class ContinuousArc extends Arc{
 	public void setShare(Double share) {
 		this.share = share;
 	}
+	
 	public Integer getPriority() {
 		return priority;
 	}
@@ -41,6 +43,5 @@ public class ContinuousArc extends Arc{
 	
 	private ContinuousArcType direction;
 	private Double share;
-	private Integer priority;
-		
+	private Integer priority;		
 }

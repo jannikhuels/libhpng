@@ -4,6 +4,7 @@ import java.util.Comparator;
 		
 public class PlaceComparator implements Comparator<Place>{
 
+	//compare places by type
 	@Override public int compare(Place p1, Place p2){
 		
 		try{

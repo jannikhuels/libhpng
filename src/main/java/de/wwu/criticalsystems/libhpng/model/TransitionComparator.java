@@ -4,6 +4,7 @@ import java.util.Comparator;
 		
 public class TransitionComparator implements Comparator<Transition>{
 
+	//compare transitions by 1. type, 2. priority
 	@Override public int compare(Transition t1, Transition t2){
 
 		try{

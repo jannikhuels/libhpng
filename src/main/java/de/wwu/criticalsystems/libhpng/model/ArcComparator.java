@@ -4,6 +4,7 @@ import java.util.Comparator;
 		
 public class ArcComparator implements Comparator<Arc>{
 
+	//compare arcs by 1. type, 2. place comparison, 3. transition comparison
 	@Override public int compare(Arc a1, Arc a2){
 
 		try{

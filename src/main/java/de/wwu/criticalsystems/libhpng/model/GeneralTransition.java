@@ -1,7 +1,6 @@
 package de.wwu.criticalsystems.libhpng.model;
 
 import java.util.ArrayList;
-
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement( name = "generalTransition" )
@@ -32,6 +31,7 @@ public class GeneralTransition extends Transition{
 	public void setWeight(Double weight) {
 		this.weight = weight;
 	}
+	
 	public Integer getPriority() {
 		return priority;
 	}	
@@ -39,14 +39,15 @@ public class GeneralTransition extends Transition{
 	public void setPriority(Integer priority) {
 		this.priority = priority;
 	}
+	
 	public CDFFunction getDistribution() {
 		return distribution;
-	}
-	
+	}	
 	@XmlAttribute(name = "cdf")
 	public void setDistribution(CDFFunction distribution) {
 		this.distribution = distribution;
 	}
+	
 	public Double getEnablingTime() {
 		return enablingTime;
 	}
@@ -57,17 +58,14 @@ public class GeneralTransition extends Transition{
 	public ArrayList<CDFFunctionParameter> getParameters() {
 		return parameters;
 	}
-
-	/*public void setParameters(ArrayList<CDFFunctionParameter> parameters) {
+	public void setParameters(ArrayList<CDFFunctionParameter> parameters) {
 		this.parameters = parameters;
-	}*/
+	}
 	
 	private CDFFunction distribution;	
 	private Double weight;
 	private Integer priority;
 	private Double enablingTime;
-	//private Boolean oneShot = true;
-	//private Boolean hasFired = false;
 	
 	@XmlElements({
 	    @XmlElement(name="parameter", type=CDFFunctionParameter.class),

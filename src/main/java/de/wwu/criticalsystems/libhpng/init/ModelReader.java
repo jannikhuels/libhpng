@@ -2,7 +2,6 @@ package de.wwu.criticalsystems.libhpng.init;
 
 import java.io.File;
 import java.util.Collections;
-
 import de.wwu.criticalsystems.libhpng.model.*;
 import de.wwu.criticalsystems.libhpng.model.ContinuousArc.ContinuousArcType;
 import de.wwu.criticalsystems.libhpng.model.DiscreteArc.DiscreteArcType;
@@ -21,17 +20,18 @@ public class ModelReader {
 		setConnectedPlacesAndTransitions();
 		setUpperBoundaryInfinityValues();
 		sortLists();
-		setInitialMarking();
+		model.resetMarking();
 		
-		return model;
-		
+		return model;		
 	}	
 	
 	private void setConnectedPlacesAndTransitions(){
+		
 		for(Arc arc: model.getArcs()){
 			Boolean fromNodeFound = false;
 			Boolean toNodeFound = false;	
 			
+			//search for place id
 		    for(Place place: model.getPlaces()){
 		    	
 		        if(!fromNodeFound && place.getId().equals(arc.getFromNode())){
@@ -61,7 +61,8 @@ public class ModelReader {
 		        	break;
 		        }		        
 		    }
-		        
+		       
+		    //search for transition id
 	        for(Transition transition: model.getTransitions()){
 		        if(!fromNodeFound && transition.getId().equals(arc.getFromNode())){
 		        	
@@ -86,9 +87,12 @@ public class ModelReader {
 	      }
 	}
 	
+	
 	private void setUpperBoundaryInfinityValues(){
+		
 		for(Place place: model.getPlaces()){
 			if (place.getClass().equals(ContinuousPlace.class)){
+				
 				if (((ContinuousPlace)place).getUpperBoundary() == null || ((ContinuousPlace)place).getUpperBoundary().equals(("infinity")) | ((ContinuousPlace)place).getUpperBoundary().equals(("inf")))
 					((ContinuousPlace)place).setUpperBoundaryInfinity(true);
 				else
@@ -106,14 +110,5 @@ public class ModelReader {
 		
 		for(Transition transition: model.getTransitions())
 			Collections.sort(transition.getConnectedArcs(),new ArcComparatorForTransitions());
-	}
-		
-	
-	private void setInitialMarking(){
-			
-		model.checkGuardArcs();
-		model.updateEnabling();
-		model.updateFluidRates();
-	}
-	
+	}	
 }
