@@ -3,6 +3,8 @@ package de.wwu.criticalsystems.libhpng.model;
 import java.util.Comparator;
 
 public class ArcComparatorForTransitions  implements Comparator<Arc>{
+	
+	//compare arcs for transition list sort by arc type
 	@Override public int compare(Arc a1, Arc a2){
 
 		try{

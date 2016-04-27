@@ -23,6 +23,7 @@ public abstract class Arc {
 	public void setId(String id) {
 		this.id = id;
 	}
+	
 	public Double getWeight() {
 		return weight;
 	}
@@ -30,12 +31,14 @@ public abstract class Arc {
 	public void setWeight(Double weight) {
 		this.weight = weight;
 	}
+	
 	public Place getConnectedPlace() {
 		return connectedPlace;
 	}
 	public void setConnectedPlace(Place connectedPlace) {
 		this.connectedPlace = connectedPlace;
 	}
+	
 	public Transition getConnectedTransition() {
 		return connectedTransition;
 	}
@@ -46,25 +49,23 @@ public abstract class Arc {
 	public String getFromNode() {
 		return fromNode;
 	}
-
-	/*public void setFromNode(String fromNode) {
+	@XmlAttribute (name = "fromNode")
+	public void setFromNode(String fromNode) {
 		this.fromNode = fromNode;
-	}*/
+	}
 
 	public String getToNode() {
 		return toNode;
 	}
-
-	/*public void setToNode(String toNode) {
+	@XmlAttribute (name = "toNode")
+	public void setToNode(String toNode) {
 		this.toNode = toNode;
-	}*/
+	}
 
 	private String id;
 	private Double weight;
 	private Place connectedPlace;
-	private Transition connectedTransition;
-	@XmlAttribute (name = "fromNode")
+	private Transition connectedTransition;	
 	private String fromNode;
-	@XmlAttribute (name = "toNode")
 	private String toNode;
 }

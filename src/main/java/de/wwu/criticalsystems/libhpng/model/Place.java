@@ -15,14 +15,10 @@ public abstract class Place {
 	public String getId() {
 		return id;
 	}
-
 	@XmlAttribute (name = "id")
 	public void setId(String id) {
 		this.id = id;
 	}
 	
 	private String id;
-	/*private List<Arc> inputArcs;
-	private List<Arc> outputArcs;
-	private List<Arc> guardArcs;*/	
 }

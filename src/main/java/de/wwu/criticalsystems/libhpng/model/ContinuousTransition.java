@@ -24,7 +24,6 @@ public class ContinuousTransition extends Transition{
 	public Double getCurrentFluid() {
 		return currentFluid;
 	}
-
 	public void setCurrentFluid(Double currentFluid) {
 		this.currentFluid = currentFluid;
 	}

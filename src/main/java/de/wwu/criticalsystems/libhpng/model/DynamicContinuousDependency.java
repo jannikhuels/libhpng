@@ -9,20 +9,18 @@ public class DynamicContinuousDependency {
 	
 	public DynamicContinuousDependency(ContinuousTransition transition,
 			Double coefficient) {
-		super();
 		this.transition = transition;
 		this.coefficient = coefficient;
 	}
-
 	
 	public ContinuousTransition getTransition() {
 		return transition;
 	}
-
 	@XmlValue @XmlIDREF
 	public void setTransition(ContinuousTransition transition) {
 		this.transition = transition;
 	}
+	
 	public Double getCoefficient() {
 		return coefficient;
 	}

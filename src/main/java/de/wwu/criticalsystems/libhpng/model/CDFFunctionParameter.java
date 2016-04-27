@@ -8,7 +8,6 @@ public class CDFFunctionParameter {
 	public CDFFunctionParameter(){}
 	
 	public CDFFunctionParameter(String name, Double value) {
-		super();
 		this.name = name;
 		this.value = value;
 	}
@@ -20,6 +19,7 @@ public class CDFFunctionParameter {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
 	public Double getValue() {
 		return value;
 	}
@@ -27,6 +27,7 @@ public class CDFFunctionParameter {
 	public void setValue(Double value) {
 		this.value = value;
 	}
+	
 	private String name;
 	private Double value;
 }

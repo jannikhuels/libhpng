@@ -1,46 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <HPnG>
     <places>
-    <discretePlace id="pd1" marking="3"/>
+    <discretePlace id="pd1" marking="1"/>
     <discretePlace id="pd2" marking="0"/>
     <discretePlace id="pd3" marking="0"/>
-   <continuousPlace capacity="10" id="left" level="9"/>
-    <continuousPlace capacity="10" id="middle" level="2"/>
-    <continuousPlace capacity="10" id="right" level="0"/>
+    <continuousPlace capacity="10" id="left" level="10"/>
+    <continuousPlace capacity="3" id="right" level="0"/>
   </places>
   <transitions> 
-  	<immediateTransition id="ti1" priority="3" weight="1.0E0"/>
-    <deterministicTransition discTime = "2.0" id="td1" priority="0" weight="1.0E0"/>
-    <generalTransition cdf="foldednormal" id="grid_repaired" priority="0" weight="1.0E0">
-      <parameter name="mu" value="1"/>
-      <parameter name="sigma" value="2"/>
-     </generalTransition>
-     <fluidTransition id="tf1" rate="2"/>
-    <fluidTransition id="tf2" rate="1"/>
-     <dynamicContinuousTransition id="t_underflow" priority="0" weight="1.0E0">
-      <pid coef="-1">tf1</pid>>
-    </dynamicContinuousTransition>     
+  	<deterministicTransition discTime = "2.0" id="td1" priority="0" weight="1.0E0"/>
+  	<immediateTransition id="ti1" priority="0" weight="1.0E0"/>    
+    <fluidTransition id="tf1" rate="1.0"/>
     </transitions>
   <arcs>
     <discreteArc fromNode="pd1" id="da1" priority="1" share="1.0E0"
-      toNode="ti1" weight="1.0E0"/>
-    <discreteArc fromNode="ti1" id="da2" priority="1" share="1.0E0"
-      toNode="pd2" weight="1.0E0"/>
-    <discreteArc fromNode="pd1" id="da3" priority="1" share="1.0E0"
       toNode="td1" weight="1.0E0"/>
-    <discreteArc fromNode="td1" id="da4" priority="1" share="1.0E0"
+    <discreteArc fromNode="td1" id="da2" priority="1" share="1.0E0"
+      toNode="pd2" weight="1.0E0"/>
+    <discreteArc fromNode="pd2" id="da3" priority="1" share="1.0E0"
+      toNode="ti1" weight="1.0E0"/>
+    <discreteArc fromNode="ti1" id="da4" priority="1" share="1.0E0"
       toNode="pd3" weight="1.0E0"/>
-    <guardArc fromNode="pd2" id="ga1" isInhibitor="1" priority="1"
-      share="1.0E0" toNode="td1" weight="5.0E0"/>
-    <guardArc fromNode="left" id="ga2" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="td1" weight="5.0E0"/>
+    <guardArc fromNode="right" id="ga1" isInhibitor="1" priority="1"
+      share="1.0E0" toNode="ti1" weight="5.0E0"/>
     <continuousArc fromNode="left" id="ca1" priority="1"
       share="1.0E0" toNode="tf1" weight="1.0E0"/>
     <continuousArc fromNode="tf1" id="ca2" priority="1"
-      share="1.0E0" toNode="middle" weight="1.0E0"/>
-    <continuousArc fromNode="middle" id="ca3" priority="1"
-      share="1.0E0" toNode="tf2" weight="1.0E0"/>
-    <continuousArc fromNode="tf2" id="ca4" priority="1"
       share="1.0E0" toNode="right" weight="1.0E0"/>
-  </arcs>
+   </arcs>
 </HPnG>

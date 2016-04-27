@@ -1,7 +1,6 @@
 package de.wwu.criticalsystems.libhpng.model;
 
 import java.util.ArrayList;
-
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement( name = "dynamicContinuousTransition" )
@@ -18,16 +17,13 @@ public class DynamicContinuousTransition extends Transition{
 	public ArrayList<DynamicContinuousDependency> getDependencies() {
 		return dependencies;
 	}
-
-	/*public void setDependencies(ArrayList<DynamicContinuousDependency> dependencies) {
+	public void setDependencies(ArrayList<DynamicContinuousDependency> dependencies) {
 		this.dependencies = dependencies;
-	}*/
+	}
 	
-
 	public Double getCurrentFluid() {
 		return currentFluid;
 	}
-
 	public void setCurrentFluid(Double currentFluid) {
 		this.currentFluid = currentFluid;
 	}
@@ -35,8 +31,6 @@ public class DynamicContinuousTransition extends Transition{
 	@XmlElements({
 	    @XmlElement(name="pid", type=DynamicContinuousDependency.class),
 	})
-	private ArrayList <DynamicContinuousDependency> dependencies = new ArrayList<DynamicContinuousDependency>();
-	
+	private ArrayList <DynamicContinuousDependency> dependencies = new ArrayList<DynamicContinuousDependency>();	
 	private Double currentFluid;
-	
 }

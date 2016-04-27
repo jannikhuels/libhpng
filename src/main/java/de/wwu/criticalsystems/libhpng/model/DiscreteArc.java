@@ -18,11 +18,9 @@ public class DiscreteArc extends Arc{
 	public DiscreteArcType getDirection() {
 		return direction;
 	}
-
 	public void setDirection(DiscreteArcType direction) {
 		this.direction = direction;
 	}
 
-	private DiscreteArcType direction;
-	
+	private DiscreteArcType direction;	
 }

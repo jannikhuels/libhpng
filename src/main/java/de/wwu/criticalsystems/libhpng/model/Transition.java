@@ -1,9 +1,8 @@
 package de.wwu.criticalsystems.libhpng.model;
 
 import java.util.ArrayList;
-
 import javax.xml.bind.annotation.*;
-//import java.util.List;
+import de.wwu.criticalsystems.libhpng.model.DiscreteArc.DiscreteArcType;
 
 @XmlRootElement (name = "places")
 @XmlSeeAlso({DeterministicTransition.class, ContinuousTransition.class, ImmediateTransition.class, GeneralTransition.class, DynamicContinuousTransition.class})
@@ -23,6 +22,7 @@ public abstract class Transition {
 	public void setId(String id) {
 		this.id = id;
 	}
+	
 	public Boolean getEnabled() {
 		return enabled;
 	}
@@ -33,7 +33,6 @@ public abstract class Transition {
 	public ArrayList<Arc> getConnectedArcs() {
 		return connectedArcs;
 	}
-
 	public void setConnectedArcs(ArrayList<Arc> connectedArcs) {
 		this.connectedArcs = connectedArcs;
 	}
@@ -41,5 +40,26 @@ public abstract class Transition {
 	private String id;
 	private Boolean enabled;
 	private ArrayList<Arc> connectedArcs = new ArrayList<Arc>();
-
+		
+	public void fireTransition(){
+		
+		DiscretePlace place;		
+		for (Arc arc: connectedArcs){
+			
+			if (arc.getClass().equals(DiscreteArc.class)){
+				place = (DiscretePlace)arc.getConnectedPlace();
+				
+				if (((DiscreteArc)arc).getDirection() == DiscreteArcType.input) 
+					//input for place = output for transition -> add tokens
+					place.setNumberOfTokens(place.getNumberOfTokens() + arc.getWeight().intValue());
+				else //output for place = input for transition -> reduce tokens
+					place.setNumberOfTokens(place.getNumberOfTokens() - arc.getWeight().intValue());
+				
+			}
+		}
+		
+		if (this.getClass().equals(DeterministicTransition.class)){
+			((DeterministicTransition)this).setClock(0.0);
+		} 
+	}
 }

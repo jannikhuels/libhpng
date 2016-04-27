@@ -7,20 +7,30 @@ public class DiscretePlace extends Place{
 	
 	public DiscretePlace() {}
 	
-	public DiscretePlace(String id, Integer numberOfTokens) {
+	public DiscretePlace(String id, Integer originalNumberOfTokens) {
 		super(id);
-		this.numberOfTokens = numberOfTokens;
+		this.originalNumberOfTokens = originalNumberOfTokens;
 	}
 
-	public Integer getNumberOfTokens() {
-		return numberOfTokens;
+	public Integer getOriginalNumberOfTokens() {
+		return originalNumberOfTokens;
 	}
-
 	@XmlAttribute (name = "marking")
-	public void setNumberOfTokens(Integer numberOfTokens) {
-		this.numberOfTokens = numberOfTokens;
+	public void setOriginalNumberOfTokens(Integer numberOfTokens) {
+		this.originalNumberOfTokens = numberOfTokens;
 	}
 	
-	private Integer numberOfTokens;
+	public Integer getNumberOfTokens() {
+		return currentNumberOfTokens;
+	}	
+	public void setNumberOfTokens(Integer numberOfTokens) {
+		this.currentNumberOfTokens = numberOfTokens;
+	}
+	
+	private Integer currentNumberOfTokens;
+	private Integer originalNumberOfTokens;
 
+	public void resetNumberOfTokens(){
+		this.currentNumberOfTokens = this.originalNumberOfTokens;
+	}	
 }
