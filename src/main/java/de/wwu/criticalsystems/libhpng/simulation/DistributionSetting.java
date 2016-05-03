@@ -52,7 +52,7 @@ public class DistributionSetting {
 		} else if (sigma <= 0.0)
 			System.out.println("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter sigma has to be greater than zero");	
 		 else if (type == 1 && mu < 0.0)
-			System.out.println("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter mu has to be greater than zero");	
+			System.out.println("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter mu has to be greater than or equal to zero");	
 		else
 			System.out.println("Missing distribution parameter for General Transition " + transition.getId());
 		return null;
@@ -98,9 +98,9 @@ public class DistributionSetting {
 					ParetoGen generator3 = new ParetoGen(stream, alpha, beta);
 					return generator3;
 			}
-		} else if (alpha < 0.0 && type != 0)
+		} else if (alpha <= 0.0 && type != 0)
 			System.out.println("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter alpha has to be greater than zero");
-		else if (beta < 0.0)
+		else if (beta <= 0.0)
 			System.out.println("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter beta has to be greater than zero");	
 		else 
 			System.out.println("Missing distribution parameter for General Transition " + transition.getId());
@@ -141,16 +141,10 @@ public class DistributionSetting {
 				case 1:
 					LogisticGen generator1 = new LogisticGen(stream, alpha, lambda);
 					return generator1;
-				/*case 2:
-					LoglogisticGen generator2 = new LoglogisticGen(stream, alpha, beta);
-					return generator2;
-				case 3:
-					ParetoGen generator3 = new ParetoGen(stream, alpha, beta);
-					return generator3;*/
 			}
 		} else if (alpha <= 0.0 && type != 1)
 			System.out.println("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter alpha has to be greater than zero");
-		else if (lambda < 0.0)
+		else if (lambda <= 0.0)
 			System.out.println("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter lambda has to be greater than zero");	
 		else 
 			System.out.println("Missing distribution parameter for General Transition " + transition.getId());
@@ -190,15 +184,9 @@ public class DistributionSetting {
 				case 1:
 					StudentGen generator1 = new StudentGen(stream, n);
 					return generator1;
-				/*case 2:
-					LoglogisticGen generator2 = new LoglogisticGen(stream, alpha, beta);
-					return generator2;
-				case 3:
-					ParetoGen generator3 = new ParetoGen(stream, alpha, beta);
-					return generator3;*/
 			}
 		} else if (n <= 0)
-			System.out.println("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter nu has to be greater than zero");
+			System.out.println("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter n has to be greater than zero");
 		else
 			System.out.println("Missing distribution parameter for General Transition " + transition.getId());
 			
@@ -281,9 +269,9 @@ public class DistributionSetting {
 			return generator;
 		} else if (b<=a)
 			System.out.println("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter a has to be less than parameter b");
-		else if (alpha < 0.0)
+		else if (alpha <= 0.0)
 			System.out.println("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter alpha has to be greater than zero");
-		else if (beta < 0.0)
+		else if (beta <= 0.0)
 			System.out.println("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter beta has to be greater than zero");	
 		else 
 			System.out.println("Missing distribution parameter for General Transition " + transition.getId());
@@ -435,9 +423,9 @@ public class DistributionSetting {
 		if (alphaFound && betaFound && deltaFound && alpha > 0.0 && beta > 0.0){
 			FrechetGen generator = new FrechetGen(stream, alpha, beta, delta);
 			return generator;					
-		} else if (alpha < 0.0)
+		} else if (alpha <= 0.0)
 			System.out.println("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter alpha has to be greater than zero");
-		else if (beta < 0.0)
+		else if (beta <= 0.0)
 			System.out.println("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter beta has to be greater than zero");	
 		else 
 			System.out.println("Missing distribution parameter for General Transition " + transition.getId());
@@ -487,7 +475,7 @@ public class DistributionSetting {
 	//Inverse normal (Gaussian) distribution with parameters mu and lambda:
 	public static RandomVariateGen setInverseNormalDistribution(GeneralTransition transition, MRG31k3p stream){
 		
-		Double mu = 0.0;
+		Double mu = 1.0;
 		Double lambda = 1.0;
 		Boolean muFound = false;
 		Boolean lambdaFound = false;
@@ -621,9 +609,9 @@ public class DistributionSetting {
 		if (alphaFound && lambdaFound && deltaFound && alpha > 0.0 && lambda > 0.0){
 			FrechetGen generator = new FrechetGen(stream, alpha, lambda, delta);
 			return generator;					
-		} else if (alpha < 0.0)
+		} else if (alpha <= 0.0)
 			System.out.println("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter alpha has to be greater than zero");
-		else if (lambda < 0.0)
+		else if (lambda <= 0.0)
 			System.out.println("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter lambda has to be greater than zero");	
 		else 
 			System.out.println("Missing distribution parameter for General Transition " + transition.getId());
