@@ -17,9 +17,6 @@ public class DynamicContinuousTransition extends Transition{
 	public ArrayList<DynamicContinuousDependency> getDependencies() {
 		return dependencies;
 	}
-	public void setDependencies(ArrayList<DynamicContinuousDependency> dependencies) {
-		this.dependencies = dependencies;
-	}
 	
 	public Double getCurrentFluid() {
 		return currentFluid;

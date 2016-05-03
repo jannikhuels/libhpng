@@ -20,8 +20,27 @@ public class GeneralTransition extends Transition{
 	@XmlType
 	@XmlEnum(String.class)
 	public static enum CDFFunction{
+		@XmlEnumValue("uniform") uniform,
 	    @XmlEnumValue("normal") normal,
 	    @XmlEnumValue("foldednormal") foldednormal,
+	    @XmlEnumValue("halfnormal") halfnormal,
+	    @XmlEnumValue("inversenormal") inversenormal,
+	    @XmlEnumValue("lognormal") lognormal,	    
+	    @XmlEnumValue("beta") beta,
+	    @XmlEnumValue("cauchy") cauchy,
+	    @XmlEnumValue("chi") chi,
+	    @XmlEnumValue("chisquare") chisquare,
+	    @XmlEnumValue("exp") exp,
+	    @XmlEnumValue("fisherf") fisherf,
+	    @XmlEnumValue("frechet") frechet,
+	    @XmlEnumValue("gamma") gamma,
+	    @XmlEnumValue("gumbel") gumbel,
+	    @XmlEnumValue("inversegamma") inversegamma,
+	    @XmlEnumValue("logistic") logistic,
+	    @XmlEnumValue("loglogistic") loglogistic,
+	    @XmlEnumValue("pareto") pareto,
+	    @XmlEnumValue("rayleigh") rayleigh,
+	    @XmlEnumValue("student") student;	    
 	}
 	
 	public Double getWeight() {
@@ -58,17 +77,21 @@ public class GeneralTransition extends Transition{
 	public ArrayList<CDFFunctionParameter> getParameters() {
 		return parameters;
 	}
-	public void setParameters(ArrayList<CDFFunctionParameter> parameters) {
-		this.parameters = parameters;
-	}
 	
+	public Double getDiscreteFiringTime() {
+		return discreteFiringTime;
+	}
+
+
 	private CDFFunction distribution;	
 	private Double weight;
 	private Integer priority;
 	private Double enablingTime;
+	private Double discreteFiringTime;
 	
 	@XmlElements({
 	    @XmlElement(name="parameter", type=CDFFunctionParameter.class),
 	})
 	private ArrayList <CDFFunctionParameter> parameters = new ArrayList<CDFFunctionParameter>();
+	
 }
