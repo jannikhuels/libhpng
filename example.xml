@@ -11,6 +11,10 @@
   	<deterministicTransition discTime = "2.0" id="td1" priority="0" weight="1.0E0"/>
   	<immediateTransition id="ti1" priority="0" weight="1.0E0"/>    
     <fluidTransition id="tf1" rate="1.0"/>
+     <generalTransition cdf="halfnormal" id="tg1" priority="0" weight="1.0E0">
+      <parameter name="mu" value="6.0"/>
+      <parameter name="sigma" value="2.0"/>
+     </generalTransition>
     </transitions>
   <arcs>
     <discreteArc fromNode="pd1" id="da1" priority="1" share="1.0E0"

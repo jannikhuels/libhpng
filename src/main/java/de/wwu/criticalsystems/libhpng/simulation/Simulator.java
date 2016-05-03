@@ -19,12 +19,16 @@ public class Simulator {
 		this.maxTime = maxTime;
 		this.model = model;
 		
+		SampleGenerator generator = new SampleGenerator();
+		generator.initializeRandomStream();
+		
 		for (int run = 0; run < n_runs; run++){
 			
 			System.out.println("Starting simulation run no." + (run+1));
 			
 			currentTime = 0.0;
 			model.resetMarking();
+			generator.sampleGeneralTransitions(model);
 			
 			while (currentTime <= maxTime){
 				currentTime = getAndCompleteNextEvent();
@@ -72,7 +76,19 @@ public class Simulator {
 					event.getRelatedObjects().add(transition);				
 				}
 			} else if (transition.getClass().equals(GeneralTransition.class)){
-				//TODO: general transition
+				
+				if (event.getEventType() == SimulationEventType.immediate_transition)
+					break;
+				
+				timeOfCurrentEvent = currentTime + ((GeneralTransition)transition).getDiscreteFiringTime() - ((GeneralTransition)transition).getEnablingTime();
+				
+				if (timeOfCurrentEvent < event.getOccurenceTime() || (timeOfCurrentEvent == event.getOccurenceTime() && !(event.getEventType() == SimulationEventType.deterministic_transition) && ((GeneralTransition)transition).getPriority() > event.getPriority())){
+					event.setEventType(SimulationEventType.general_transition);
+					event.setFirstEventItem(transition, ((GeneralTransition)transition).getPriority());
+					event.setOccurenceTime(timeOfCurrentEvent);
+				} else if (timeOfCurrentEvent == event.getOccurenceTime() && ((GeneralTransition)transition).getPriority() == event.getPriority()){
+					event.getRelatedObjects().add(transition);				
+				}
 			} else 
 				break; //fluid or fluid dynamic transition
 		}		
@@ -193,7 +209,7 @@ public class Simulator {
 	
 	private void completeEvent(){
 	
-		if (event.getEventType() == SimulationEventType.immediate_transition || event.getEventType() == SimulationEventType.deterministic_transition) {
+		if (event.getEventType() == SimulationEventType.immediate_transition || event.getEventType() == SimulationEventType.deterministic_transition || event.getEventType() == SimulationEventType.general_transition) {
 			
 			//transition firing
 			Transition transition = conflictResolutionByTransitionWeight();		
@@ -261,8 +277,17 @@ public class Simulator {
 				if (winner < probability)
 					return ((Transition)object);
 			}
+		} else if (event.getEventType() == SimulationEventType.general_transition){
+			for (Object object : event.getRelatedObjects())
+				sum += ((GeneralTransition)object).getWeight();
+			
+			for (Object object : event.getRelatedObjects()){
+				probability += ((GeneralTransition)object).getWeight() / sum;
+				if (winner < probability)
+					return ((Transition)object);
+			}
 		}
 		
 		return null;
-	}
+	}	
 }

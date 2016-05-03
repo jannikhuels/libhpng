@@ -11,7 +11,6 @@ public class Main {
     		HPnGModel model = reader.readModel("example.xml");
     		
     		Simulator simulator = new Simulator();
-    		simulator.simulateNRuns(1, 20.0, model);
-
+    		simulator.simulateNRuns(1, 20.0, model); 
     }
 }
