@@ -1,0 +1,98 @@
+PARSER_BEGIN(SMCParser)
+
+/** Simple brace matcher. */
+public class SMCParser {
+
+  /** Main entry point. */
+  public static void main(String args[]) throws ParseException {
+    SMCParser parser = new SMCParser(System.in);
+    SimpleNode root = parser.Input();
+    root.dump("");
+  }
+
+}
+
+PARSER_END(SMCParser)
+
+SKIP :
+{
+  " "
+| "\t"
+}
+
+TOKEN :
+{
+  <LBRACE: "(">
+| <RBRACE: ")">
+| <NUMBER : (["0"-"9"])+ ("." (["0"-"9"])+)? >
+| <SEP: ",">
+| <ATOMIC: "a">
+| <NOT: "!">
+| <OR: "OR">
+| <AND: "AND">
+| <UNTIL: "U">
+| <PROB: "P">
+| <COMPARE: "<" | ">" | "=" | "<=" | ">=">
+| <EOL:  "\n" | "\r" | "\r\n" >
+}
+
+
+SimpleNode Input() #ROOT:
+{}
+{
+   Psi()<EOL>{return jjtThis;}
+}
+
+void Psi() #void :
+{Token t;}
+{
+ <LBRACE> Psi() <RBRACE> | Prob() | And() | Or() | Until() | Not() | Atomic()
+}
+
+void Atomic() #ATOMIC:
+{Token t;}
+{
+  t=<ATOMIC> {jjtThis.value = t.image;}
+}
+
+void Not() #NOT:
+{}
+{
+    <NOT> Psi() 
+}
+
+void And() #AND:
+{}
+{
+   <AND> <LBRACE> Psi() <SEP> Psi() <RBRACE>
+}
+
+void Or() #OR:
+{}
+{
+   <OR> <LBRACE> Psi() <SEP> Psi() <RBRACE>
+}
+
+void Until() #UNTIL:
+{}
+{
+   <UNTIL> "_" Number() <LBRACE> Psi() <SEP> Psi() <RBRACE>
+}
+
+void Prob() #PROB:
+{}
+{
+   <PROB> Compare() Number() <LBRACE> Psi() <RBRACE>
+}
+
+void Number() #NUMBER:
+{Token t;}
+{
+  t=<NUMBER> {jjtThis.value = t.image;}
+}
+
+void Compare() #COMPARE:
+{Token t;}
+{
+  t=<COMPARE> {jjtThis.value = t.image;}
+}
