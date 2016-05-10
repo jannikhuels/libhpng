@@ -19,3 +19,6 @@ hs_err_pid*
 *.classpath
 *.project
 
+
+#Ignore bin folder
+/bin
