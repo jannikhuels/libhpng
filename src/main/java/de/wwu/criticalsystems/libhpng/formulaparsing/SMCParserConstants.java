@@ -14,25 +14,45 @@ public interface SMCParserConstants {
   /** RegularExpression Id. */
   int RBRACE = 4;
   /** RegularExpression Id. */
-  int NUMBER = 5;
+  int DIGITS = 5;
   /** RegularExpression Id. */
-  int SEP = 6;
+  int NUMBER = 6;
   /** RegularExpression Id. */
-  int ATOMIC = 7;
+  int ID = 7;
   /** RegularExpression Id. */
-  int NOT = 8;
+  int SEP = 8;
   /** RegularExpression Id. */
-  int OR = 9;
+  int NOT = 9;
   /** RegularExpression Id. */
-  int AND = 10;
+  int OR = 10;
   /** RegularExpression Id. */
-  int UNTIL = 11;
+  int AND = 11;
   /** RegularExpression Id. */
-  int PROB = 12;
+  int UNTIL = 12;
   /** RegularExpression Id. */
-  int COMPARE = 13;
+  int PROB = 13;
   /** RegularExpression Id. */
-  int EOL = 14;
+  int COMPARE = 14;
+  /** RegularExpression Id. */
+  int FLUID = 15;
+  /** RegularExpression Id. */
+  int TOKENS = 16;
+  /** RegularExpression Id. */
+  int ENABLED = 17;
+  /** RegularExpression Id. */
+  int CLOCK = 18;
+  /** RegularExpression Id. */
+  int FIRINGS = 19;
+  /** RegularExpression Id. */
+  int DRIFT = 20;
+  /** RegularExpression Id. */
+  int UBOUND = 21;
+  /** RegularExpression Id. */
+  int LBOUND = 22;
+  /** RegularExpression Id. */
+  int ARC = 23;
+  /** RegularExpression Id. */
+  int EOL = 24;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -44,15 +64,25 @@ public interface SMCParserConstants {
     "\"\\t\"",
     "\"(\"",
     "\")\"",
+    "<DIGITS>",
     "<NUMBER>",
+    "<ID>",
     "\",\"",
-    "\"a\"",
     "\"!\"",
     "\"OR\"",
     "\"AND\"",
     "\"U\"",
     "\"P\"",
     "<COMPARE>",
+    "\"fluidlevel\"",
+    "\"tokens\"",
+    "\"enabled\"",
+    "\"clock\"",
+    "\"firings\"",
+    "\"drift\"",
+    "\"uboundary\"",
+    "\"lboundary\"",
+    "\"condition\"",
     "<EOL>",
     "\"_\"",
   };

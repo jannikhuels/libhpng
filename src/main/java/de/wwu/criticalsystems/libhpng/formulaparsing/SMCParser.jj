@@ -28,15 +28,25 @@ TOKEN :
 {
   <LBRACE: "(">
 | <RBRACE: ")">
-| <NUMBER : (["0"-"9"])+ ("." (["0"-"9"])+)? >
+| <DIGITS: (["0"-"9"])+>
+| <NUMBER: <DIGITS> "." <DIGITS>>
+| <ID: "'"(((["a"-"z","A"-"Z"])+) | (<DIGITS>))+ "'">
 | <SEP: ",">
-| <ATOMIC: "a">
 | <NOT: "!">
 | <OR: "OR">
 | <AND: "AND">
 | <UNTIL: "U">
 | <PROB: "P">
 | <COMPARE: "<" | ">" | "=" | "<=" | ">=">
+| <FLUID: "fluidlevel">
+| <TOKENS: "tokens">
+| <ENABLED: "enabled">
+| <CLOCK: "clock">
+| <FIRINGS: "firings">
+| <DRIFT: "drift">
+| <UBOUND: "uboundary">
+| <LBOUND: "lboundary">
+| <ARC: "condition">
 | <EOL:  "\n" | "\r" | "\r\n" >
 }
 
@@ -84,27 +94,10 @@ void Psi()       :
  <LBRACE> Psi() <RBRACE> | Prob() | And() | Or() | Until() | Not() | Atomic()
 }
 
-void Atomic()        :
-{/*@bgen(jjtree) ATOMIC */
- SimpleNode jjtn000 = new SimpleNode(JJTATOMIC);
- boolean jjtc000 = true;
- jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t;}
-{/*@bgen(jjtree) ATOMIC */
-  try {
-/*@egen*/
-  t=<ATOMIC>/*@bgen(jjtree)*/
-             {
-               jjtree.closeNodeScope(jjtn000, true);
-               jjtc000 = false;
-             }
-/*@egen*/ {jjtn000.value = t.image;}/*@bgen(jjtree)*/
-  } finally {
-    if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
-  }
-/*@egen*/
+void Atomic()      :
+{}
+{
+  Fluid() | Tokens() | Enabled() | Clock() | Firings() | Drift() | Ubound() | Lbound() | Arc()
 }
 
 void Not()     :
@@ -212,7 +205,7 @@ void Until()       :
 {/*@bgen(jjtree) UNTIL */
    try {
 /*@egen*/
-   <UNTIL> "_" Number() <LBRACE> Psi() <SEP> Psi() <RBRACE>/*@bgen(jjtree)*/
+   <UNTIL> "_" Double() <LBRACE> Psi() <SEP> Psi() <RBRACE>/*@bgen(jjtree)*/
    } catch (Throwable jjte000) {
      if (jjtc000) {
        jjtree.clearNodeScope(jjtn000);
@@ -244,7 +237,7 @@ void Prob()      :
 {/*@bgen(jjtree) PROB */
    try {
 /*@egen*/
-   <PROB> Compare() Number() <LBRACE> Psi() <RBRACE>/*@bgen(jjtree)*/
+   <PROB> Compare() Double() <LBRACE> Psi() <RBRACE>/*@bgen(jjtree)*/
    } catch (Throwable jjte000) {
      if (jjtc000) {
        jjtree.clearNodeScope(jjtn000);
@@ -267,16 +260,39 @@ void Prob()      :
 /*@egen*/
 }
 
-void Number()        :
-{/*@bgen(jjtree) NUMBER */
- SimpleNode jjtn000 = new SimpleNode(JJTNUMBER);
+void Double()        :
+{/*@bgen(jjtree) DOUBLE */
+ SimpleNode jjtn000 = new SimpleNode(JJTDOUBLE);
  boolean jjtc000 = true;
  jjtree.openNodeScope(jjtn000);
 /*@egen*/Token t;}
-{/*@bgen(jjtree) NUMBER */
+{/*@bgen(jjtree) DOUBLE */
   try {
 /*@egen*/
-  t=<NUMBER>/*@bgen(jjtree)*/
+  t= <NUMBER>/*@bgen(jjtree)*/
+              {
+                jjtree.closeNodeScope(jjtn000, true);
+                jjtc000 = false;
+              }
+/*@egen*/ {jjtn000.value = t.image;}/*@bgen(jjtree)*/
+  } finally {
+    if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, true);
+    }
+  }
+/*@egen*/
+}
+
+void Integer()         :
+{/*@bgen(jjtree) INTEGER */
+ SimpleNode jjtn000 = new SimpleNode(JJTINTEGER);
+ boolean jjtc000 = true;
+ jjtree.openNodeScope(jjtn000);
+/*@egen*/Token t;}
+{/*@bgen(jjtree) INTEGER */
+  try {
+/*@egen*/
+  t=<DIGITS>/*@bgen(jjtree)*/
              {
                jjtree.closeNodeScope(jjtn000, true);
                jjtc000 = false;
@@ -305,6 +321,317 @@ void Compare()         :
                 jjtc000 = false;
               }
 /*@egen*/ {jjtn000.value = t.image;}/*@bgen(jjtree)*/
+  } finally {
+    if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, true);
+    }
+  }
+/*@egen*/
+}
+
+void Id()    :
+{/*@bgen(jjtree) ID */
+ SimpleNode jjtn000 = new SimpleNode(JJTID);
+ boolean jjtc000 = true;
+ jjtree.openNodeScope(jjtn000);
+/*@egen*/Token t;}
+{/*@bgen(jjtree) ID */
+  try {
+/*@egen*/
+  t=<ID>/*@bgen(jjtree)*/
+         {
+           jjtree.closeNodeScope(jjtn000, true);
+           jjtc000 = false;
+         }
+/*@egen*/ {jjtn000.value = t.image;}/*@bgen(jjtree)*/
+  } finally {
+    if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, true);
+    }
+  }
+/*@egen*/
+}
+
+void Fluid()              :
+{/*@bgen(jjtree) ATOMIC_FLUID */
+  SimpleNode jjtn000 = new SimpleNode(JJTATOMIC_FLUID);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) ATOMIC_FLUID */
+  try {
+/*@egen*/
+  <FLUID> <LBRACE> Id() <RBRACE> Compare() Double()/*@bgen(jjtree)*/
+  } catch (Throwable jjte000) {
+    if (jjtc000) {
+      jjtree.clearNodeScope(jjtn000);
+      jjtc000 = false;
+    } else {
+      jjtree.popNode();
+    }
+    if (jjte000 instanceof RuntimeException) {
+      throw (RuntimeException)jjte000;
+    }
+    if (jjte000 instanceof ParseException) {
+      throw (ParseException)jjte000;
+    }
+    throw (Error)jjte000;
+  } finally {
+    if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, true);
+    }
+  }
+/*@egen*/
+}
+
+void Tokens()               :
+{/*@bgen(jjtree) ATOMIC_TOKENS */
+  SimpleNode jjtn000 = new SimpleNode(JJTATOMIC_TOKENS);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) ATOMIC_TOKENS */
+  try {
+/*@egen*/
+  <TOKENS> <LBRACE> Id() <RBRACE> Compare() Integer()/*@bgen(jjtree)*/
+  } catch (Throwable jjte000) {
+    if (jjtc000) {
+      jjtree.clearNodeScope(jjtn000);
+      jjtc000 = false;
+    } else {
+      jjtree.popNode();
+    }
+    if (jjte000 instanceof RuntimeException) {
+      throw (RuntimeException)jjte000;
+    }
+    if (jjte000 instanceof ParseException) {
+      throw (ParseException)jjte000;
+    }
+    throw (Error)jjte000;
+  } finally {
+    if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, true);
+    }
+  }
+/*@egen*/
+}
+
+void Enabled()                :
+{/*@bgen(jjtree) ATOMIC_ENABLED */
+  SimpleNode jjtn000 = new SimpleNode(JJTATOMIC_ENABLED);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) ATOMIC_ENABLED */
+  try {
+/*@egen*/
+  <ENABLED> <LBRACE> Id() <RBRACE>/*@bgen(jjtree)*/
+  } catch (Throwable jjte000) {
+    if (jjtc000) {
+      jjtree.clearNodeScope(jjtn000);
+      jjtc000 = false;
+    } else {
+      jjtree.popNode();
+    }
+    if (jjte000 instanceof RuntimeException) {
+      throw (RuntimeException)jjte000;
+    }
+    if (jjte000 instanceof ParseException) {
+      throw (ParseException)jjte000;
+    }
+    throw (Error)jjte000;
+  } finally {
+    if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, true);
+    }
+  }
+/*@egen*/
+}
+
+void Clock()              :
+{/*@bgen(jjtree) ATOMIC_CLOCK */
+  SimpleNode jjtn000 = new SimpleNode(JJTATOMIC_CLOCK);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) ATOMIC_CLOCK */
+  try {
+/*@egen*/
+  <CLOCK> <LBRACE> Id() <RBRACE> Compare() Double()/*@bgen(jjtree)*/
+  } catch (Throwable jjte000) {
+    if (jjtc000) {
+      jjtree.clearNodeScope(jjtn000);
+      jjtc000 = false;
+    } else {
+      jjtree.popNode();
+    }
+    if (jjte000 instanceof RuntimeException) {
+      throw (RuntimeException)jjte000;
+    }
+    if (jjte000 instanceof ParseException) {
+      throw (ParseException)jjte000;
+    }
+    throw (Error)jjte000;
+  } finally {
+    if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, true);
+    }
+  }
+/*@egen*/
+}
+
+void Firings()                :
+{/*@bgen(jjtree) ATOMIC_FIRINGS */
+  SimpleNode jjtn000 = new SimpleNode(JJTATOMIC_FIRINGS);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) ATOMIC_FIRINGS */
+  try {
+/*@egen*/
+  <FIRINGS> <LBRACE> Id() <RBRACE> Compare() Integer()/*@bgen(jjtree)*/
+  } catch (Throwable jjte000) {
+    if (jjtc000) {
+      jjtree.clearNodeScope(jjtn000);
+      jjtc000 = false;
+    } else {
+      jjtree.popNode();
+    }
+    if (jjte000 instanceof RuntimeException) {
+      throw (RuntimeException)jjte000;
+    }
+    if (jjte000 instanceof ParseException) {
+      throw (ParseException)jjte000;
+    }
+    throw (Error)jjte000;
+  } finally {
+    if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, true);
+    }
+  }
+/*@egen*/
+}
+ 
+void Drift()              :
+{/*@bgen(jjtree) ATOMIC_DRIFT */
+  SimpleNode jjtn000 = new SimpleNode(JJTATOMIC_DRIFT);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) ATOMIC_DRIFT */
+  try {
+/*@egen*/
+  <DRIFT> <LBRACE> Id() <RBRACE> Compare() Double()/*@bgen(jjtree)*/
+  } catch (Throwable jjte000) {
+    if (jjtc000) {
+      jjtree.clearNodeScope(jjtn000);
+      jjtc000 = false;
+    } else {
+      jjtree.popNode();
+    }
+    if (jjte000 instanceof RuntimeException) {
+      throw (RuntimeException)jjte000;
+    }
+    if (jjte000 instanceof ParseException) {
+      throw (ParseException)jjte000;
+    }
+    throw (Error)jjte000;
+  } finally {
+    if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, true);
+    }
+  }
+/*@egen*/
+}
+
+void Ubound()               :
+{/*@bgen(jjtree) ATOMIC_UBOUND */
+  SimpleNode jjtn000 = new SimpleNode(JJTATOMIC_UBOUND);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) ATOMIC_UBOUND */
+  try {
+/*@egen*/
+  <UBOUND> <LBRACE> Id() <RBRACE>/*@bgen(jjtree)*/
+  } catch (Throwable jjte000) {
+    if (jjtc000) {
+      jjtree.clearNodeScope(jjtn000);
+      jjtc000 = false;
+    } else {
+      jjtree.popNode();
+    }
+    if (jjte000 instanceof RuntimeException) {
+      throw (RuntimeException)jjte000;
+    }
+    if (jjte000 instanceof ParseException) {
+      throw (ParseException)jjte000;
+    }
+    throw (Error)jjte000;
+  } finally {
+    if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, true);
+    }
+  }
+/*@egen*/
+}
+
+void Lbound()               :
+{/*@bgen(jjtree) ATOMIC_LBOUND */
+  SimpleNode jjtn000 = new SimpleNode(JJTATOMIC_LBOUND);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) ATOMIC_LBOUND */
+  try {
+/*@egen*/
+  <LBOUND> <LBRACE> Id() <RBRACE>/*@bgen(jjtree)*/
+  } catch (Throwable jjte000) {
+    if (jjtc000) {
+      jjtree.clearNodeScope(jjtn000);
+      jjtc000 = false;
+    } else {
+      jjtree.popNode();
+    }
+    if (jjte000 instanceof RuntimeException) {
+      throw (RuntimeException)jjte000;
+    }
+    if (jjte000 instanceof ParseException) {
+      throw (ParseException)jjte000;
+    }
+    throw (Error)jjte000;
+  } finally {
+    if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, true);
+    }
+  }
+/*@egen*/
+}
+
+void Arc()            :
+{/*@bgen(jjtree) ATOMIC_ARC */
+  SimpleNode jjtn000 = new SimpleNode(JJTATOMIC_ARC);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) ATOMIC_ARC */
+  try {
+/*@egen*/
+  <ARC> <LBRACE> Id() <RBRACE>/*@bgen(jjtree)*/
+  } catch (Throwable jjte000) {
+    if (jjtc000) {
+      jjtree.clearNodeScope(jjtn000);
+      jjtc000 = false;
+    } else {
+      jjtree.popNode();
+    }
+    if (jjte000 instanceof RuntimeException) {
+      throw (RuntimeException)jjte000;
+    }
+    if (jjte000 instanceof ParseException) {
+      throw (ParseException)jjte000;
+    }
+    throw (Error)jjte000;
   } finally {
     if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);

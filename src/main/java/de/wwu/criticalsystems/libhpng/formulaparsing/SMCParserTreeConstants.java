@@ -4,27 +4,47 @@ public interface SMCParserTreeConstants
 {
   public int JJTROOT = 0;
   public int JJTVOID = 1;
-  public int JJTATOMIC = 2;
-  public int JJTNOT = 3;
-  public int JJTAND = 4;
-  public int JJTOR = 5;
-  public int JJTUNTIL = 6;
-  public int JJTPROB = 7;
-  public int JJTNUMBER = 8;
+  public int JJTNOT = 2;
+  public int JJTAND = 3;
+  public int JJTOR = 4;
+  public int JJTUNTIL = 5;
+  public int JJTPROB = 6;
+  public int JJTDOUBLE = 7;
+  public int JJTINTEGER = 8;
   public int JJTCOMPARE = 9;
+  public int JJTID = 10;
+  public int JJTATOMIC_FLUID = 11;
+  public int JJTATOMIC_TOKENS = 12;
+  public int JJTATOMIC_ENABLED = 13;
+  public int JJTATOMIC_CLOCK = 14;
+  public int JJTATOMIC_FIRINGS = 15;
+  public int JJTATOMIC_DRIFT = 16;
+  public int JJTATOMIC_UBOUND = 17;
+  public int JJTATOMIC_LBOUND = 18;
+  public int JJTATOMIC_ARC = 19;
 
 
   public String[] jjtNodeName = {
     "ROOT",
     "void",
-    "ATOMIC",
     "NOT",
     "AND",
     "OR",
     "UNTIL",
     "PROB",
-    "NUMBER",
+    "DOUBLE",
+    "INTEGER",
     "COMPARE",
+    "ID",
+    "ATOMIC_FLUID",
+    "ATOMIC_TOKENS",
+    "ATOMIC_ENABLED",
+    "ATOMIC_CLOCK",
+    "ATOMIC_FIRINGS",
+    "ATOMIC_DRIFT",
+    "ATOMIC_UBOUND",
+    "ATOMIC_LBOUND",
+    "ATOMIC_ARC",
   };
 }
-/* JavaCC - OriginalChecksum=82c277918a5b6cb96a4d32f30fdcd5e9 (do not edit this line) */
+/* JavaCC - OriginalChecksum=2a0cd8e356b7ab213aefa32e54c348a9 (do not edit this line) */

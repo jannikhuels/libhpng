@@ -66,7 +66,7 @@ class SimpleNode implements Node {
 
   public void dump(String prefix) {
     System.out.print(toString(prefix));
-    if (value != null) System.out.print("___" + value.toString());
+    if (value != null) System.out.print(": " + value.toString());
     System.out.println();
     if (children != null) {
       for (int i = 0; i < children.length; ++i) {
