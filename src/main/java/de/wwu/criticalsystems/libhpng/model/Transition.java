@@ -60,6 +60,10 @@ public abstract class Transition {
 		
 		if (this.getClass().equals(DeterministicTransition.class)){
 			((DeterministicTransition)this).setClock(0.0);
-		} 
+		} else if (this.getClass().equals(GeneralTransition.class)){
+			((GeneralTransition)this).setEnablingTime(0.0);
+			((GeneralTransition)this).setNewRandomFiringTime();
+			((GeneralTransition)this).increaseFirings();
+		}
 	}
 }

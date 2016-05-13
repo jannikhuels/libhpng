@@ -3,6 +3,8 @@ package de.wwu.criticalsystems.libhpng.model;
 import java.util.ArrayList;
 import javax.xml.bind.annotation.*;
 
+import umontreal.iro.lecuyer.randvar.RandomVariateGen;
+
 @XmlRootElement( name = "generalTransition" )
 public class GeneralTransition extends Transition{
 	
@@ -43,6 +45,14 @@ public class GeneralTransition extends Transition{
 	    @XmlEnumValue("student") student;	    
 	}
 	
+	@XmlType
+	@XmlEnum(String.class)
+	public static enum Policy{
+		@XmlEnumValue("resume") resume,
+	    @XmlEnumValue("repeatdifferent") repeatdifferent,
+	    @XmlEnumValue("repeatidentical") repeatidentical,
+	}
+	
 	public Double getWeight() {
 		return weight;
 	}	
@@ -66,6 +76,14 @@ public class GeneralTransition extends Transition{
 	public void setDistribution(CDFFunction distribution) {
 		this.distribution = distribution;
 	}
+
+	public Policy getPolicy() {
+		return policy;
+	}
+	@XmlAttribute(name = "policy")
+	public void setPolicy(Policy policy) {
+		this.policy = policy;
+	}
 	
 	public Double getEnablingTime() {
 		return enablingTime;
@@ -82,16 +100,65 @@ public class GeneralTransition extends Transition{
 		return discreteFiringTime;
 	}
 
+	public RandomVariateGen getRandomGenerator() {
+		return randomGenerator;
+	}
+	@XmlTransient
+	public void setRandomGenerator(RandomVariateGen randomGenerator) {
+		this.randomGenerator = randomGenerator;
+	}
+	
+	public Integer getFirings() {
+		return firings;
+	}
 
 	private CDFFunction distribution;	
 	private Double weight;
 	private Integer priority;
+	private Policy policy;
 	private Double enablingTime;
 	private Double discreteFiringTime;
+	private RandomVariateGen randomGenerator;
+	private Integer firings;
 	
 	@XmlElements({
 	    @XmlElement(name="parameter", type=CDFFunctionParameter.class),
 	})
 	private ArrayList <CDFFunctionParameter> parameters = new ArrayList<CDFFunctionParameter>();
 	
+	
+	public void setNewRandomFiringTime(){
+		if (randomGenerator != null){
+			discreteFiringTime = randomGenerator.nextDouble();
+		} else {
+			System.out.println("Error at sampling General Transition " + this.getId());
+		}		
+
+		if (discreteFiringTime< 0.0)
+			discreteFiringTime = 0.0;
+	}
+	
+
+	public void increaseFirings() {
+		this.firings++;
+	}
+
+	public void setFiringsToZero() {
+		this.firings = 0;
+	}
+
+	public void enableByPolicy() {
+		
+		switch (policy){
+		case repeatdifferent:
+			setNewRandomFiringTime();
+			enablingTime = 0.0;
+			break;
+		case repeatidentical:
+			enablingTime = 0.0;
+			break;
+		default: //resume			
+			break;
+		}		
+	}
 }
