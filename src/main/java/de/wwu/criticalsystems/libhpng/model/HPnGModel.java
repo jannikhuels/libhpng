@@ -83,6 +83,8 @@ public class HPnGModel {
 			}
 			
 			transition.setEnabled(enabled);
+			if (enabled && transition.getClass().equals(GeneralTransition.class))
+				((GeneralTransition)transition).enableByPolicy();
 		}
 	}
 	
@@ -114,14 +116,15 @@ public class HPnGModel {
 			if (transition.getClass().equals(ContinuousTransition.class))			
 				((ContinuousTransition)transition).setCurrentFluid(((ContinuousTransition)transition).getFluidRate());
 		}
-	
+		updateDynamicRates();
+		
 		//check borders
 		Double inFlux;
 		Double outFlux;
 		Boolean change = true;
 		
 		while (change){
-			
+		
 			change = false;
 		
 			for (Place place: places){			
@@ -131,10 +134,19 @@ public class HPnGModel {
 					for (Arc arc: arcs){
 						if (arc.getConnectedPlace().getId().equals(place.getId()) && !arc.getClass().equals(GuardArc.class)){
 							if (arc.getConnectedTransition().getEnabled()) {
-								if (((ContinuousArc)arc).getDirection() == ContinuousArcType.input)
-									inFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentFluid();
-								else
-									outFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentFluid();
+								
+								if (((ContinuousArc)arc).getDirection() == ContinuousArcType.input){
+									if (arc.getConnectedTransition().getClass().equals(ContinuousTransition.class))
+										inFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentFluid();
+									/*else if (arc.getConnectedTransition().getClass().equals(DynamicContinuousTransition.class))
+										inFlux += ((DynamicContinuousTransition)arc.getConnectedTransition()).getCurrentFluid();*/
+														
+								} else {									
+									if (arc.getConnectedTransition().getClass().equals(ContinuousTransition.class))
+										outFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentFluid();
+									/*else if (arc.getConnectedTransition().getClass().equals(DynamicContinuousTransition.class))
+										outFlux += ((DynamicContinuousTransition)arc.getConnectedTransition()).getCurrentFluid();*/									
+								}
 							}
 						}
 					}
@@ -145,11 +157,15 @@ public class HPnGModel {
 					if(!((ContinuousPlace)place).getUpperBoundaryInfinity() && (inFlux > outFlux) && ((ContinuousPlace)place).getFluidLevel().equals(((ContinuousPlace)place).getUpperBoundary())){
 						//if upper boundary reached
 						rateAdaption((ContinuousPlace)place, outFlux, ContinuousArcType.input);
+						updateDynamicRates();
+						((ContinuousPlace)place).setDrift(0.0);
 						change = true;
 					
 					} else if (outFlux > inFlux && ((ContinuousPlace)place).getFluidLevel() == 0.0){
 						//lower boundary reached
 						rateAdaption((ContinuousPlace)place, inFlux, ContinuousArcType.output);
+						updateDynamicRates();
+						((ContinuousPlace)place).setDrift(0.0);
 						change = true;
 					}
 					
@@ -158,19 +174,6 @@ public class HPnGModel {
 			}
 		}
 		
-		//set dynamic fluid rates
-		for(Transition transition: transitions){			
-			if (transition.getClass().equals(DynamicContinuousTransition.class)){
-				
-				((DynamicContinuousTransition)transition).setCurrentFluid(0.0);
-				
-				for (int i = 0; i < ((DynamicContinuousTransition)transition).getDependencies().size(); i++){
-					((DynamicContinuousTransition)transition).setCurrentFluid(
-							((DynamicContinuousTransition)transition).getDependencies().get(i).getTransition().getCurrentFluid() 
-							* ((DynamicContinuousTransition)transition).getDependencies().get(i).getCoefficient());
-				}
-			}
-		}
 	}
 	
 	
@@ -192,6 +195,26 @@ public class HPnGModel {
 			}
 		}	
 	}	
+	
+	public void printCurrentMarking(Boolean initial, Boolean last){
+		
+		if (initial)
+			System.out.print("Initial marking:");
+		else if (last)
+			System.out.print("Final marking:  ");
+		else
+			System.out.print("Current marking:");
+		
+		
+		for (Place place: places){
+			if (place.getClass().equals(ContinuousPlace.class))
+				System.out.print("    " + place.getId() + ": " + ((ContinuousPlace)place).getFluidLevel());
+			 else 
+				System.out.print("    " + place.getId() + ": " + ((DiscretePlace)place).getNumberOfTokens());
+		}
+		System.out.println();
+		System.out.println();
+	}
 
 	
 	private void rateAdaption(ContinuousPlace place, double flux, ContinuousArcType direction){
@@ -276,6 +299,7 @@ public class HPnGModel {
 				((DeterministicTransition)transition).setClock(0.0);
 			} else if (transition.getClass().equals(GeneralTransition.class)){
 				((GeneralTransition)transition).setEnablingTime(0.0);
+				((GeneralTransition)transition).setFiringsToZero();
 			}
 		}
 	}
@@ -289,6 +313,21 @@ public class HPnGModel {
 				((ContinuousPlace)place).checkUpperBoundary();
 			} else
 				((DiscretePlace)place).resetNumberOfTokens();
+		}
+	}
+	
+	private void updateDynamicRates(){
+		for(Transition transition: transitions){			
+			if (transition.getClass().equals(DynamicContinuousTransition.class)){
+				
+				((DynamicContinuousTransition)transition).setCurrentFluid(0.0);
+				
+				for (int i = 0; i < ((DynamicContinuousTransition)transition).getDependencies().size(); i++){
+					((DynamicContinuousTransition)transition).setCurrentFluid(
+							((DynamicContinuousTransition)transition).getDependencies().get(i).getTransition().getCurrentFluid() 
+							* ((DynamicContinuousTransition)transition).getDependencies().get(i).getCoefficient());
+				}
+			}
 		}
 	}
 }

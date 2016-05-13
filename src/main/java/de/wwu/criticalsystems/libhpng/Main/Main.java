@@ -8,9 +8,11 @@ public class Main {
     public static void main(String[] args) {
     	
     		ModelReader reader = new ModelReader();
-    		HPnGModel model = reader.readModel("example.xml");
+    		HPnGModel model = reader.readModel("examples/example2.xml");
     		
     		Simulator simulator = new Simulator();
-    		simulator.simulateNRuns(1, 20.0, model); 
+    		simulator.simulateNRuns(2, 20.0, model);
+    		
+    		
     }
 }

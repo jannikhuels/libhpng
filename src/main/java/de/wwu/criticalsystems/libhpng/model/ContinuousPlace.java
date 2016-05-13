@@ -89,7 +89,7 @@ public class ContinuousPlace extends Place{
 	
 	public Boolean checkLowerBoundary(){		
 		lowerBoundaryReached = false;					
-		if (currentFluidLevel <= 0.0)
+		if (Math.floor(currentFluidLevel*1000000)/1000000 <= 0.0)
 			lowerBoundaryReached = true;
 		else
 			lowerBoundaryReached = false;

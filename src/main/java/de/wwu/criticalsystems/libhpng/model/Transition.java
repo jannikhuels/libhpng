@@ -63,6 +63,7 @@ public abstract class Transition {
 		} else if (this.getClass().equals(GeneralTransition.class)){
 			((GeneralTransition)this).setEnablingTime(0.0);
 			((GeneralTransition)this).setNewRandomFiringTime();
+			((GeneralTransition)this).increaseFirings();
 		}
 	}
 }
