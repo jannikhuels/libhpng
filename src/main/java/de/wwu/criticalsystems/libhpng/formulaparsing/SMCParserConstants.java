@@ -14,45 +14,53 @@ public interface SMCParserConstants {
   /** RegularExpression Id. */
   int RBRACE = 4;
   /** RegularExpression Id. */
-  int DIGITS = 5;
+  int LBRACESQ = 5;
   /** RegularExpression Id. */
-  int NUMBER = 6;
+  int RBRACESQ = 6;
   /** RegularExpression Id. */
-  int ID = 7;
+  int COMPARE = 7;
   /** RegularExpression Id. */
-  int SEP = 8;
+  int DIGITS = 8;
   /** RegularExpression Id. */
-  int NOT = 9;
+  int NUMBER = 9;
   /** RegularExpression Id. */
-  int OR = 10;
+  int ID = 10;
   /** RegularExpression Id. */
-  int AND = 11;
+  int SEP = 11;
   /** RegularExpression Id. */
-  int UNTIL = 12;
+  int COLON = 12;
   /** RegularExpression Id. */
   int PROB = 13;
   /** RegularExpression Id. */
-  int COMPARE = 14;
+  int PROBQ = 14;
   /** RegularExpression Id. */
-  int FLUID = 15;
+  int NOT = 15;
   /** RegularExpression Id. */
-  int TOKENS = 16;
+  int OR = 16;
   /** RegularExpression Id. */
-  int ENABLED = 17;
+  int AND = 17;
   /** RegularExpression Id. */
-  int CLOCK = 18;
+  int UNTIL = 18;
   /** RegularExpression Id. */
-  int FIRINGS = 19;
+  int FLUID = 19;
   /** RegularExpression Id. */
-  int DRIFT = 20;
+  int TOKENS = 20;
   /** RegularExpression Id. */
-  int UBOUND = 21;
+  int ENABLED = 21;
   /** RegularExpression Id. */
-  int LBOUND = 22;
+  int CLOCK = 22;
   /** RegularExpression Id. */
-  int ARC = 23;
+  int FIRINGS = 23;
   /** RegularExpression Id. */
-  int EOL = 24;
+  int DRIFT = 24;
+  /** RegularExpression Id. */
+  int UBOUND = 25;
+  /** RegularExpression Id. */
+  int LBOUND = 26;
+  /** RegularExpression Id. */
+  int ARC = 27;
+  /** RegularExpression Id. */
+  int EOL = 28;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -64,16 +72,20 @@ public interface SMCParserConstants {
     "\"\\t\"",
     "\"(\"",
     "\")\"",
+    "\"[\"",
+    "\"]\"",
+    "<COMPARE>",
     "<DIGITS>",
     "<NUMBER>",
     "<ID>",
     "\",\"",
+    "\":\"",
+    "\"P\"",
+    "\"P=?\"",
     "\"!\"",
     "\"OR\"",
     "\"AND\"",
     "\"U\"",
-    "\"P\"",
-    "<COMPARE>",
     "\"fluidlevel\"",
     "\"tokens\"",
     "\"enabled\"",
@@ -84,7 +96,6 @@ public interface SMCParserConstants {
     "\"lboundary\"",
     "\"condition\"",
     "<EOL>",
-    "\"_\"",
   };
 
 }

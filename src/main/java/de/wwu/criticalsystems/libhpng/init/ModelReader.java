@@ -2,12 +2,17 @@ package de.wwu.criticalsystems.libhpng.init;
 
 import java.io.File;
 import java.util.Collections;
+import javax.xml.bind.JAXBException;
+import de.wwu.criticalsystems.libhpng.errorhandling.InvalidModelConnectionException;
 import de.wwu.criticalsystems.libhpng.model.*;
 import de.wwu.criticalsystems.libhpng.model.ContinuousArc.ContinuousArcType;
 import de.wwu.criticalsystems.libhpng.model.DiscreteArc.DiscreteArcType;
 
 public class ModelReader {
 	
+	public ModelReader() {}
+
+
 	private HPnGModel model;
 	
 	public HPnGModel readModel(String filePath){	
@@ -15,17 +20,30 @@ public class ModelReader {
 		//Read model from XML
     	File xmlFile = new File(filePath);
     	XMLReader xmlReader = new XMLReader();
-		model = xmlReader.readXmlIntoModel(xmlFile);
-		
-		setConnectedPlacesAndTransitions();
-		setUpperBoundaryInfinityValues();
-		sortLists();
-		model.resetMarking();
-		
-		return model;		
+    	
+		try {
+			
+			model = xmlReader.readXmlIntoModel(xmlFile);
+
+			setConnectedPlacesAndTransitions();
+			setUpperBoundaryInfinityValues();
+			sortLists();
+			model.resetMarking();
+			
+			return model;
+			
+		} catch (JAXBException e) {
+			System.out.println("An Error occured while reading the model file. Please see the error log and check the model.");
+			//e.printStackTrace();
+		} catch(InvalidModelConnectionException e) {
+			//e.printStackTrace();
+		}
+				
+		return null;
 	}	
 	
-	private void setConnectedPlacesAndTransitions(){
+	private void setConnectedPlacesAndTransitions() throws InvalidModelConnectionException{
+		
 		
 		for(Arc arc: model.getArcs()){
 			Boolean fromNodeFound = false;
@@ -80,10 +98,14 @@ public class ModelReader {
 		        }	        	
 		    }	
 	        
-	        if (!fromNodeFound)
-	        	System.out.println("Model error: 'fromNode' for arc " + arc.getId() + " could not be matched to any place or transition");	        
-	        if (!toNodeFound)
+	        if (!fromNodeFound){
+	        	System.out.println("Model error: 'fromNode' for arc " + arc.getId() + " could not be matched to any place or transition");
+	        	throw new InvalidModelConnectionException("'fromNode' for arc " + arc.getId() + " could not be matched to any place or transition");
+	        }
+	        if (!toNodeFound){
 	        	System.out.println("Model error: 'toNode' for arc " + arc.getId() + " could not be matched to any place or transition");
+	        	throw new InvalidModelConnectionException("'toNode' for arc " + arc.getId() + " could not be matched to any place or transition");
+	        }	
 	      }
 	}
 	

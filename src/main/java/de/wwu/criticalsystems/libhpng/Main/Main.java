@@ -7,7 +7,7 @@ public class Main {
     public static void main(String[] args) {
     	
     		ModelReader reader = new ModelReader();
-    		HPnGModel model = reader.readModel("examples/example.xml");
+    		HPnGModel model = reader.readModel("examples/example2.xml");
 
     }
 }

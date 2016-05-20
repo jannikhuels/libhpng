@@ -28,16 +28,20 @@ TOKEN :
 {
   <LBRACE: "(">
 | <RBRACE: ")">
+| <LBRACESQ: "[">
+| <RBRACESQ: "]">
+| <COMPARE: "<" | ">" | "=" | "<=" | ">=">
 | <DIGITS: (["0"-"9"])+>
 | <NUMBER: <DIGITS> "." <DIGITS>>
 | <ID: "'"(((["a"-"z","A"-"Z"])+) | (<DIGITS>))+ "'">
 | <SEP: ",">
+| <COLON: ":">
+| <PROB: "P">
+| <PROBQ: "P=?">
 | <NOT: "!">
 | <OR: "OR">
 | <AND: "AND">
 | <UNTIL: "U">
-| <PROB: "P">
-| <COMPARE: "<" | ">" | "=" | "<=" | ">=">
 | <FLUID: "fluidlevel">
 | <TOKENS: "tokens">
 | <ENABLED: "enabled">
@@ -60,12 +64,12 @@ SimpleNode Input()      :
 {/*@bgen(jjtree) ROOT */
    try {
 /*@egen*/
-   Psi()<EOL>/*@bgen(jjtree)*/
-             {
-               jjtree.closeNodeScope(jjtn000, true);
-               jjtc000 = false;
-             }
-/*@egen*/{return jjtn000;}/*@bgen(jjtree)*/
+   Time() <COLON> (Prob() | ProbQ()) <EOL>/*@bgen(jjtree)*/
+                                           {
+                                             jjtree.closeNodeScope(jjtn000, true);
+                                             jjtc000 = false;
+                                           }
+/*@egen*/ {return jjtn000;}/*@bgen(jjtree)*/
    } catch (Throwable jjte000) {
      if (jjtc000) {
        jjtree.clearNodeScope(jjtn000);
@@ -91,7 +95,7 @@ SimpleNode Input()      :
 void Psi()       :
 {Token t;}
 {
- <LBRACE> Psi() <RBRACE> | Prob() | And() | Or() | Until() | Not() | Atomic()
+ <LBRACE> Psi() <RBRACE> | And() | Or() | Until() | Not() | Atomic()
 }
 
 void Atomic()      :
@@ -205,7 +209,7 @@ void Until()       :
 {/*@bgen(jjtree) UNTIL */
    try {
 /*@egen*/
-   <UNTIL> "_" Double() <LBRACE> Psi() <SEP> Psi() <RBRACE>/*@bgen(jjtree)*/
+   <UNTIL> <LBRACESQ> Double() <SEP> <RBRACESQ> <LBRACE> Psi() <SEP> Psi() <RBRACE>/*@bgen(jjtree)*/
    } catch (Throwable jjte000) {
      if (jjtc000) {
        jjtree.clearNodeScope(jjtn000);
@@ -238,6 +242,38 @@ void Prob()      :
    try {
 /*@egen*/
    <PROB> Compare() Double() <LBRACE> Psi() <RBRACE>/*@bgen(jjtree)*/
+   } catch (Throwable jjte000) {
+     if (jjtc000) {
+       jjtree.clearNodeScope(jjtn000);
+       jjtc000 = false;
+     } else {
+       jjtree.popNode();
+     }
+     if (jjte000 instanceof RuntimeException) {
+       throw (RuntimeException)jjte000;
+     }
+     if (jjte000 instanceof ParseException) {
+       throw (ParseException)jjte000;
+     }
+     throw (Error)jjte000;
+   } finally {
+     if (jjtc000) {
+       jjtree.closeNodeScope(jjtn000, true);
+     }
+   }
+/*@egen*/
+}
+
+void ProbQ()       :
+{/*@bgen(jjtree) PROBQ */
+  SimpleNode jjtn000 = new SimpleNode(JJTPROBQ);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) PROBQ */
+   try {
+/*@egen*/
+   <PROBQ> <LBRACE> Psi() <RBRACE>/*@bgen(jjtree)*/
    } catch (Throwable jjte000) {
      if (jjtc000) {
        jjtree.clearNodeScope(jjtn000);
@@ -344,6 +380,38 @@ void Id()    :
            jjtc000 = false;
          }
 /*@egen*/ {jjtn000.value = t.image;}/*@bgen(jjtree)*/
+  } finally {
+    if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, true);
+    }
+  }
+/*@egen*/
+}
+
+void Time()      :
+{/*@bgen(jjtree) TIME */
+  SimpleNode jjtn000 = new SimpleNode(JJTTIME);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) TIME */
+  try {
+/*@egen*/
+  Double()/*@bgen(jjtree)*/
+  } catch (Throwable jjte000) {
+    if (jjtc000) {
+      jjtree.clearNodeScope(jjtn000);
+      jjtc000 = false;
+    } else {
+      jjtree.popNode();
+    }
+    if (jjte000 instanceof RuntimeException) {
+      throw (RuntimeException)jjte000;
+    }
+    if (jjte000 instanceof ParseException) {
+      throw (ParseException)jjte000;
+    }
+    throw (Error)jjte000;
   } finally {
     if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);

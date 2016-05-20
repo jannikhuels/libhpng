@@ -24,16 +24,20 @@ TOKEN :
 {
   <LBRACE: "(">
 | <RBRACE: ")">
+| <LBRACESQ: "[">
+| <RBRACESQ: "]">
+| <COMPARE: "<" | ">" | "=" | "<=" | ">=">
 | <DIGITS: (["0"-"9"])+>
 | <NUMBER: <DIGITS> "." <DIGITS>>
 | <ID: "'"(((["a"-"z","A"-"Z"])+) | (<DIGITS>))+ "'">
 | <SEP: ",">
+| <COLON: ":">
+| <PROB: "P">
+| <PROBQ: "P=?">
 | <NOT: "!">
 | <OR: "OR">
 | <AND: "AND">
 | <UNTIL: "U">
-| <PROB: "P">
-| <COMPARE: "<" | ">" | "=" | "<=" | ">=">
 | <FLUID: "fluidlevel">
 | <TOKENS: "tokens">
 | <ENABLED: "enabled">
@@ -50,13 +54,13 @@ TOKEN :
 SimpleNode Input() #ROOT:
 {}
 {
-   Psi()<EOL>{return jjtThis;}
+   Time() <COLON> (Prob() | ProbQ()) <EOL> {return jjtThis;}
 }
 
 void Psi() #void :
 {Token t;}
 {
- <LBRACE> Psi() <RBRACE> | Prob() | And() | Or() | Until() | Not() | Atomic()
+ <LBRACE> Psi() <RBRACE> | And() | Or() | Until() | Not() | Atomic()
 }
 
 void Atomic() #void:
@@ -86,13 +90,19 @@ void Or() #OR:
 void Until() #UNTIL:
 {}
 {
-   <UNTIL> "_" Double() <LBRACE> Psi() <SEP> Psi() <RBRACE>
+   <UNTIL> <LBRACESQ> Double() <SEP> <RBRACESQ> <LBRACE> Psi() <SEP> Psi() <RBRACE>
 }
 
 void Prob() #PROB:
 {}
 {
    <PROB> Compare() Double() <LBRACE> Psi() <RBRACE>
+}
+
+void ProbQ() #PROBQ:
+{}
+{
+   <PROBQ> <LBRACE> Psi() <RBRACE>
 }
 
 void Double() #DOUBLE:
@@ -117,6 +127,12 @@ void Id() #ID:
 {Token t;}
 {
   t=<ID> {jjtThis.value = t.image;}
+}
+
+void Time() #TIME:
+{}
+{
+  Double()
 }
 
 void Fluid() #ATOMIC_FLUID:
