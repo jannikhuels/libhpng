@@ -7,6 +7,8 @@ import org.jfree.ui.RefineryUtilities;
 
 import de.wwu.criticalsystems.libhpng.model.*;
 import de.wwu.criticalsystems.libhpng.plotting.*;
+import de.wwu.criticalsystems.libhpng.simulation.ConfidenceIntervalCalculator.Comparator;
+import de.wwu.criticalsystems.libhpng.simulation.ConfidenceIntervalCalculator.PropertyType;
 import de.wwu.criticalsystems.libhpng.simulation.SimulationEvent.SimulationEventType;
 
 public class Simulator {
@@ -19,6 +21,7 @@ public class Simulator {
 	private SimulationEvent event;
 	private ArrayList<MarkingPlot> plots = new ArrayList<MarkingPlot>();
 	private MarkingPlot currentPlot;
+	private Boolean print;
 	
 	
 	//main simulation function
@@ -26,7 +29,8 @@ public class Simulator {
 		
 		this.maxTime = maxTime;
 		this.model = model;
-		
+		this.print = true;
+
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
 				
@@ -41,38 +45,55 @@ public class Simulator {
 			
 			currentPlot = new MarkingPlot();
 			plots.add(currentPlot);
-			currentPlot.addAllPlaces(model);
-			currentPlot.saveDiscretePlaceData(0.0);
-			currentPlot.saveContinuousPlaceData(0.0);
+			currentPlot.initialize(model);
 			
-			while (currentTime <= maxTime){
+			while (currentTime <= maxTime)
 				currentTime = getAndCompleteNextEvent();
-			}
 			
 			System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
-			model.printCurrentMarking(false, true);
-			currentPlot.plotContinuousPlaces();
-						
-		/*	
-			//Wahrscheinlichkeit zum Zeitpunkt t=20.0, dass left leer ist
-			for (PlacePlot p : plot.getPlacePlots()){
-				if (p.getReferencedPlace().getId().equals("left")){
-					if (((ContinuousPlaceEntry)p.getEntryAtTime(20.0)).getFluidLevel() <= 0.0)
-						counter++;
-					break;
-				}	
-			}	*/	
-			
+			model.printCurrentMarking(false, true);	
 		}
-
-		//System.out.println("Prob= " + (counter.doubleValue())/n_runs.doubleValue());
-		
 		plotMeanContinuousPlaces();
-		
-	
-		
 	}
 	
+	
+	//main simulation function
+	public void simulateIteratively(HPnGModel model, String IdToCheck, Double width, PropertyType typeToCheck, Double timeToCheck, Double boundaryToCheck, Comparator compare, Integer min_runs, Integer max_runs){
+			
+		this.maxTime = timeToCheck + 10.0;
+		this.model = model;
+		this.print = false;
+			
+		SampleGenerator generator = new SampleGenerator();
+		generator.initializeRandomStream();
+				
+		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(model, IdToCheck, min_runs);
+		
+		int run = 0;
+		while (!calc.checkBound(width) && run < max_runs){
+			
+			currentTime = 0.0;
+			model.resetMarking();
+			generator.sampleGeneralTransitions(model);
+		
+			currentPlot = new MarkingPlot();
+			plots.add(currentPlot);
+			currentPlot.initialize(model);
+			
+			while (currentTime <= maxTime)
+				currentTime = getAndCompleteNextEvent();			
+			
+			calc.calculateSSquare(timeToCheck, typeToCheck, boundaryToCheck, compare, run+1, currentPlot);
+			calc.findTDistribution(0.95);
+			
+			run++;
+		
+		}
+		System.out.println(run + " runs needed. Mean value: " + calc.getMean() + ".");
+		System.out.println("Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder());
+			
+	}
+		
 		
 	//event finder
 	private Double getAndCompleteNextEvent(){
@@ -230,15 +251,16 @@ public class Simulator {
 			
 			model.updateEnabling();
 			model.updateFluidRates();
-			currentPlot.saveDiscretePlaceData(maxTime);
-			currentPlot.saveContinuousPlaceData(maxTime);
+			currentPlot.saveAll(maxTime);
+			
 			
 		} else {
 			if (event.getOccurenceTime() - currentTime > 0.0)
 				model.advanceMarking(event.getOccurenceTime() - currentTime);
 				
 			completeEvent();
-			model.printCurrentMarking(false, false);
+			if (print) 
+				model.printCurrentMarking(false, false);
 		}		
 		
 				
@@ -250,17 +272,21 @@ public class Simulator {
 	
 		if (event.getEventType() == SimulationEventType.immediate_transition || event.getEventType() == SimulationEventType.deterministic_transition || event.getEventType() == SimulationEventType.general_transition) {
 			
-			currentPlot.saveDiscretePlaceData(event.getOccurenceTime());
+			//currentPlot.saveDiscretePlaceData(event.getOccurenceTime());
 			
 			//transition firing
 			Transition transition = conflictResolutionByTransitionWeight();		
 			transition.fireTransition();
 			model.checkGuardArcsForDiscretePlaces();
 			transition.setEnabled(false);
+			
+			//plotting
 			if (event.getEventType() == SimulationEventType.general_transition)
-				System.out.println(event.getOccurenceTime() + " seconds: Transition " + transition.getId() + " is fired for the " + ((GeneralTransition)transition).getFirings() + ". time");
-			else
-				System.out.println(event.getOccurenceTime() + " seconds: Transition " + transition.getId() + " is fired");
+				if (print) System.out.println(event.getOccurenceTime() + " seconds: General transition " + transition.getId() + " is fired for the " + ((GeneralTransition)transition).getFirings() + ". time");
+			else if (event.getEventType() == SimulationEventType.immediate_transition)
+				if (print) System.out.println(event.getOccurenceTime() + " seconds: Immediate transition " + transition.getId() + " is fired");
+			else if (event.getEventType() == SimulationEventType.deterministic_transition)
+				if (print) System.out.println(event.getOccurenceTime() + " seconds: Deterministic transition " + transition.getId() + " is fired");
 			
 			currentPlot.saveDiscretePlaceData(event.getOccurenceTime());
 		
@@ -270,13 +296,13 @@ public class Simulator {
 			for (Object object: event.getRelatedObjects()){
 				Boolean fulfilled = ((GuardArc)object).checkCondition();
 				
-				if (fulfilled && !((GuardArc)object).getInhibitor()) 
+				if (print && fulfilled && !((GuardArc)object).getInhibitor()) 
 					System.out.println(event.getOccurenceTime() + " seconds: test arc " + ((GuardArc)object).getId() + " has its condition fulfilled for transition " + ((GuardArc)object).getConnectedTransition().getId());
-				else if (!fulfilled && !((GuardArc)object).getInhibitor())
+				else if (print && !fulfilled && !((GuardArc)object).getInhibitor())
 					System.out.println(event.getOccurenceTime() + " seconds: test arc " + ((GuardArc)object).getId() + " has its condition stopped being fulfilled for transition " + ((GuardArc)object).getConnectedTransition().getId());
-				else if (fulfilled && ((GuardArc)object).getInhibitor()) 
+				else if (print && fulfilled && ((GuardArc)object).getInhibitor()) 
 					System.out.println(event.getOccurenceTime() + " seconds: inhibitor arc " + ((GuardArc)object).getId() + " has its condition fulfilled for transition " + ((GuardArc)object).getConnectedTransition().getId());
-				else if (!fulfilled && ((GuardArc)object).getInhibitor())
+				else if (print && !fulfilled && ((GuardArc)object).getInhibitor())
 					System.out.println(event.getOccurenceTime() + " seconds: inhibitor arc " + ((GuardArc)object).getId() + " has its condition stopped being fulfilled for transition " + ((GuardArc)object).getConnectedTransition().getId());									
 			}			
 		} else if (event.getEventType() == SimulationEventType.place_boundary){
@@ -286,17 +312,20 @@ public class Simulator {
 				
 				if (((ContinuousPlace)object).checkLowerBoundary()){
 					((ContinuousPlace)object).checkUpperBoundary();
-					System.out.println(event.getOccurenceTime() + " seconds: continuous place " + ((ContinuousPlace)object).getId() + " is empty");
+					if (print)
+						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + ((ContinuousPlace)object).getId() + " is empty");
 				} else {
 					((ContinuousPlace)object).checkUpperBoundary();
-					System.out.println(event.getOccurenceTime() + " seconds: continuous place " + ((ContinuousPlace)object).getId() + " has reached its upper boundary");
+					if (print)
+						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + ((ContinuousPlace)object).getId() + " has reached its upper boundary");
 				}					
 			}	
 		}
 
 		model.updateEnabling();
+		currentPlot.saveAllTransitionData(event.getOccurenceTime());
 		model.updateFluidRates();		
-		currentPlot.saveContinuousPlaceData(event.getOccurenceTime());
+		currentPlot.saveContinuousPlaceData(event.getOccurenceTime());		
 	}
 	
 	
@@ -345,7 +374,7 @@ public class Simulator {
 		ArrayList<ContinuousPlaceEntry> data = new ArrayList<ContinuousPlaceEntry>();
 		Double meanFluid, meanDrift, interval, time, fluid;
 		PlotEntry currentEntry;
-		int i;
+		int n;
 		
 		XYLineGraph graph = new XYLineGraph("Continuous Places Mean", "time", "fluid level");
 		
@@ -357,7 +386,7 @@ public class Simulator {
 					
 					meanFluid = 0.0;
 					meanDrift = 0.0;
-					i = 0;
+					n = 0;
 					
 					//for time=0.0
 					for (MarkingPlot plot : plots){
@@ -365,11 +394,11 @@ public class Simulator {
 						fluid = ((ContinuousPlaceEntry)currentEntry).getFluidLevel();
 						meanFluid += fluid;
 						meanDrift += ((ContinuousPlaceEntry)currentEntry).getDrift();
-						i++;
+						n++;
 					}
 					
-					meanFluid = meanFluid / i;
-					meanDrift = meanDrift / i;						
+					meanFluid = meanFluid / n;
+					meanDrift = meanDrift / n;						
 					data.add(new ContinuousPlaceEntry(0.0, meanFluid, meanDrift));
 					graph.addSeriesEntry(place.getId(), 0.0,  meanFluid);
 
@@ -380,7 +409,7 @@ public class Simulator {
 						
 						meanFluid = 0.0;
 						meanDrift = 0.0;
-						i = 0;
+						n = 0;
 						interval = maxTime-time;
 						for (MarkingPlot plot : plots){
 							currentEntry = plot.getPlacePlots().get(place.getId()).getNextEntryAfterGivenTime(time);
@@ -393,14 +422,15 @@ public class Simulator {
 							currentEntry = plot.getPlacePlots().get(place.getId()).getNextEntryBeforeOrAtGivenTime(time);
 							fluid = ((ContinuousPlaceEntry)currentEntry).getFluidLevel();
 							if (currentEntry.getTime() < time)
-								fluid += ((ContinuousPlaceEntry)currentEntry).getDrift()*(time - currentEntry.getTime());
+								fluid = Math.max(0.0, fluid + ((ContinuousPlaceEntry)currentEntry).getDrift()*(time - currentEntry.getTime()));
+							
 							meanFluid += fluid;
 							meanDrift += ((ContinuousPlaceEntry)currentEntry).getDrift();
-							i++;
+							n++;
 						}
 						
-						meanFluid = meanFluid / i;
-						meanDrift = meanDrift / i;						
+						meanFluid = meanFluid / n;
+						meanDrift = meanDrift / n;						
 						data.add(new ContinuousPlaceEntry(time, meanFluid, meanDrift));
 						graph.addSeriesEntry(place.getId(), time,  meanFluid);
 					}

@@ -2,6 +2,8 @@ package de.wwu.criticalsystems.libhpng.Main;
 
 import de.wwu.criticalsystems.libhpng.init.*;
 import de.wwu.criticalsystems.libhpng.model.*;
+import de.wwu.criticalsystems.libhpng.simulation.ConfidenceIntervalCalculator.Comparator;
+import de.wwu.criticalsystems.libhpng.simulation.ConfidenceIntervalCalculator.PropertyType;
 import de.wwu.criticalsystems.libhpng.simulation.Simulator;
 
 public class Main {
@@ -11,7 +13,8 @@ public class Main {
     		HPnGModel model = reader.readModel("examples/example2.xml");
     		
     		Simulator simulator = new Simulator();
-    		simulator.simulateNRuns(2, 20.0, model);
+    		//simulator.simulateNRuns(10, 30.0, model);
+    		simulator.simulateIteratively(model, "tg1", 0.01, PropertyType.firings, 10.0, 2.0, Comparator.greaterequal, 100, 1000000);
     		
     		
     }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <HPnG>
     <places>
-    <discretePlace id="pd1" marking="1"/>
+    <discretePlace id="pd1" marking="2"/>
     <discretePlace id="pd2" marking="0"/>
     <continuousPlace capacity="10" id="left" level="10"/>
     <continuousPlace capacity="100" id="right" level="0"/>

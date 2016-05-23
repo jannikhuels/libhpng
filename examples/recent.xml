@@ -26,8 +26,10 @@
     <continuousPlace capacity="10000000000" id="losses" level="0.0E1"/>
   </places>
   <transitions>
-    <generalTransition cdf="foldednormal{1,2}" discTime="0"
-      id="grid_repaired" priority="0" weight="1.0E0"/>
+     <generalTransition cdf="foldednormal" id="grid_repaired" priority="0" weight="1.0E0" policy="resume">
+      <parameter name="mu" value="1.0"/>
+      <parameter name="sigma" value="1.0"/>
+     </generalTransition>
     <deterministicTransition discTime="0.05" id="T1" priority="1" weight="1.0E0"/>
     <deterministicTransition discTime="0.05" id="T2" priority="1" weight="1.0E0"/>
     <deterministicTransition discTime="0.05" id="T3" priority="1" weight="1.0E0"/>
