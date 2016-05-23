@@ -2,8 +2,11 @@ package de.wwu.criticalsystems.libhpng.init;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.logging.Logger;
+
 import javax.xml.bind.JAXBException;
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidModelConnectionException;
+import de.wwu.criticalsystems.libhpng.errorhandling.ModelNotReadableException;
 import de.wwu.criticalsystems.libhpng.model.*;
 import de.wwu.criticalsystems.libhpng.model.ContinuousArc.ContinuousArcType;
 import de.wwu.criticalsystems.libhpng.model.DiscreteArc.DiscreteArcType;
@@ -12,19 +15,31 @@ public class ModelReader {
 	
 	public ModelReader() {}
 
-
-	private HPnGModel model;
+	public void setLogger(Logger logger) {
+		this.logger = logger;
+	}
 	
-	public HPnGModel readModel(String filePath){	
+	private HPnGModel model;
+	private Logger logger;
+	
+	public HPnGModel readModel(String filePath) throws ModelNotReadableException{	
 		
-		//Read model from XML
-    	File xmlFile = new File(filePath);
-    	XMLReader xmlReader = new XMLReader();
-    	
 		try {
 			
+			//check if file exists
+	    	File xmlFile = new File(filePath);	    	
+	    	if (!xmlFile.exists()){
+	    		if (logger != null) logger.severe("The model file could not be found.");
+				throw new ModelNotReadableException("File '" + filePath + "' not found");
+	    	}
+	    		
+	    	//Read model from XML
+	    	XMLReader xmlReader = new XMLReader();
 			model = xmlReader.readXmlIntoModel(xmlFile);
+			
+			if (logger != null) logger.info("Model structure has been read from XML file successfully.");
 
+			//initialize model
 			setConnectedPlacesAndTransitions();
 			setUpperBoundaryInfinityValues();
 			sortLists();
@@ -33,14 +48,14 @@ public class ModelReader {
 			return model;
 			
 		} catch (JAXBException e) {
-			System.out.println("An Error occured while reading the model file. Please see the error log and check the model.");
-			//e.printStackTrace();
+			if (logger != null) logger.severe("The XML file could not be read in by JAXB.");
+			throw new ModelNotReadableException(e.getMessage());
+			
 		} catch(InvalidModelConnectionException e) {
-			//e.printStackTrace();
+			throw new ModelNotReadableException(e.getMessage());
 		}
-				
-		return null;
 	}	
+	
 	
 	private void setConnectedPlacesAndTransitions() throws InvalidModelConnectionException{
 		
@@ -99,14 +114,17 @@ public class ModelReader {
 		    }	
 	        
 	        if (!fromNodeFound){
-	        	System.out.println("Model error: 'fromNode' for arc " + arc.getId() + " could not be matched to any place or transition");
-	        	throw new InvalidModelConnectionException("'fromNode' for arc " + arc.getId() + " could not be matched to any place or transition");
+	          	if (logger != null) logger.severe("Model error: 'fromNode' for arc " + arc.getId() + " could not be matched to any place or transition");
+	        	throw new InvalidModelConnectionException("'fromNode' for arc '" + arc.getId() + "' could not be matched to any place or transition");
 	        }
 	        if (!toNodeFound){
-	        	System.out.println("Model error: 'toNode' for arc " + arc.getId() + " could not be matched to any place or transition");
+	        	if (logger != null) logger.severe("Model error: 'toNode' for arc '" + arc.getId() + "' could not be matched to any place or transition");
 	        	throw new InvalidModelConnectionException("'toNode' for arc " + arc.getId() + " could not be matched to any place or transition");
-	        }	
+	        }
+	        
 	      }
+		  if (logger != null) logger.info("Model object connections were set successfully.");
+
 	}
 	
 	
@@ -132,5 +150,9 @@ public class ModelReader {
 		
 		for(Transition transition: model.getTransitions())
 			Collections.sort(transition.getConnectedArcs(),new ArcComparatorForTransitions());
-	}	
+		
+		if (logger != null) logger.info("Model lists sorted successfully.");
+	}
+
+	
 }
