@@ -10,7 +10,7 @@
   	<fluidTransition id="tf1" rate="1.0"/>
      <generalTransition cdf="normal" id="tg1" priority="0" weight="1.0E0" policy="resume">
       <parameter name="mu" value="5.0"/>
-      <parameter name="sigma" value="5.0"/>
+      <parameter name="sigma" value="1.0"/>
      </generalTransition>
     </transitions>
   <arcs>

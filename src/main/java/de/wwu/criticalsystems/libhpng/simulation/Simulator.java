@@ -24,8 +24,8 @@ public class Simulator {
 	private Boolean print;
 	
 	
-	//main simulation function
-	public void simulateNRuns(Integer n_runs, Double maxTime, HPnGModel model){
+	//simulation function no. 1
+	public void simulateAndPlotOnly(Integer numberOfRuns, Double maxTime, HPnGModel model, Double confidenceInterval){
 		
 		this.maxTime = maxTime;
 		this.model = model;
@@ -34,7 +34,7 @@ public class Simulator {
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
 				
-		for (int run = 0; run < n_runs; run++){			
+		for (int run = 0; run < numberOfRuns; run++){			
 			
 			System.out.println("Starting simulation run no." + (run+1));
 			
@@ -47,30 +47,33 @@ public class Simulator {
 			plots.add(currentPlot);
 			currentPlot.initialize(model);
 			
+			//simulation
 			while (currentTime <= maxTime)
 				currentTime = getAndCompleteNextEvent();
 			
 			System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
 			model.printCurrentMarking(false, true);	
 		}
-		plotMeanContinuousPlaces();
+		//ContinuousPlacesPlotter.plotMeanContinuousPlaces(model, plots, maxTime);
+		ContinuousPlacesPlotter plotter = new ContinuousPlacesPlotter();
+		plotter.plotContinuousPlaces(model, plots, maxTime, confidenceInterval);
 	}
 	
 	
-	//main simulation function
-	public void simulateIteratively(HPnGModel model, String IdToCheck, Double width, PropertyType typeToCheck, Double timeToCheck, Double boundaryToCheck, Comparator compare, Integer min_runs, Integer max_runs){
+	//simulation function no. 2
+	public void simulateAndCheckPropertyWithFixedIntervalWidth(HPnGModel model, PropertyType typeToCheck, String idToCheck, Double timeToCheck, Double boundaryToCheck, Comparator compare, Double width, Double confidenceLevel, Integer minRuns, Integer maxRuns){
 			
-		this.maxTime = timeToCheck + 10.0;
+		this.maxTime = timeToCheck;
 		this.model = model;
 		this.print = false;
 			
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
 				
-		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(model, IdToCheck, min_runs);
+		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(model, idToCheck, minRuns);
 		
 		int run = 0;
-		while (!calc.checkBound(width) && run < max_runs){
+		while (!calc.checkBound(width) && run < maxRuns){
 			
 			currentTime = 0.0;
 			model.resetMarking();
@@ -80,19 +83,54 @@ public class Simulator {
 			plots.add(currentPlot);
 			currentPlot.initialize(model);
 			
+			//simulation
 			while (currentTime <= maxTime)
 				currentTime = getAndCompleteNextEvent();			
 			
 			calc.calculateSSquare(timeToCheck, typeToCheck, boundaryToCheck, compare, run+1, currentPlot);
-			calc.findTDistribution(0.95);
+			calc.findTDistribution(confidenceLevel);
 			
-			run++;
-		
+			run++;		
 		}
+		
 		System.out.println(run + " runs needed. Mean value: " + calc.getMean() + ".");
-		System.out.println("Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder());
-			
+		System.out.println("Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");			
 	}
+	
+	
+	//simulation function no. 3
+	public void simulateAndCheckPropertyWithFixedNumberOfRuns(HPnGModel model, PropertyType typeToCheck, String idToCheck, Double timeToCheck, Double boundaryToCheck, Comparator compare, Integer numberOfRuns, Double confidenceLevel){
+		
+		this.maxTime = timeToCheck;
+		this.model = model;
+		this.print = false;
+			
+		SampleGenerator generator = new SampleGenerator();
+		generator.initializeRandomStream();
+		
+		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(model, idToCheck, numberOfRuns);
+		
+		for (int run = 0; run < numberOfRuns; run++){
+
+			currentTime = 0.0;
+			model.resetMarking();
+			generator.sampleGeneralTransitions(model);
+		
+			currentPlot = new MarkingPlot();
+			plots.add(currentPlot);
+			currentPlot.initialize(model);
+			
+			//simulation
+			while (currentTime <= maxTime)
+				currentTime = getAndCompleteNextEvent();			
+			
+			calc.calculateSSquare(timeToCheck, typeToCheck, boundaryToCheck, compare, run+1, currentPlot);
+			calc.findTDistribution(confidenceLevel);
+				
+		}
+		System.out.println(numberOfRuns + " runs simulated. Mean value: " + calc.getMean() + ".");
+		System.out.println("Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
+	}	
 		
 		
 	//event finder
@@ -366,80 +404,5 @@ public class Simulator {
 		
 		return null;
 	}	
-	
-	
-	
-	private void plotMeanContinuousPlaces(){
-		
-		ArrayList<ContinuousPlaceEntry> data = new ArrayList<ContinuousPlaceEntry>();
-		Double meanFluid, meanDrift, interval, time, fluid;
-		PlotEntry currentEntry;
-		int n;
-		
-		XYLineGraph graph = new XYLineGraph("Continuous Places Mean", "time", "fluid level");
-		
-		for (Place place : model.getPlaces()){			
-
-			if (place.getClass().equals(ContinuousPlace.class)){			
-				graph.addSeries(place.getId());	
-				
-					
-					meanFluid = 0.0;
-					meanDrift = 0.0;
-					n = 0;
-					
-					//for time=0.0
-					for (MarkingPlot plot : plots){
-						currentEntry = plot.getPlacePlots().get(place.getId()).getNextEntryBeforeOrAtGivenTime(0.0);
-						fluid = ((ContinuousPlaceEntry)currentEntry).getFluidLevel();
-						meanFluid += fluid;
-						meanDrift += ((ContinuousPlaceEntry)currentEntry).getDrift();
-						n++;
-					}
-					
-					meanFluid = meanFluid / n;
-					meanDrift = meanDrift / n;						
-					data.add(new ContinuousPlaceEntry(0.0, meanFluid, meanDrift));
-					graph.addSeriesEntry(place.getId(), 0.0,  meanFluid);
-
-					time=0.0;
-					interval = maxTime;	
-					
-					while (time <= maxTime && interval > 0.0){
-						
-						meanFluid = 0.0;
-						meanDrift = 0.0;
-						n = 0;
-						interval = maxTime-time;
-						for (MarkingPlot plot : plots){
-							currentEntry = plot.getPlacePlots().get(place.getId()).getNextEntryAfterGivenTime(time);
-							if (currentEntry.getTime() < (time + interval))
-								interval = currentEntry.getTime() - time;							
-						}
-						time+=interval;
-						
-						for (MarkingPlot plot : plots){
-							currentEntry = plot.getPlacePlots().get(place.getId()).getNextEntryBeforeOrAtGivenTime(time);
-							fluid = ((ContinuousPlaceEntry)currentEntry).getFluidLevel();
-							if (currentEntry.getTime() < time)
-								fluid = Math.max(0.0, fluid + ((ContinuousPlaceEntry)currentEntry).getDrift()*(time - currentEntry.getTime()));
-							
-							meanFluid += fluid;
-							meanDrift += ((ContinuousPlaceEntry)currentEntry).getDrift();
-							n++;
-						}
-						
-						meanFluid = meanFluid / n;
-						meanDrift = meanDrift / n;						
-						data.add(new ContinuousPlaceEntry(time, meanFluid, meanDrift));
-						graph.addSeriesEntry(place.getId(), time,  meanFluid);
-					}
-				}
-			}
-		graph.pack();
-		RefineryUtilities.centerFrameOnScreen(graph);
-		graph.setVisible(true);
-
-	}
 	
 }

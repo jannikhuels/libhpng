@@ -4,6 +4,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
@@ -16,11 +17,13 @@ public class XYLineGraph extends ApplicationFrame {
 
 		super(title);
         
-        JFreeChart chart = ChartFactory.createXYLineChart(title, xAxisName, yAxisName, data, PlotOrientation.VERTICAL, true, true, false);
+        this.chart = ChartFactory.createXYLineChart(title, xAxisName, yAxisName, data, PlotOrientation.VERTICAL, true, true, false);
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(750, 405));
         setContentPane(chartPanel);
 	}
+	
+	private JFreeChart chart;
 
 	public XYSeries getSeries(String seriesName) {
 		return data.getSeries(seriesName);
@@ -35,5 +38,9 @@ public class XYLineGraph extends ApplicationFrame {
 	
 	public void addSeriesEntry(String seriesName, Double x, Double y){
 		data.getSeries(seriesName).add(x,y);
+	}
+	
+	public XYPlot getPlot(){
+		return (XYPlot)chart.getPlot();
 	}
 }

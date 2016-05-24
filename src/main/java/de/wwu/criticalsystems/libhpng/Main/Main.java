@@ -13,9 +13,8 @@ public class Main {
     		HPnGModel model = reader.readModel("examples/example2.xml");
     		
     		Simulator simulator = new Simulator();
-    		//simulator.simulateNRuns(10, 30.0, model);
-    		simulator.simulateIteratively(model, "tg1", 0.01, PropertyType.firings, 10.0, 2.0, Comparator.greaterequal, 100, 1000000);
-    		
-    		
+    		simulator.simulateAndPlotOnly(50, 30.0, model, 0.99);
+    		//simulator.simulateAndCheckPropertyWithFixedIntervalWidth(model, PropertyType.firings, "tg1", 10.0, 2.0, Comparator.greaterequal, 0.05, 0.95, 100, 1000000);
+    		//simulator.simulateAndCheckPropertyWithFixedNumberOfRuns(model, PropertyType.firings, "tg1", 10.0, 2.0, Comparator.greaterequal, 1000, 0.95);
     }
 }
