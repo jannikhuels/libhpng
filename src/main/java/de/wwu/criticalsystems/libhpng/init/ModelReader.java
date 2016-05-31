@@ -5,8 +5,7 @@ import java.util.Collections;
 import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBException;
-import de.wwu.criticalsystems.libhpng.errorhandling.InvalidModelConnectionException;
-import de.wwu.criticalsystems.libhpng.errorhandling.ModelNotReadableException;
+import de.wwu.criticalsystems.libhpng.errorhandling.*;
 import de.wwu.criticalsystems.libhpng.model.*;
 import de.wwu.criticalsystems.libhpng.model.ContinuousArc.ContinuousArcType;
 import de.wwu.criticalsystems.libhpng.model.DiscreteArc.DiscreteArcType;
@@ -35,13 +34,13 @@ public class ModelReader {
 	    		
 	    	//Read model from XML
 	    	XMLReader xmlReader = new XMLReader();
+	    	if (logger != null) xmlReader.setLogger(logger);
 			model = xmlReader.readXmlIntoModel(xmlFile);
 			
 			if (logger != null) logger.info("Model structure has been read from XML file successfully.");
 
 			//initialize model
 			setConnectedPlacesAndTransitions();
-			setUpperBoundaryInfinityValues();
 			sortLists();
 			model.resetMarking();
 			
@@ -49,10 +48,14 @@ public class ModelReader {
 			
 		} catch (JAXBException e) {
 			if (logger != null) logger.severe("The XML file could not be read in by JAXB.");
-			throw new ModelNotReadableException(e.getMessage());
+			throw new ModelNotReadableException(e.getLocalizedMessage());
 			
 		} catch(InvalidModelConnectionException e) {
-			throw new ModelNotReadableException(e.getMessage());
+			throw new ModelNotReadableException(e.getLocalizedMessage());
+			
+		} catch (XmlNotValidException e) {
+			if (logger != null) logger.severe("The XML file does not fulfill the XML Schema definition: " + e.getLocalizedMessage());
+			throw new ModelNotReadableException(e.getLocalizedMessage());				
 		}
 	}	
 	
@@ -125,20 +128,6 @@ public class ModelReader {
 	      }
 		  if (logger != null) logger.info("Model object connections were set successfully.");
 
-	}
-	
-	
-	private void setUpperBoundaryInfinityValues(){
-		
-		for(Place place: model.getPlaces()){
-			if (place.getClass().equals(ContinuousPlace.class)){
-				
-				if (((ContinuousPlace)place).getUpperBoundary() == null || ((ContinuousPlace)place).getUpperBoundary().equals(("infinity")) | ((ContinuousPlace)place).getUpperBoundary().equals(("inf")))
-					((ContinuousPlace)place).setUpperBoundaryInfinity(true);
-				else
-					((ContinuousPlace)place).setUpperBoundaryInfinity(false);
-			}
-		}
 	}
 	
 	

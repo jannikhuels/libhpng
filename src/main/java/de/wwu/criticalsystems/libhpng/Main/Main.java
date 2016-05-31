@@ -19,11 +19,9 @@ public class Main {
 			HPnGModel model = reader.readModel("examples/example2.xml");
 			logger.info("Model has been read successfully.");				
 		
-		} catch (ModelNotReadableException e) {
-		
+		} catch (ModelNotReadableException e) {		
 			logger.severe("The model could not be read in.");
 			System.out.println("An Error occured while reading the model file. Please see the error log and recheck the model.");
-		
 		}
     }
     

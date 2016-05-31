@@ -1,6 +1,10 @@
-Mai 23, 2016 10:35:46 AM de.wwu.criticalsystems.libhpng.init.ModelReader readModel
+Mai 31, 2016 3:58:22 PM de.wwu.criticalsystems.libhpng.init.XMLReader validateAgainstSchema
+INFORMATION: The XML model file has been validated against the XML Schema file successfully.
+Mai 31, 2016 3:58:23 PM de.wwu.criticalsystems.libhpng.init.ModelReader readModel
 INFORMATION: Model structure has been read from XML file successfully.
-Mai 23, 2016 10:35:46 AM de.wwu.criticalsystems.libhpng.init.ModelReader setConnectedPlacesAndTransitions
-SCHWERWIEGEND: Model error: 'fromNode' for arc ga1 could not be matched to any place or transition
-Mai 23, 2016 10:35:46 AM de.wwu.criticalsystems.libhpng.Main.Main main
-SCHWERWIEGEND: The model could not be read in.
+Mai 31, 2016 3:58:23 PM de.wwu.criticalsystems.libhpng.init.ModelReader setConnectedPlacesAndTransitions
+INFORMATION: Model object connections were set successfully.
+Mai 31, 2016 3:58:23 PM de.wwu.criticalsystems.libhpng.init.ModelReader sortLists
+INFORMATION: Model lists sorted successfully.
+Mai 31, 2016 3:58:23 PM de.wwu.criticalsystems.libhpng.Main.Main main
+INFORMATION: Model has been read successfully.
