@@ -49,6 +49,7 @@ public class ContinuousPlace extends Place{
 	public Boolean getUpperBoundaryInfinity() {
 		return upperBoundaryInfinity;
 	}	
+	@XmlAttribute (name = "infiniteCapacity")
 	public void setUpperBoundaryInfinity(Boolean upperBoundaryInfinity) {
 		this.upperBoundaryInfinity = upperBoundaryInfinity;
 	}

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import javax.xml.bind.annotation.*;
 import de.wwu.criticalsystems.libhpng.model.DiscreteArc.DiscreteArcType;
 
-@XmlRootElement (name = "places")
+@XmlRootElement (name = "transitions")
 @XmlSeeAlso({DeterministicTransition.class, ContinuousTransition.class, ImmediateTransition.class, GeneralTransition.class, DynamicContinuousTransition.class})
 public abstract class Transition {
 	

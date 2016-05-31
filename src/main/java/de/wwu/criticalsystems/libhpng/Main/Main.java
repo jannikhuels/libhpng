@@ -1,9 +1,8 @@
 package de.wwu.criticalsystems.libhpng.Main;
 
+import de.wwu.criticalsystems.libhpng.formulaparsing.*;
 import de.wwu.criticalsystems.libhpng.init.*;
 import de.wwu.criticalsystems.libhpng.model.*;
-import de.wwu.criticalsystems.libhpng.simulation.ConfidenceIntervalCalculator.Comparator;
-import de.wwu.criticalsystems.libhpng.simulation.ConfidenceIntervalCalculator.PropertyType;
 import de.wwu.criticalsystems.libhpng.simulation.Simulator;
 
 public class Main {
@@ -12,9 +11,22 @@ public class Main {
     		ModelReader reader = new ModelReader();
     		HPnGModel model = reader.readModel("examples/example2.xml");
     		
-    		Simulator simulator = new Simulator();
-    		simulator.simulateAndPlotOnly(50, 30.0, model, 0.99);
-    		//simulator.simulateAndCheckPropertyWithFixedIntervalWidth(model, PropertyType.firings, "tg1", 10.0, 2.0, Comparator.greaterequal, 0.05, 0.95, 100, 1000000);
-    		//simulator.simulateAndCheckPropertyWithFixedNumberOfRuns(model, PropertyType.firings, "tg1", 10.0, 2.0, Comparator.greaterequal, 1000, 0.95);
+    		SMCParser parser = new SMCParser(System.in);
+    	    try {
+				SimpleNode root = parser.Input();
+				
+	    		
+	    		Simulator simulator = new Simulator();
+	    		//simulator.simulateAndPlotOnly(50, 30.0, model, 0.99);
+	    		simulator.simulateAndCheckPropertyWithFixedIntervalWidth(model, root, 0.05, 0.95, 100, 1000000);
+
+	    		//simulator.simulateAndCheckPropertyWithFixedNumberOfRuns(model, root, 100, 0.95);
+				
+				
+				
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
     }
 }

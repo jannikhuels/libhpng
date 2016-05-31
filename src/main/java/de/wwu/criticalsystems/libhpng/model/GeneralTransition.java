@@ -2,7 +2,6 @@ package de.wwu.criticalsystems.libhpng.model;
 
 import java.util.ArrayList;
 import javax.xml.bind.annotation.*;
-
 import umontreal.iro.lecuyer.randvar.RandomVariateGen;
 
 @XmlRootElement( name = "generalTransition" )
@@ -127,15 +126,14 @@ public class GeneralTransition extends Transition{
 	private ArrayList <CDFFunctionParameter> parameters = new ArrayList<CDFFunctionParameter>();
 	
 	
-	public void setNewRandomFiringTime(){
+	public void setNewRandomFiringTime() {
+		
 		if (randomGenerator != null){
 			discreteFiringTime = randomGenerator.nextDouble();
-		} else {
-			System.out.println("Error at sampling General Transition " + this.getId());
-		}		
+			if (discreteFiringTime < 0.0)
+				discreteFiringTime = 0.0;
+		}	
 
-		if (discreteFiringTime< 0.0)
-			discreteFiringTime = 0.0;
 	}
 	
 
@@ -147,7 +145,7 @@ public class GeneralTransition extends Transition{
 		this.firings = 0;
 	}
 
-	public void enableByPolicy() {
+	public void enableByPolicy(){
 		
 		switch (policy){
 		case repeatdifferent:

@@ -31,7 +31,7 @@ public class HPnGModel {
 	@XmlElementWrapper(name="transitions")
 	@XmlElements({
 	    @XmlElement(name="deterministicTransition", type=DeterministicTransition.class),
-	    @XmlElement(name="fluidTransition", type=ContinuousTransition.class),
+	    @XmlElement(name="continuousTransition", type=ContinuousTransition.class),
 	    @XmlElement(name="generalTransition", type=GeneralTransition.class),
 	    @XmlElement(name="immediateTransition", type=ImmediateTransition.class),
 	    @XmlElement(name="dynamicContinuousTransition", type=DynamicContinuousTransition.class),

@@ -163,9 +163,9 @@ public class DistributionSetting {
 		for (CDFFunctionParameter parameter : transition.getParameters()){
 			switch (parameter.getName()){
 				case "n":
-					double nuDouble = parameter.getValue();
-					if (nuDouble == Math.floor(nuDouble)){
-						n = (int) nuDouble;
+					double nDouble = parameter.getValue();
+					if (nDouble == Math.floor(nDouble)){
+						n = (int) nDouble;
 						nFound = true;
 					} else
 						System.out.println("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter n has to be an integer value");					

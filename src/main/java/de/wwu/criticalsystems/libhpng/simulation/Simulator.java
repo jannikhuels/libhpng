@@ -3,11 +3,9 @@ package de.wwu.criticalsystems.libhpng.simulation;
 import java.util.ArrayList;
 import java.util.Random;
 
-import org.jfree.ui.RefineryUtilities;
-
+import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.model.*;
 import de.wwu.criticalsystems.libhpng.plotting.*;
-import de.wwu.criticalsystems.libhpng.simulation.ConfidenceIntervalCalculator.Comparator;
 import de.wwu.criticalsystems.libhpng.simulation.ConfidenceIntervalCalculator.PropertyType;
 import de.wwu.criticalsystems.libhpng.simulation.SimulationEvent.SimulationEventType;
 
@@ -61,16 +59,16 @@ public class Simulator {
 	
 	
 	//simulation function no. 2
-	public void simulateAndCheckPropertyWithFixedIntervalWidth(HPnGModel model, PropertyType typeToCheck, String idToCheck, Double timeToCheck, Double boundaryToCheck, Comparator compare, Double width, Double confidenceLevel, Integer minRuns, Integer maxRuns){
+	public void simulateAndCheckPropertyWithFixedIntervalWidth(HPnGModel model, SimpleNode root, Double width, Double confidenceLevel, Integer minRuns, Integer maxRuns){
 			
-		this.maxTime = timeToCheck;
+		this.maxTime = PropertyChecker.getTimeFromRoot(root);
 		this.model = model;
 		this.print = false;
 			
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
 				
-		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(model, idToCheck, minRuns);
+		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(model, minRuns);
 		
 		int run = 0;
 		while (!calc.checkBound(width) && run < maxRuns){
@@ -87,7 +85,7 @@ public class Simulator {
 			while (currentTime <= maxTime)
 				currentTime = getAndCompleteNextEvent();			
 			
-			calc.calculateSSquare(timeToCheck, typeToCheck, boundaryToCheck, compare, run+1, currentPlot);
+			calc.calculateSSquare(root, run+1, currentPlot);
 			calc.findTDistribution(confidenceLevel);
 			
 			run++;		
@@ -99,16 +97,16 @@ public class Simulator {
 	
 	
 	//simulation function no. 3
-	public void simulateAndCheckPropertyWithFixedNumberOfRuns(HPnGModel model, PropertyType typeToCheck, String idToCheck, Double timeToCheck, Double boundaryToCheck, Comparator compare, Integer numberOfRuns, Double confidenceLevel){
+	public void simulateAndCheckPropertyWithFixedNumberOfRuns(HPnGModel model, SimpleNode root, Integer numberOfRuns, Double confidenceLevel){
 		
-		this.maxTime = timeToCheck;
+		this.maxTime = PropertyChecker.getTimeFromRoot(root);
 		this.model = model;
 		this.print = false;
 			
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
 		
-		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(model, idToCheck, numberOfRuns);
+		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(model, numberOfRuns);
 		
 		for (int run = 0; run < numberOfRuns; run++){
 
@@ -124,7 +122,7 @@ public class Simulator {
 			while (currentTime <= maxTime)
 				currentTime = getAndCompleteNextEvent();			
 			
-			calc.calculateSSquare(timeToCheck, typeToCheck, boundaryToCheck, compare, run+1, currentPlot);
+			calc.calculateSSquare(root, run+1, currentPlot);
 			calc.findTDistribution(confidenceLevel);
 				
 		}

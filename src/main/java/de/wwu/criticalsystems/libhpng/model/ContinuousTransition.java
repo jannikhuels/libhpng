@@ -2,7 +2,7 @@ package de.wwu.criticalsystems.libhpng.model;
 
 import javax.xml.bind.annotation.*;
 
-@XmlRootElement( name = "fluidTransition" )
+@XmlRootElement( name = "continuousTransition" )
 @XmlSeeAlso({Transition.class})
 public class ContinuousTransition extends Transition{
 
