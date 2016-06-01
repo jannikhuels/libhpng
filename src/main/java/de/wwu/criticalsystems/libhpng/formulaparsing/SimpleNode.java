@@ -78,6 +78,7 @@ class SimpleNode implements Node {
 	    }
 	  }
 
+
   public int getId() {
     return id;
   }

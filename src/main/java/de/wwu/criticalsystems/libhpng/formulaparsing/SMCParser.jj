@@ -209,7 +209,7 @@ void Until()       :
 {/*@bgen(jjtree) UNTIL */
    try {
 /*@egen*/
-   <UNTIL> <LBRACESQ> Double() <SEP> <RBRACESQ> <LBRACE> Psi() <SEP> Psi() <RBRACE>/*@bgen(jjtree)*/
+   <UNTIL> <LBRACESQ> Double() <SEP> Double() <RBRACESQ> <LBRACE> Psi() <SEP> Psi() <RBRACE>/*@bgen(jjtree)*/
    } catch (Throwable jjte000) {
      if (jjtc000) {
        jjtree.clearNodeScope(jjtn000);
