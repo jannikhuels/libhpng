@@ -54,7 +54,8 @@ public class PropertyChecker {
 		if (propertyRoot.toString().equals("OR"))
 			return (checkAnyProperty((SimpleNode)propertyRoot.jjtGetChild(0), time) || checkAnyProperty((SimpleNode)propertyRoot.jjtGetChild(1), time));
 		
-		//TODO: until
+		/*if (propertyRoot.toString().equals("UNTIL"))
+			return (checkUntilProperty((SimpleNode)propertyRoot.jjtGetChild(0), time));*/
 		
 		System.out.println("Property Error");
 		return false;

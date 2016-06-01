@@ -90,7 +90,7 @@ void Or() #OR:
 void Until() #UNTIL:
 {}
 {
-   <UNTIL> <LBRACESQ> Double() <SEP> <RBRACESQ> <LBRACE> Psi() <SEP> Psi() <RBRACE>
+   <UNTIL> <LBRACESQ> Double() <SEP> Double() <RBRACESQ> <LBRACE> Psi() <SEP> Psi() <RBRACE>
 }
 
 void Prob() #PROB:

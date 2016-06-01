@@ -15,10 +15,10 @@ public class Main {
     		
     		Simulator simulator = new Simulator();
     		
-    		simulator.simulateAndPlotOnly(200, 30.0, model, 0.99);
+    		//simulator.simulateAndPlotOnly(200, 30.0, model, 0.99);
     		
     		
-    	    /*try {
+    	    try {
 				SimpleNode root = parser.Input();
 				simulator.simulateAndCheckPropertyWithFixedIntervalWidth(model, root, 0.05, 0.95, 100, 1000000);
 				//simulator.simulateAndCheckPropertyWithFixedNumberOfRuns(model, root, 100, 0.95);
@@ -26,6 +26,6 @@ public class Main {
     	    } catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}*/
+			}
     }
 }
