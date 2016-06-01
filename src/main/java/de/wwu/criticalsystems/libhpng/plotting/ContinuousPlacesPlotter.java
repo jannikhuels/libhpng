@@ -89,7 +89,7 @@ public class ContinuousPlacesPlotter {
 			interval = maxTime-time;
 			for (MarkingPlot plot : plots){
 				currentEntry = plot.getPlacePlots().get(place.getId()).getNextEntryAfterGivenTime(time);
-				if (currentEntry.getTime() < (time + interval))
+				if (currentEntry.getTime() < (time + interval) && currentEntry.getTime() > time)
 					interval = currentEntry.getTime() - time;							
 			}
 			time+=interval;

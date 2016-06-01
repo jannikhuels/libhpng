@@ -12,21 +12,20 @@ public class Main {
     		HPnGModel model = reader.readModel("examples/example2.xml");
     		
     		SMCParser parser = new SMCParser(System.in);
-    	    try {
+    		
+    		Simulator simulator = new Simulator();
+    		
+    		simulator.simulateAndPlotOnly(200, 30.0, model, 0.99);
+    		
+    		
+    	    /*try {
 				SimpleNode root = parser.Input();
+				simulator.simulateAndCheckPropertyWithFixedIntervalWidth(model, root, 0.05, 0.95, 100, 1000000);
+				//simulator.simulateAndCheckPropertyWithFixedNumberOfRuns(model, root, 100, 0.95);
 				
-	    		
-	    		Simulator simulator = new Simulator();
-	    		//simulator.simulateAndPlotOnly(50, 30.0, model, 0.99);
-	    		simulator.simulateAndCheckPropertyWithFixedIntervalWidth(model, root, 0.05, 0.95, 100, 1000000);
-
-	    		//simulator.simulateAndCheckPropertyWithFixedNumberOfRuns(model, root, 100, 0.95);
-				
-				
-				
-			} catch (ParseException e) {
+    	    } catch (ParseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}*/
     }
 }

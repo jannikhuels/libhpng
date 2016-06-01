@@ -3,13 +3,13 @@
     <places>
     <discretePlace id="pd1" marking="5"/>
     <discretePlace id="pd2" marking="0"/>
-    <continuousPlace capacity="100" infiniteCapacity="0" id="left" level="10"/>
-    <continuousPlace capacity="100" infiniteCapacity="1" id="right" level="0"/>
+    <continuousPlace capacity="0" infiniteCapacity="1" id="left" level="10"/>
+    <continuousPlace capacity="100" infiniteCapacity="0" id="right" level="0"/>
   </places>
   <transitions> 
   	<continuousTransition id="tf1" rate="1.0"/>
      <generalTransition cdf="normal" id="tg1" priority="0" weight="1.0E0" policy="resume">
-      <parameter name="mu" value="5.0"/>
+      <parameter name="mu" value="10.0"/>
       <parameter name="sigma" value="5.0"/>
      </generalTransition>
     </transitions>
