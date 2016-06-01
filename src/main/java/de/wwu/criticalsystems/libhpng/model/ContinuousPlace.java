@@ -81,7 +81,7 @@ public class ContinuousPlace extends Place{
 	}
 	
 	public Boolean checkUpperBoundary(){							
-		if (!upperBoundaryInfinity && currentFluidLevel >= upperBoundary)
+		if (!upperBoundaryInfinity && Math.ceil(currentFluidLevel*1000000)/1000000 >= upperBoundary)
 			upperBoundaryReached = true;
 		else 
 			upperBoundaryReached = false;

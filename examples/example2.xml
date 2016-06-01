@@ -4,7 +4,7 @@
     <discretePlace id="pd1" marking="1"/>
     <discretePlace id="pd2" marking="0"/>
     <continuousPlace capacity="0" infiniteCapacity="1" id="left" level="10"/>
-    <continuousPlace capacity="100" infiniteCapacity="0" id="right" level="0"/>
+    <continuousPlace capacity="10" infiniteCapacity="0" id="right" level="0"/>
   </places>
   <transitions> 
      <continuousTransition id="tf1" rate="1.0"/>

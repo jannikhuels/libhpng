@@ -154,14 +154,14 @@ public class HPnGModel {
 					((ContinuousPlace)place).setDrift(inFlux - outFlux);
 					
 					
-					if(!((ContinuousPlace)place).getUpperBoundaryInfinity() && (inFlux > outFlux) && ((ContinuousPlace)place).getFluidLevel().equals(((ContinuousPlace)place).getUpperBoundary())){
+					if(!((ContinuousPlace)place).getUpperBoundaryInfinity() && (inFlux > outFlux) && (Math.ceil(((ContinuousPlace)place).getFluidLevel()*1000000)/1000000 >=((ContinuousPlace)place).getUpperBoundary())){
 						//if upper boundary reached
 						rateAdaption((ContinuousPlace)place, outFlux, ContinuousArcType.input);
 						updateDynamicRates();
 						((ContinuousPlace)place).setDrift(0.0);
 						change = true;
 					
-					} else if (outFlux > inFlux && ((ContinuousPlace)place).getFluidLevel() == 0.0){
+					} else if ((outFlux > inFlux) && (Math.floor(((ContinuousPlace)place).getFluidLevel()*1000000)/1000000 <= 0.0)){
 						//lower boundary reached
 						rateAdaption((ContinuousPlace)place, inFlux, ContinuousArcType.output);
 						updateDynamicRates();
@@ -178,11 +178,17 @@ public class HPnGModel {
 	
 	
 	public void advanceMarking(Double timeDelta){
-		
+				
 		for (Place place: places){
 			if (place.getClass().equals(ContinuousPlace.class)){
 				Double fluid = ((ContinuousPlace)place).getFluidLevel();
 				fluid += ((ContinuousPlace)place).getDrift() * timeDelta;
+				
+				if (Math.floor(fluid*1000000)/1000000 == 0.0 ) 
+					fluid = 0.0;
+				else if (!((ContinuousPlace)place).getUpperBoundaryInfinity() && Math.ceil(fluid*1000000)/1000000 == ((ContinuousPlace)place).getUpperBoundary())
+					fluid = ((ContinuousPlace)place).getUpperBoundary();
+				
 				((ContinuousPlace)place).setFluidLevel(fluid);
 			}
 		}
