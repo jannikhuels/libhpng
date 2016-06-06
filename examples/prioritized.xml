@@ -23,10 +23,10 @@
     <discretePlace id="&lt;2" marking="1"/>
     <discretePlace id="prio" marking="0"/>
     <discretePlace id="&lt;3" marking="1"/>
-    <continuousPlace capacity="1000000" id="house" level="1"/>
-    <continuousPlace capacity="10000" id="underflow" level="10000"/>
-    <continuousPlace capacity="700" id="battery" level="700"/>
-    <continuousPlace capacity="10000000000" id="losses" level="0.0E1"/>
+    <continuousPlace capacity="1000000" infiniteCapacity="0" id="house" level="1"/>
+    <continuousPlace capacity="10000" infiniteCapacity="0" id="underflow" level="10000"/>
+    <continuousPlace capacity="700" infiniteCapacity="0" id="battery" level="700"/>
+    <continuousPlace capacity="10000000000" infiniteCapacity="0" id="losses" level="0.0E1"/>
   </places>
   <transitions>
      <generalTransition cdf="foldednormal" id="grid_repaired" priority="0" weight="1.0E0" policy="resume">
@@ -54,26 +54,26 @@
     <deterministicTransition discTime="0.05E1" id="2_1" priority="0" weight="1.0E0"/>
     <deterministicTransition discTime="0.05E1" id="2_3" priority="0" weight="1.0E0"/>
     <deterministicTransition discTime="0.05E1" id="3_2" priority="0" weight="1.0E0"/>
-    <fluidTransition id="p1_rate" priority="0" rate="0.0" weight="1.0E0"/>
-    <fluidTransition id="p2_rate" priority="0" rate="60.0" weight="1.0E0"/>
-    <fluidTransition id="d1_rate_1" priority="0" rate="10.0" weight="1.0E0"/>
-    <fluidTransition id="p3_rate" priority="0" rate="120.0" weight="1.0E0"/>
-    <fluidTransition id="p4_rate" priority="0" rate="160.0" weight="1.0E0"/>
-    <fluidTransition id="p5_rate" priority="0" rate="120.0" weight="1.0E0"/>
-    <fluidTransition id="p7_rate" priority="0" rate="0.0" weight="1.0E0"/>
-    <fluidTransition id="p6_rate" priority="0" rate="50.0" weight="1.0E0"/>
-    <fluidTransition id="d2_rate_1" priority="0" rate="21.0E0" weight="1.0E0"/>
-    <fluidTransition id="d3_rate_1" priority="0" rate="26.0E0" weight="1.0E0"/>
-    <fluidTransition id="d1_rate_2" priority="0" rate="27.0E0" weight="1.0E0"/>
-    <fluidTransition id="d1_rate_3" priority="0" rate="17.0E0" weight="1.0E0"/>
-    <fluidTransition id="d2_rate_2" priority="0" rate="63.0E0" weight="1.0E0"/>
-    <fluidTransition id="d2_rate_3" priority="0" rate="32.0E0" weight="1.0E0"/>
-    <fluidTransition id="d3_rate_2" priority="0" rate="65.0E0" weight="1.0E0"/>
-    <fluidTransition id="d3_rate_3" priority="0" rate="39.0E0" weight="1.0E0"/>
-    <fluidTransition id="d1_rate" priority="0" rate="54.0E0" weight="1.0E0"/>
-    <fluidTransition id="d2_rate" priority="0" rate="106.0E0" weight="1.0E0"/>
-    <fluidTransition id="d3_rate" priority="0" rate="140.0E0" weight="1.0E0"/>
-    <dynamicContinuousTransition id="t_underflow" priority="0" weight="1.0E0">
+    <continuousTransition id="p1_rate" rate="0.0"/>
+    <continuousTransition id="p2_rate" rate="60.0"/>
+    <continuousTransition id="d1_rate_1" rate="10.0"/>
+    <continuousTransition id="p3_rate" rate="120.0"/>
+    <continuousTransition id="p4_rate" rate="160.0"/>
+    <continuousTransition id="p5_rate" rate="120.0"/>
+    <continuousTransition id="p7_rate" rate="0.0"/>
+    <continuousTransition id="p6_rate" rate="50.0"/>
+    <continuousTransition id="d2_rate_1" rate="21.0E0"/>
+    <continuousTransition id="d3_rate_1" rate="26.0E0"/>
+    <continuousTransition id="d1_rate_2" rate="27.0E0"/>
+    <continuousTransition id="d1_rate_3" rate="17.0E0"/>
+    <continuousTransition id="d2_rate_2" rate="63.0E0"/>
+    <continuousTransition id="d2_rate_3" rate="32.0E0"/>
+    <continuousTransition id="d3_rate_2" rate="65.0E0"/>
+    <continuousTransition id="d3_rate_3" rate="39.0E0"/>
+    <continuousTransition id="d1_rate" rate="54.0E0"/>
+    <continuousTransition id="d2_rate" rate="106.0E0"/>
+    <continuousTransition id="d3_rate" rate="140.0E0"/>
+    <dynamicContinuousTransition id="t_underflow">
       <pid coef="-1">p1_rate</pid>
       <pid coef="-1">p2_rate</pid>
       <pid coef="-1">p3_rate</pid>
@@ -91,7 +91,7 @@
       <pid coef="1">d3_rate_2</pid>
       <pid coef="1">d3_rate_3</pid>
     </dynamicContinuousTransition>
-    <dynamicContinuousTransition id="load" priority="0" weight="1.0E0">
+    <dynamicContinuousTransition id="load">
       <pid coef="0.8">p1_rate</pid>
       <pid coef="0.8">p2_rate</pid>
       <pid coef="0.8">p3_rate</pid>
@@ -109,7 +109,7 @@
       <pid coef="-0.8">d3_rate_2</pid>
       <pid coef="-0.8">d3_rate_3</pid>
     </dynamicContinuousTransition>
-    <dynamicContinuousTransition id="from_bat" priority="0" weight="1.0E0">
+    <dynamicContinuousTransition id="from_bat">
       <pid coef="-1">p1_rate</pid>
       <pid coef="-1">p2_rate</pid>
       <pid coef="-1">p3_rate</pid>
@@ -127,7 +127,7 @@
       <pid coef="1">d3_rate_2</pid>
       <pid coef="1">d3_rate_3</pid>
     </dynamicContinuousTransition>
-    <dynamicContinuousTransition id="loss" priority="0" weight="1.0E0">
+    <dynamicContinuousTransition id="loss">
       <pid coef="0.2">p1_rate</pid>
       <pid coef="0.2">p2_rate</pid>
       <pid coef="0.2">p3_rate</pid>
@@ -145,12 +145,12 @@
       <pid coef="-0.2">d3_rate_2</pid>
       <pid coef="-0.2">d3_rate_3</pid>
     </dynamicContinuousTransition>
-    <dynamicContinuousTransition id="grid_is_on" priority="0" weight="1.0E0">
+    <dynamicContinuousTransition id="grid_is_on">
       <pid coef="1">d1_rate</pid>
       <pid coef="1">d2_rate</pid>
       <pid coef="1">d3_rate</pid>
     </dynamicContinuousTransition>
-    <dynamicContinuousTransition id="grid_is_off" priority="0" weight="1.0E0">
+    <dynamicContinuousTransition id="grid_is_off">
       <pid coef="1">d1_rate_1</pid>
       <pid coef="1">d1_rate_2</pid>
       <pid coef="1">d1_rate_3</pid>
@@ -163,215 +163,110 @@
     </dynamicContinuousTransition>
   </transitions>
   <arcs>
-    <discreteArc fromNode="full" id="0.7" priority="1" share="1.0E0"
-      toNode="T1" weight="1.0E0"/>
-    <discreteArc fromNode="T3" id="0.10" priority="1" share="1.0E0"
-      toNode="empty" weight="1.0E0"/>
-    <discreteArc fromNode="empty" id="0.11" priority="1" share="1.0E0"
-      toNode="T4" weight="1.0E0"/>
-    <discreteArc fromNode="T2" id="0.14" priority="1" share="1.0E0"
-      toNode="full" weight="1.0E0"/>
-    <discreteArc fromNode="p1_on" id="0.32" priority="1" share="1.0E0"
-      toNode="p1_p2" weight="1.0E0"/>
-    <discreteArc fromNode="p1_p2" id="0.33" priority="1" share="1.0E0"
-      toNode="p2_on" weight="1.0E0"/>
-    <discreteArc fromNode="p2_on" id="0.34" priority="1" share="1.0E0"
-      toNode="p2_p3" weight="1.0E0"/>
-    <discreteArc fromNode="grid_on" id="0.38" priority="1" share="1.0E0"
-      toNode="grid_failed" weight="1.0E0"/>
-    <discreteArc fromNode="fail_count" id="0.40" priority="1"
-      share="1.0E0" toNode="grid_failed" weight="1.0E0"/>
-    <discreteArc fromNode="grid_failed" id="0.47" priority="1"
-      share="1.0E0" toNode="grid_off" weight="1.0E0"/>
-    <discreteArc fromNode="grid_off" id="0.49" priority="1"
-      share="1.0E0" toNode="grid_repaired" weight="1.0E0"/>
-    <discreteArc fromNode="grid_repaired" id="0.50" priority="1"
-      share="1.0E0" toNode="grid_on" weight="1.0E0"/>
-    <discreteArc fromNode="p2_p3" id="0.78" priority="1" share="1.0E0"
-      toNode="p3_on" weight="1.0E0"/>
-    <discreteArc fromNode="p3_on" id="0.79" priority="1" share="1.0E0"
-      toNode="p3_p4" weight="1.0E0"/>
-    <discreteArc fromNode="p3_p4" id="0.80" priority="1" share="1.0E0"
-      toNode="p4_on" weight="1.0E0"/>
-    <discreteArc fromNode="p4_on" id="0.81" priority="1" share="1.0E0"
-      toNode="p4_p5" weight="1.0E0"/>
-    <discreteArc fromNode="p4_p5" id="0.82" priority="1" share="1.0E0"
-      toNode="p5_on" weight="1.0E0"/>
-    <discreteArc fromNode="p5_on" id="0.83" priority="1" share="1.0E0"
-      toNode="p5_p6" weight="1.0E0"/>
-    <discreteArc fromNode="p5_p6" id="0.84" priority="1" share="1.0E0"
-      toNode="p6_on" weight="1.0E0"/>
-    <discreteArc fromNode="p6_on" id="0.85" priority="1" share="1.0E0"
-      toNode="p6_p7" weight="1.0E0"/>
-    <discreteArc fromNode="p6_p7" id="0.86" priority="1" share="1.0E0"
-      toNode="p7_on" weight="1.0E0"/>
-    <discreteArc fromNode="p7_on" id="0.105" priority="1" share="1.0E0"
-      toNode="p7_p8" weight="1.0E0"/>
-    <discreteArc fromNode="d1_on" id="0.147" priority="1" share="1.0E0"
-      toNode="d1_d2" weight="1.0E0"/>
-    <discreteArc fromNode="d1_d2" id="0.148" priority="1" share="1.0E0"
-      toNode="d2_on" weight="1.0E0"/>
-    <discreteArc fromNode="d2_on" id="0.149" priority="1" share="1.0E0"
-      toNode="d2_d3" weight="1.0E0"/>
-    <discreteArc fromNode="d2_d3" id="0.150" priority="1" share="1.0E0"
-      toNode="d3_on" weight="1.0E0"/>
-    <discreteArc fromNode="d3_d1" id="0.164" priority="1" share="1.0E0"
-      toNode="d1_on" weight="1.0E0"/>
-    <discreteArc fromNode="p7_p8" id="0.52" priority="1" share="1.0E0"
-      toNode="p1_on" weight="1.0E0"/>
-    <discreteArc fromNode="prod>=demand" id="0.61" priority="1"
-      share="1.0E0" toNode="d" weight="1.0E0"/>
-    <discreteArc fromNode="d" id="0.62" priority="1" share="1.0E0"
-      toNode="prod&lt;demand" weight="1.0E0"/>
-    <discreteArc fromNode="prod&lt;demand" id="0.67" priority="1"
-      share="1.0E0" toNode="p" weight="1.0E0"/>
-    <discreteArc fromNode="p" id="0.68" priority="1" share="1.0E0"
-      toNode="prod>=demand" weight="1.0E0"/>
-    <discreteArc fromNode="newday" id="0.88" priority="1" share="1.0E0"
-      toNode="p" weight="1.0E0"/>
-    <discreteArc fromNode="p7_p8" id="0.87" priority="1" share="1.0E0"
-      toNode="newday" weight="1.0E0"/>
-    <discreteArc fromNode="good" id="0.8" priority="1" share="1.0E0"
-      toNode="T2" weight="1.0E0"/>
-    <discreteArc fromNode="T1" id="0.9" priority="1" share="1.0E0"
-      toNode="good" weight="1.0E0"/>
-    <discreteArc fromNode="good" id="0.12" priority="1" share="1.0E0"
-      toNode="T3" weight="1.0E0"/>
-    <discreteArc fromNode="T4" id="0.13" priority="1" share="1.0E0"
-      toNode="good" weight="1.0E0"/>
-    <discreteArc fromNode="T4" id="0.232" priority="1" share="1.0E0"
-      toNode="prio" weight="1.0E0"/>
-    <discreteArc fromNode="&lt;2" id="0.235" priority="1" share="1.0E0"
-      toNode="1_2" weight="1.0E0"/>
-    <discreteArc fromNode="1_2" id="0.236" priority="1" share="1.0E0"
-      toNode="prio" weight="1.0E0"/>
-    <discreteArc fromNode="prio" id="0.233" priority="1" share="1.0E0"
-      toNode="2_1" weight="1.0E0"/>
-    <discreteArc fromNode="2_1" id="0.237" priority="1" share="1.0E0"
-      toNode="&lt;2" weight="1.0E0"/>
-    <discreteArc fromNode="&lt;3" id="0.241" priority="1" share="1.0E0"
-      toNode="2_3" weight="1.0E0"/>
-    <discreteArc fromNode="2_3" id="0.242" priority="1" share="1.0E0"
-      toNode="prio" weight="1.0E0"/>
-    <discreteArc fromNode="prio" id="0.243" priority="1" share="1.0E0"
-      toNode="3_2" weight="1.0E0"/>
-    <discreteArc fromNode="3_2" id="0.244" priority="1" share="1.0E0"
-      toNode="&lt;3" weight="1.0E0"/>
-    <discreteArc fromNode="d3_on" id="0.108" priority="1" share="1.0E0"
-      toNode="d3_d1" weight="1.0E0"/>
-    <continuousArc fromNode="p1_rate" id="0.22" priority="1"
-      share="1.0E0" toNode="house" weight="1.0E0"/>
-    <continuousArc fromNode="p2_rate" id="0.26" priority="1"
-      share="1.0E0" toNode="house" weight="1.0E0"/>
-    <continuousArc fromNode="t_underflow" id="0.43" priority="1"
-      share="1.0E0" toNode="house" weight="1.0E0"/>
-    <continuousArc fromNode="underflow" id="0.45" priority="1"
-      share="1.0E0" toNode="t_underflow" weight="1.0E0"/>
-    <continuousArc fromNode="p3_rate" id="0.94" priority="1"
-      share="1.0E0" toNode="house" weight="1.0E0"/>
-    <continuousArc fromNode="p4_rate" id="0.95" priority="1"
-      share="1.0E0" toNode="house" weight="1.0E0"/>
-    <continuousArc fromNode="p5_rate" id="0.96" priority="1"
-      share="1.0E0" toNode="house" weight="1.0E0"/>
-    <continuousArc fromNode="p6_rate" id="0.97" priority="1"
-      share="1.0E0" toNode="house" weight="1.0E0"/>
-    <continuousArc fromNode="p7_rate" id="0.98" priority="1"
-      share="1.0E0" toNode="house" weight="1.0E0"/>
-    <continuousArc fromNode="load" id="0.191" priority="1" share="1.0E0"
-      toNode="battery" weight="1.0E0"/>
-    <continuousArc fromNode="loss" id="0.201" priority="1" share="1.0E0"
-      toNode="losses" weight="1.0E0"/>
-    <continuousArc fromNode="from_bat" id="0.196" priority="1"
-      share="1.0E0" toNode="house" weight="1.0E0"/>
-    <continuousArc fromNode="battery" id="0.55" priority="1"
-      share="1.0E0" toNode="from_bat" weight="1.0E0"/>
-    <continuousArc fromNode="house" id="0.56" priority="1" share="1.0E0"
-      toNode="load" weight="1.0E0"/>
-    <continuousArc fromNode="house" id="0.57" priority="1" share="1.0E0"
-      toNode="loss" weight="1.0E0"/>
-    <continuousArc fromNode="house" id="0.123" priority="1"
-      share="1.0E0" toNode="grid_is_on" weight="1.0E0"/>
-    <continuousArc fromNode="house" id="0.125" priority="1"
-      share="1.0E0" toNode="grid_is_off" weight="1.0E0"/>
-    <guardArc fromNode="p1_rate" id="0.27" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="p1_on" weight="1.0E0"/>
-    <guardArc fromNode="p2_rate" id="0.29" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="p2_on" weight="1.0E0"/>
-    <guardArc fromNode="t_underflow" id="0.42" isInhibitor="0"
-      priority="1" share="1.0E0" toNode="empty" weight="1.0E0"/>
-    <guardArc fromNode="grid_on" id="0.51" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="t_underflow" weight="1.0E0"/>
-    <guardArc fromNode="p3_on" id="0.89" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="p3_rate" weight="1.0E0"/>
-    <guardArc fromNode="p4_on" id="0.90" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="p4_rate" weight="1.0E0"/>
-    <guardArc fromNode="p5_on" id="0.91" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="p5_rate" weight="1.0E0"/>
-    <guardArc fromNode="p6_on" id="0.92" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="p6_rate" weight="1.0E0"/>
-    <guardArc fromNode="p7_on" id="0.93" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="p7_rate" weight="1.0E0"/>
-    <guardArc fromNode="d1_rate_1" id="0.165" isInhibitor="0"
-      priority="1" share="1.0E0" toNode="d1_on" weight="1.0E0"/>
-    <guardArc fromNode="d2_rate_1" id="0.166" isInhibitor="0"
-      priority="1" share="1.0E0" toNode="d2_on" weight="1.0E0"/>
-    <guardArc fromNode="d3_rate_1" id="0.167" isInhibitor="0"
-      priority="1" share="1.0E0" toNode="d3_on" weight="1.0E0"/>
-    <guardArc fromNode="battery" id="0.17" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="T2" weight="700.0"/>
-    <guardArc fromNode="battery" id="0.16" isInhibitor="1" priority="1"
-      share="1.0E0" toNode="T1" weight="700.0"/>
-    <guardArc fromNode="battery" id="0.19" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="T4" weight="0.99"/>
-    <guardArc fromNode="battery" id="0.18" isInhibitor="1" priority="1"
-      share="1.0E0" toNode="T3" weight="0.5"/>
-    <guardArc fromNode="load" id="0.192" isInhibitor="1" priority="1"
-      share="1.0E0" toNode="full" weight="1.0E0"/>
-    <guardArc fromNode="from_bat" id="0.198" isInhibitor="1"
-      priority="1" share="1.0E0" toNode="empty" weight="1.0E0"/>
-    <guardArc fromNode="loss" id="0.203" isInhibitor="1" priority="1"
-      share="1.0E0" toNode="full" weight="1.0E0"/>
-    <guardArc fromNode="d1_rate_2" id="0.100" isInhibitor="0"
-      priority="1" share="1.0E0" toNode="d1_on" weight="1.0E0"/>
-    <guardArc fromNode="d1_rate_3" id="0.101" isInhibitor="0"
-      priority="1" share="1.0E0" toNode="d1_on" weight="1.0E0"/>
-    <guardArc fromNode="d2_on" id="0.128" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="d2_rate_2" weight="1.0E0"/>
-    <guardArc fromNode="d2_on" id="0.174" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="d2_rate_3" weight="1.0E0"/>
-    <guardArc fromNode="d3_on" id="0.175" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="d3_rate_2" weight="1.0E0"/>
-    <guardArc fromNode="d3_on" id="0.176" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="d3_rate_3" weight="1.0E0"/>
-    <guardArc fromNode="battery" id="0.234" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="1_2" weight="200.0E0"/>
-    <guardArc fromNode="battery" id="0.230" isInhibitor="1" priority="1"
-      share="1.0E0" toNode="2_1" weight="200.0E0"/>
-    <guardArc fromNode="2_3" id="0.245" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="battery" weight="500.0E0"/>
-    <guardArc fromNode="battery" id="0.246" isInhibitor="1" priority="1"
-      share="1.0E0" toNode="3_2" weight="500.0E0"/>
-    <guardArc fromNode="d1_rate_2" id="0.247" isInhibitor="0"
-      priority="1" share="1.0E0" toNode="prio" weight="2.0E0"/>
-    <guardArc fromNode="prio" id="0.248" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="d1_rate_3" weight="3.0E0"/>
-    <guardArc fromNode="prio" id="0.109" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="d2_rate_3" weight="3.0E0"/>
-    <guardArc fromNode="prio" id="0.110" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="d2_rate_2" weight="2.0E0"/>
-    <guardArc fromNode="prio" id="0.111" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="d3_rate_3" weight="3.0E0"/>
-    <guardArc fromNode="prio" id="0.112" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="d3_rate_2" weight="2.0E0"/>
-    <guardArc fromNode="grid_on" id="0.116" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="grid_is_on" weight="1.0E0"/>
-    <guardArc fromNode="d1_on" id="0.118" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="d1_rate" weight="1.0E0"/>
-    <guardArc fromNode="d2_rate" id="0.121" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="d2_on" weight="1.0E0"/>
-    <guardArc fromNode="d3_rate" id="0.122" isInhibitor="0" priority="1"
-      share="1.0E0" toNode="d3_on" weight="1.0E0"/>
-    <guardArc fromNode="grid_on" id="0.126" isInhibitor="1" priority="1"
-      share="1.0E0" toNode="grid_is_off" weight="1.0E0"/>
+    <discreteArc fromNode="full" id="0.7" toNode="T1" weight="1.0E0"/>
+    <discreteArc fromNode="T3" id="0.10" toNode="empty" weight="1.0E0"/>
+    <discreteArc fromNode="empty" id="0.11" toNode="T4" weight="1.0E0"/>
+    <discreteArc fromNode="T2" id="0.14" toNode="full" weight="1.0E0"/>
+    <discreteArc fromNode="p1_on" id="0.32" toNode="p1_p2" weight="1.0E0"/>
+    <discreteArc fromNode="p1_p2" id="0.33" toNode="p2_on" weight="1.0E0"/>
+    <discreteArc fromNode="p2_on" id="0.34" toNode="p2_p3" weight="1.0E0"/>
+    <discreteArc fromNode="grid_on" id="0.38" toNode="grid_failed" weight="1.0E0"/>
+    <discreteArc fromNode="fail_count" id="0.40" toNode="grid_failed" weight="1.0E0"/>
+    <discreteArc fromNode="grid_failed" id="0.47" toNode="grid_off" weight="1.0E0"/>
+    <discreteArc fromNode="grid_off" id="0.49" toNode="grid_repaired" weight="1.0E0"/>
+    <discreteArc fromNode="grid_repaired" id="0.50" toNode="grid_on" weight="1.0E0"/>
+    <discreteArc fromNode="p2_p3" id="0.78" toNode="p3_on" weight="1.0E0"/>
+    <discreteArc fromNode="p3_on" id="0.79" toNode="p3_p4" weight="1.0E0"/>
+    <discreteArc fromNode="p3_p4" id="0.80" toNode="p4_on" weight="1.0E0"/>
+    <discreteArc fromNode="p4_on" id="0.81" toNode="p4_p5" weight="1.0E0"/>
+    <discreteArc fromNode="p4_p5" id="0.82" toNode="p5_on" weight="1.0E0"/>
+    <discreteArc fromNode="p5_on" id="0.83" toNode="p5_p6" weight="1.0E0"/>
+    <discreteArc fromNode="p5_p6" id="0.84" toNode="p6_on" weight="1.0E0"/>
+    <discreteArc fromNode="p6_on" id="0.85" toNode="p6_p7" weight="1.0E0"/>
+    <discreteArc fromNode="p6_p7" id="0.86" toNode="p7_on" weight="1.0E0"/>
+    <discreteArc fromNode="p7_on" id="0.105" toNode="p7_p8" weight="1.0E0"/>
+    <discreteArc fromNode="d1_on" id="0.147" toNode="d1_d2" weight="1.0E0"/>
+    <discreteArc fromNode="d1_d2" id="0.148" toNode="d2_on" weight="1.0E0"/>
+    <discreteArc fromNode="d2_on" id="0.149" toNode="d2_d3" weight="1.0E0"/>
+    <discreteArc fromNode="d2_d3" id="0.150" toNode="d3_on" weight="1.0E0"/>
+    <discreteArc fromNode="d3_d1" id="0.164" toNode="d1_on" weight="1.0E0"/>
+    <discreteArc fromNode="p7_p8" id="0.52" toNode="p1_on" weight="1.0E0"/>
+    <discreteArc fromNode="prod>=demand" id="0.61" toNode="d" weight="1.0E0"/>
+    <discreteArc fromNode="d" id="0.62" toNode="prod&lt;demand" weight="1.0E0"/>
+    <discreteArc fromNode="prod&lt;demand" id="0.67" toNode="p" weight="1.0E0"/>
+    <discreteArc fromNode="p" id="0.68" toNode="prod>=demand" weight="1.0E0"/>
+    <discreteArc fromNode="newday" id="0.88" toNode="p" weight="1.0E0"/>
+    <discreteArc fromNode="p7_p8" id="0.87" toNode="newday" weight="1.0E0"/>
+    <discreteArc fromNode="good" id="0.8" toNode="T2" weight="1.0E0"/>
+    <discreteArc fromNode="T1" id="0.9" toNode="good" weight="1.0E0"/>
+    <discreteArc fromNode="good" id="0.12" toNode="T3" weight="1.0E0"/>
+    <discreteArc fromNode="T4" id="0.13" toNode="good" weight="1.0E0"/>
+    <discreteArc fromNode="T4" id="0.232" toNode="prio" weight="1.0E0"/>
+    <discreteArc fromNode="&lt;2" id="0.235" toNode="1_2" weight="1.0E0"/>
+    <discreteArc fromNode="1_2" id="0.236" toNode="prio" weight="1.0E0"/>
+    <discreteArc fromNode="prio" id="0.233" toNode="2_1" weight="1.0E0"/>
+    <discreteArc fromNode="2_1" id="0.237" toNode="&lt;2" weight="1.0E0"/>
+    <discreteArc fromNode="&lt;3" id="0.241" toNode="2_3" weight="1.0E0"/>
+    <discreteArc fromNode="2_3" id="0.242" toNode="prio" weight="1.0E0"/>
+    <discreteArc fromNode="prio" id="0.243" toNode="3_2" weight="1.0E0"/>
+    <discreteArc fromNode="3_2" id="0.244" toNode="&lt;3" weight="1.0E0"/>
+    <discreteArc fromNode="d3_on" id="0.108" toNode="d3_d1" weight="1.0E0"/>
+    <continuousArc fromNode="p1_rate" id="0.22" priority="1" share="1.0E0" toNode="house" weight="1.0E0"/>
+    <continuousArc fromNode="p2_rate" id="0.26" priority="1" share="1.0E0" toNode="house" weight="1.0E0"/>
+    <continuousArc fromNode="t_underflow" id="0.43" priority="1" share="1.0E0" toNode="house" weight="1.0E0"/>
+    <continuousArc fromNode="underflow" id="0.45" priority="1" share="1.0E0" toNode="t_underflow" weight="1.0E0"/>
+    <continuousArc fromNode="p3_rate" id="0.94" priority="1" share="1.0E0" toNode="house" weight="1.0E0"/>
+    <continuousArc fromNode="p4_rate" id="0.95" priority="1" share="1.0E0" toNode="house" weight="1.0E0"/>
+    <continuousArc fromNode="p5_rate" id="0.96" priority="1" share="1.0E0" toNode="house" weight="1.0E0"/>
+    <continuousArc fromNode="p6_rate" id="0.97" priority="1" share="1.0E0" toNode="house" weight="1.0E0"/>
+    <continuousArc fromNode="p7_rate" id="0.98" priority="1" share="1.0E0" toNode="house" weight="1.0E0"/>
+    <continuousArc fromNode="load" id="0.191" priority="1" share="1.0E0" toNode="battery" weight="1.0E0"/>
+    <continuousArc fromNode="loss" id="0.201" priority="1" share="1.0E0" toNode="losses" weight="1.0E0"/>
+    <continuousArc fromNode="from_bat" id="0.196" priority="1" share="1.0E0" toNode="house" weight="1.0E0"/>
+    <continuousArc fromNode="battery" id="0.55" priority="1" share="1.0E0" toNode="from_bat" weight="1.0E0"/>
+    <continuousArc fromNode="house" id="0.56" priority="1" share="1.0E0" toNode="load" weight="1.0E0"/>
+    <continuousArc fromNode="house" id="0.57" priority="1" share="1.0E0" toNode="loss" weight="1.0E0"/>
+    <continuousArc fromNode="house" id="0.123" priority="1" share="1.0E0" toNode="grid_is_on" weight="1.0E0"/>
+    <continuousArc fromNode="house" id="0.125" priority="1" share="1.0E0" toNode="grid_is_off" weight="1.0E0"/>
+    <guardArc fromNode="p1_rate" id="0.27" isInhibitor="0" toNode="p1_on" weight="1.0E0"/>
+    <guardArc fromNode="p2_rate" id="0.29" isInhibitor="0" toNode="p2_on" weight="1.0E0"/>
+    <guardArc fromNode="t_underflow" id="0.42" isInhibitor="0" toNode="empty" weight="1.0E0"/>
+    <guardArc fromNode="grid_on" id="0.51" isInhibitor="0" toNode="t_underflow" weight="1.0E0"/>
+    <guardArc fromNode="p3_on" id="0.89" isInhibitor="0" toNode="p3_rate" weight="1.0E0"/>
+    <guardArc fromNode="p4_on" id="0.90" isInhibitor="0" toNode="p4_rate" weight="1.0E0"/>
+    <guardArc fromNode="p5_on" id="0.91" isInhibitor="0" toNode="p5_rate" weight="1.0E0"/>
+    <guardArc fromNode="p6_on" id="0.92" isInhibitor="0" toNode="p6_rate" weight="1.0E0"/>
+    <guardArc fromNode="p7_on" id="0.93" isInhibitor="0" toNode="p7_rate" weight="1.0E0"/>
+    <guardArc fromNode="d1_rate_1" id="0.165" isInhibitor="0" toNode="d1_on" weight="1.0E0"/>
+    <guardArc fromNode="d2_rate_1" id="0.166" isInhibitor="0" toNode="d2_on" weight="1.0E0"/>
+    <guardArc fromNode="d3_rate_1" id="0.167" isInhibitor="0" toNode="d3_on" weight="1.0E0"/>
+    <guardArc fromNode="battery" id="0.17" isInhibitor="0" toNode="T2" weight="700.0"/>
+    <guardArc fromNode="battery" id="0.16" isInhibitor="1" toNode="T1" weight="700.0"/>
+    <guardArc fromNode="battery" id="0.19" isInhibitor="0" toNode="T4" weight="0.99"/>
+    <guardArc fromNode="battery" id="0.18" isInhibitor="1" toNode="T3" weight="0.5"/>
+    <guardArc fromNode="load" id="0.192" isInhibitor="1" toNode="full" weight="1.0E0"/>
+    <guardArc fromNode="from_bat" id="0.198" isInhibitor="1" toNode="empty" weight="1.0E0"/>
+    <guardArc fromNode="loss" id="0.203" isInhibitor="1" toNode="full" weight="1.0E0"/>
+    <guardArc fromNode="d1_rate_2" id="0.100" isInhibitor="0" toNode="d1_on" weight="1.0E0"/>
+    <guardArc fromNode="d1_rate_3" id="0.101" isInhibitor="0" toNode="d1_on" weight="1.0E0"/>
+    <guardArc fromNode="d2_on" id="0.128" isInhibitor="0" toNode="d2_rate_2" weight="1.0E0"/>
+    <guardArc fromNode="d2_on" id="0.174" isInhibitor="0" toNode="d2_rate_3" weight="1.0E0"/>
+    <guardArc fromNode="d3_on" id="0.175" isInhibitor="0" toNode="d3_rate_2" weight="1.0E0"/>
+    <guardArc fromNode="d3_on" id="0.176" isInhibitor="0" toNode="d3_rate_3" weight="1.0E0"/>
+    <guardArc fromNode="battery" id="0.234" isInhibitor="0" toNode="1_2" weight="200.0E0"/>
+    <guardArc fromNode="battery" id="0.230" isInhibitor="1" toNode="2_1" weight="200.0E0"/>
+    <guardArc fromNode="2_3" id="0.245" isInhibitor="0" toNode="battery" weight="500.0E0"/>
+    <guardArc fromNode="battery" id="0.246" isInhibitor="1" toNode="3_2" weight="500.0E0"/>
+    <guardArc fromNode="d1_rate_2" id="0.247" isInhibitor="0" toNode="prio" weight="2.0E0"/>
+    <guardArc fromNode="prio" id="0.248" isInhibitor="0" toNode="d1_rate_3" weight="3.0E0"/>
+    <guardArc fromNode="prio" id="0.109" isInhibitor="0" toNode="d2_rate_3" weight="3.0E0"/>
+    <guardArc fromNode="prio" id="0.110" isInhibitor="0" toNode="d2_rate_2" weight="2.0E0"/>
+    <guardArc fromNode="prio" id="0.111" isInhibitor="0" toNode="d3_rate_3" weight="3.0E0"/>
+    <guardArc fromNode="prio" id="0.112" isInhibitor="0" toNode="d3_rate_2" weight="2.0E0"/>
+    <guardArc fromNode="grid_on" id="0.116" isInhibitor="0" toNode="grid_is_on" weight="1.0E0"/>
+    <guardArc fromNode="d1_on" id="0.118" isInhibitor="0" toNode="d1_rate" weight="1.0E0"/>
+    <guardArc fromNode="d2_rate" id="0.121" isInhibitor="0" toNode="d2_on" weight="1.0E0"/>
+    <guardArc fromNode="d3_rate" id="0.122" isInhibitor="0" toNode="d3_on" weight="1.0E0"/>
+    <guardArc fromNode="grid_on" id="0.126" isInhibitor="1" toNode="grid_is_off" weight="1.0E0"/>
   </arcs>
 </HPnG>

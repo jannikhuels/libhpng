@@ -49,26 +49,7 @@ public class ConfidenceIntervalCalculator {
 	private Double mean;
 	private Double t;
 	
-	public void calculateSSquare(SimpleNode root, Integer currentRun, MarkingPlot plot) {
-		
-		/*switch (typeToCheck){
-		case drift:
-		case fluidlevel:
-		case token:
-			calculateSSquareForPlaceConditions(timeToCheck, id, typeToCheck, boundaryToCheck, compare, currentRun, currentPlot);
-			break;
-		case enabled:
-		case clock:
-		case firings:
-			calculateSSquareForTransitionConditions(timeToCheck, id, typeToCheck, boundaryToCheck, compare, currentRun, currentPlot);
-			break;
-		default:
-			break;
-		
-		}		*/
-		
-		
-		//PlotEntry currentEntry;
+	public void calculateSSquareForProperty(SimpleNode root, Integer currentRun, MarkingPlot plot) {
 		
 		if (currentRun == 1){
 			n_runs = 0;
@@ -77,8 +58,6 @@ public class ConfidenceIntervalCalculator {
 					
 		PropertyChecker checker = new PropertyChecker();
 		
-		//currentEntry = plot.getPlacePlots().get(place.getId()).getNextEntryBeforeOrAtGivenTime(time);
-
 		if (checker.checkProperty(root, plot, model))						
 			fulfilled++;
 				
@@ -115,66 +94,4 @@ public class ConfidenceIntervalCalculator {
 	public Double getUpperBorder(){
 		return Math.min(1.0,(mean + t * Math.sqrt(ssquare/n_runs)));
 	}
-		
-	
-	//According to http://www.prismmodelchecker.org/papers/vincent-nimal-msc.pdf
-	/*private void calculateSSquareForPlaceConditions(Double time, String id, PropertyType type, Double boundary, Comparator compare, Integer currentRun, MarkingPlot plot){
-			
-		PlotEntry currentEntry;
-		
-		if (currentRun == 1){
-			n_runs = 0;
-			fulfilled = 0;
-		}
-					
-		for (Place place : model.getPlaces()){			
-	
-			if (place.getId().equals(id)){			
-
-				currentEntry = plot.getPlacePlots().get(place.getId()).getNextEntryBeforeOrAtGivenTime(time);
-
-				if (getPropertyFulfilled(currentEntry, time, type, boundary, compare))						
-					fulfilled++;
-				
-				n_runs++;	
-				mean = fulfilled.doubleValue() / n_runs.doubleValue();
-				
-				if (n_runs == 1)
-					ssquare = 0.0;
-				else
-					ssquare = (fulfilled.doubleValue()*(n_runs.doubleValue() - fulfilled.doubleValue()))/(n_runs.doubleValue()*(n_runs.doubleValue() - 1.0));
-			}						
-		}		
-	}
-	
-	private void calculateSSquareForTransitionConditions(Double time, String id, PropertyType type, Double boundary, Comparator compare, Integer currentRun, MarkingPlot plot){
-		
-		PlotEntry currentEntry;
-		
-		if (currentRun == 1){
-			n_runs = 0;
-			fulfilled = 0;
-		}
-					
-		for (Transition transition : model.getTransitions()){			
-	
-			if (transition.getId().equals(id)){			
-
-				currentEntry = plot.getTransitionPlots().get(transition.getId()).getNextEntryBeforeOrAtGivenTime(time);
-
-				if (getPropertyFulfilled(currentEntry, time, type, boundary, compare))						
-					fulfilled++;
-				
-				n_runs++;	
-				mean = fulfilled.doubleValue() / n_runs.doubleValue();
-				
-				if (n_runs == 1)
-					ssquare = 0.0;
-				else
-					ssquare = (fulfilled.doubleValue()*(n_runs.doubleValue() - fulfilled.doubleValue()))/(n_runs.doubleValue()*(n_runs.doubleValue() - 1.0));
-			}						
-		}		
-	}*/
-	
-	
 }

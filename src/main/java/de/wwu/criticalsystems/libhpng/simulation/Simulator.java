@@ -6,7 +6,6 @@ import java.util.Random;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.model.*;
 import de.wwu.criticalsystems.libhpng.plotting.*;
-import de.wwu.criticalsystems.libhpng.simulation.ConfidenceIntervalCalculator.PropertyType;
 import de.wwu.criticalsystems.libhpng.simulation.SimulationEvent.SimulationEventType;
 
 public class Simulator {
@@ -34,14 +33,14 @@ public class Simulator {
 				
 		for (int run = 0; run < numberOfRuns; run++){			
 			
-			System.out.println("Starting simulation run no." + (run+1));
+			if (print) System.out.println("Starting simulation run no." + (run+1));
 			
 			currentTime = 0.0;
 			model.resetMarking();
 			model.printCurrentMarking(true, false);
 			generator.sampleGeneralTransitions(model);
 			
-			currentPlot = new MarkingPlot();
+			currentPlot = new MarkingPlot(maxTime);
 			plots.add(currentPlot);
 			currentPlot.initialize(model);
 			
@@ -49,8 +48,11 @@ public class Simulator {
 			while (currentTime <= maxTime)
 				currentTime = getAndCompleteNextEvent();
 			
-			System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
-			model.printCurrentMarking(false, true);	
+			if (print){
+				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
+				model.printCurrentMarking(false, true);	
+			}
+			
 		}
 		//ContinuousPlacesPlotter.plotMeanContinuousPlaces(model, plots, maxTime);
 		ContinuousPlacesPlotter plotter = new ContinuousPlacesPlotter();
@@ -61,9 +63,9 @@ public class Simulator {
 	//simulation function no. 2
 	public void simulateAndCheckPropertyWithFixedIntervalWidth(HPnGModel model, SimpleNode root, Double width, Double confidenceLevel, Integer minRuns, Integer maxRuns){
 			
-		this.maxTime = PropertyChecker.getTimeFromRoot(root);
+		this.maxTime = PropertyChecker.getMaxTimeForSimulation(root);
 		this.model = model;
-		this.print = false;
+		this.print = true;
 			
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
@@ -73,11 +75,13 @@ public class Simulator {
 		int run = 0;
 		while (!calc.checkBound(width) && run < maxRuns){
 			
+			if (print) System.out.println("Starting simulation run no." + (run+1));
+			
 			currentTime = 0.0;
 			model.resetMarking();
 			generator.sampleGeneralTransitions(model);
 		
-			currentPlot = new MarkingPlot();
+			currentPlot = new MarkingPlot(maxTime);
 			plots.add(currentPlot);
 			currentPlot.initialize(model);
 			
@@ -85,8 +89,14 @@ public class Simulator {
 			while (currentTime <= maxTime)
 				currentTime = getAndCompleteNextEvent();			
 			
-			calc.calculateSSquare(root, run+1, currentPlot);
+			calc.calculateSSquareForProperty(root, run+1, currentPlot);
 			calc.findTDistribution(confidenceLevel);
+			
+			if (print){
+				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
+				model.printCurrentMarking(false, true);	
+			}
+			
 			
 			run++;		
 		}
@@ -99,7 +109,7 @@ public class Simulator {
 	//simulation function no. 3
 	public void simulateAndCheckPropertyWithFixedNumberOfRuns(HPnGModel model, SimpleNode root, Integer numberOfRuns, Double confidenceLevel){
 		
-		this.maxTime = PropertyChecker.getTimeFromRoot(root);
+		this.maxTime = PropertyChecker.getMaxTimeForSimulation(root);
 		this.model = model;
 		this.print = false;
 			
@@ -109,12 +119,14 @@ public class Simulator {
 		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(model, numberOfRuns);
 		
 		for (int run = 0; run < numberOfRuns; run++){
+			
+			if (print) System.out.println("Starting simulation run no." + (run+1));
 
 			currentTime = 0.0;
 			model.resetMarking();
 			generator.sampleGeneralTransitions(model);
 		
-			currentPlot = new MarkingPlot();
+			currentPlot = new MarkingPlot(maxTime);
 			plots.add(currentPlot);
 			currentPlot.initialize(model);
 			
@@ -122,8 +134,11 @@ public class Simulator {
 			while (currentTime <= maxTime)
 				currentTime = getAndCompleteNextEvent();			
 			
-			calc.calculateSSquare(root, run+1, currentPlot);
+			calc.calculateSSquareForProperty(root, run+1, currentPlot);
 			calc.findTDistribution(confidenceLevel);
+			
+			if (print) System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
+			model.printCurrentMarking(false, true);	
 				
 		}
 		System.out.println(numberOfRuns + " runs simulated. Mean value: " + calc.getMean() + ".");
@@ -182,7 +197,7 @@ public class Simulator {
 					event.getRelatedObjects().add(transition);				
 				}
 			} else 
-				break; //fluid or fluid dynamic transition
+				break; //continuous or continuous dynamic transition
 		}		
 		
 		
@@ -308,8 +323,6 @@ public class Simulator {
 	
 		if (event.getEventType() == SimulationEventType.immediate_transition || event.getEventType() == SimulationEventType.deterministic_transition || event.getEventType() == SimulationEventType.general_transition) {
 			
-			//currentPlot.saveDiscretePlaceData(event.getOccurenceTime());
-			
 			//transition firing
 			Transition transition = conflictResolutionByTransitionWeight();		
 			transition.fireTransition();
@@ -317,15 +330,14 @@ public class Simulator {
 			transition.setEnabled(false);
 			
 			//plotting
-			if (event.getEventType() == SimulationEventType.general_transition)
+			if (event.getEventType().equals(SimulationEventType.general_transition)){
 				if (print) System.out.println(event.getOccurenceTime() + " seconds: General transition " + transition.getId() + " is fired for the " + ((GeneralTransition)transition).getFirings() + ". time");
-			else if (event.getEventType() == SimulationEventType.immediate_transition)
+			} else if (event.getEventType().equals(SimulationEventType.immediate_transition)){
 				if (print) System.out.println(event.getOccurenceTime() + " seconds: Immediate transition " + transition.getId() + " is fired");
-			else if (event.getEventType() == SimulationEventType.deterministic_transition)
+			} else if (event.getEventType().equals(SimulationEventType.deterministic_transition)){
 				if (print) System.out.println(event.getOccurenceTime() + " seconds: Deterministic transition " + transition.getId() + " is fired");
-			
-			currentPlot.saveDiscretePlaceData(event.getOccurenceTime());
-		
+			}
+	
 		} else if (event.getEventType() == SimulationEventType.guard_arcs_immediate || event.getEventType() == SimulationEventType.guard_arcs_continuous || event.getEventType() == SimulationEventType.guard_arcs_deterministic){
 			
 			//guard arc condition
@@ -359,9 +371,8 @@ public class Simulator {
 		}
 
 		model.updateEnabling();
-		currentPlot.saveAllTransitionData(event.getOccurenceTime());
 		model.updateFluidRates();		
-		currentPlot.saveContinuousPlaceData(event.getOccurenceTime());		
+		currentPlot.saveAll(event.getOccurenceTime());		
 	}
 	
 	
