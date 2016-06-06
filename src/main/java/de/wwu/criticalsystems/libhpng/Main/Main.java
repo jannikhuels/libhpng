@@ -16,7 +16,7 @@ public class Main {
 
 			ModelReader reader = new ModelReader();
 			reader.setLogger(logger);
-			HPnGModel model = reader.readModel("examples/example2.xml");
+			HPnGModel model = reader.readModel("examples/recent.xml");
 			logger.info("Model has been read successfully.");				
 		
 		} catch (ModelNotReadableException e) {		

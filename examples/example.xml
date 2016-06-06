@@ -11,9 +11,7 @@
      </generalTransition>
    </transitions>
   <arcs>
-    <discreteArc fromNode="pd1" id="da1" priority="1" share="1.0E0"
-      toNode="tg1" weight="1.0E0"/>
-    <discreteArc fromNode="tg1" id="da2" priority="1" share="1.0E0"
-      toNode="pd2" weight="1.0E0"/>
+    <discreteArc fromNode="pd1" id="da1" toNode="tg1" weight="1.0E0"/>
+    <discreteArc fromNode="tg1" id="da2" toNode="pd2" weight="1.0E0"/>
    </arcs>
 </HPnG>

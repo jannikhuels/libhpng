@@ -105,7 +105,7 @@
                                              <xs:element name="continuousTransition" maxOccurs="unbounded">
                                                    <xs:complexType>
                                                          <xs:attribute name="id" type="xs:token" use="required"></xs:attribute>
-                                                         <xs:attribute name="rate" type="positiveDouble" use="required"></xs:attribute>
+                                                         <xs:attribute name="rate" type="nonNegativeDouble" use="required"></xs:attribute>
                                                    </xs:complexType>
                                              </xs:element>
                                              <xs:element name="dynamicContinuousTransition" maxOccurs="unbounded">

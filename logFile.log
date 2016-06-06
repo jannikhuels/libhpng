@@ -1,10 +1,10 @@
-Jun 01, 2016 3:56:32 PM de.wwu.criticalsystems.libhpng.init.XMLReader validateAgainstSchema
+Jun 02, 2016 10:05:26 AM de.wwu.criticalsystems.libhpng.init.XMLReader validateAgainstSchema
 INFORMATION: The XML model file has been validated against the XML Schema file successfully.
-Jun 01, 2016 3:56:33 PM de.wwu.criticalsystems.libhpng.init.ModelReader readModel
+Jun 02, 2016 10:05:27 AM de.wwu.criticalsystems.libhpng.init.ModelReader readModel
 INFORMATION: Model structure has been read from XML file successfully.
-Jun 01, 2016 3:56:33 PM de.wwu.criticalsystems.libhpng.init.ModelReader setConnectedPlacesAndTransitions
+Jun 02, 2016 10:05:27 AM de.wwu.criticalsystems.libhpng.init.ModelReader setConnectedPlacesAndTransitions
 INFORMATION: Model object connections were set successfully.
-Jun 01, 2016 3:56:33 PM de.wwu.criticalsystems.libhpng.init.ModelReader sortLists
+Jun 02, 2016 10:05:27 AM de.wwu.criticalsystems.libhpng.init.ModelReader sortLists
 INFORMATION: Model lists sorted successfully.
-Jun 01, 2016 3:56:33 PM de.wwu.criticalsystems.libhpng.Main.Main main
+Jun 02, 2016 10:05:28 AM de.wwu.criticalsystems.libhpng.Main.Main main
 INFORMATION: Model has been read successfully.
