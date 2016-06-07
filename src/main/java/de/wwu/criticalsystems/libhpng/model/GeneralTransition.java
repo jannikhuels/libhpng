@@ -41,7 +41,8 @@ public class GeneralTransition extends Transition{
 	    @XmlEnumValue("loglogistic") loglogistic,
 	    @XmlEnumValue("pareto") pareto,
 	    @XmlEnumValue("rayleigh") rayleigh,
-	    @XmlEnumValue("student") student;	    
+	    @XmlEnumValue("student") student,
+		@XmlEnumValue("weibull") weibull;
 	}
 	
 	@XmlType
