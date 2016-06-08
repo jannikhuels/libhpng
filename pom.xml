@@ -30,6 +30,21 @@
 		<artifactId>ssj</artifactId>
 		<version>2.5</version>
 	</dependency>
+	<dependency>
+		<groupId>org.springframework.shell</groupId>
+		<artifactId>spring-shell</artifactId>
+		<version>1.1.0.RELEASE</version>
+	</dependency>
 </dependencies>
 
+<repositories>
+	    <repository>
+	      <id>libs-milestone</id>
+	      <url>http://repo.spring.io/libs-milestone/</url>
+	    </repository>
+	    <repository>
+	      <id>libs-release</id>
+	      <url>http://repo.spring.io/libs-release/</url>
+	    </repository>
+	  </repositories>
 </project>

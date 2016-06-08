@@ -2,29 +2,35 @@ package de.wwu.criticalsystems.libhpng.Main;
 
 import java.io.IOException;
 import java.util.logging.*;
+import org.springframework.shell.Bootstrap;
 import de.wwu.criticalsystems.libhpng.errorhandling.ModelNotReadableException;
 import de.wwu.criticalsystems.libhpng.init.*;
 import de.wwu.criticalsystems.libhpng.model.*;
 
 public class Main {	
  
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+    	Bootstrap.main(args);
+    }
+    
+    
+    public static void libhpngMain (String path){
     	
-		Logger logger = createLogger();    		
+    	Logger logger = createLogger();    		
 		
 		try {    			
 
 			ModelReader reader = new ModelReader();
 			reader.setLogger(logger);
-			HPnGModel model = reader.readModel("examples/recent.xml");
-			logger.info("Model has been read successfully.");				
+			HPnGModel model = reader.readModel(path);
+			logger.info("Model has been read successfully.");	
+			System.out.println(model.toString());
 		
 		} catch (ModelNotReadableException e) {		
 			logger.severe("The model could not be read in.");
 			System.out.println("An Error occured while reading the model file. Please see the error log and recheck the model.");
-		}
+		}	
     }
-    
     
     private static Logger createLogger(){
 		

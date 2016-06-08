@@ -37,6 +37,7 @@ public class GeneralTransition extends Transition{
 	    @XmlEnumValue("gamma") gamma,
 	    @XmlEnumValue("gumbel") gumbel,
 	    @XmlEnumValue("inversegamma") inversegamma,
+	    @XmlEnumValue("laplace") laplace,
 	    @XmlEnumValue("logistic") logistic,
 	    @XmlEnumValue("loglogistic") loglogistic,
 	    @XmlEnumValue("pareto") pareto,

@@ -1,10 +1,18 @@
-Jun 02, 2016 10:05:26 AM de.wwu.criticalsystems.libhpng.init.XMLReader validateAgainstSchema
+Jun 08, 2016 10:03:04 AM de.wwu.criticalsystems.libhpng.init.XMLReader validateAgainstSchema
 INFORMATION: The XML model file has been validated against the XML Schema file successfully.
-Jun 02, 2016 10:05:27 AM de.wwu.criticalsystems.libhpng.init.ModelReader readModel
+Jun 08, 2016 10:03:05 AM de.wwu.criticalsystems.libhpng.init.ModelReader readModel
 INFORMATION: Model structure has been read from XML file successfully.
-Jun 02, 2016 10:05:27 AM de.wwu.criticalsystems.libhpng.init.ModelReader setConnectedPlacesAndTransitions
+Jun 08, 2016 10:03:05 AM de.wwu.criticalsystems.libhpng.init.ModelReader setConnectedPlacesAndTransitions
 INFORMATION: Model object connections were set successfully.
-Jun 02, 2016 10:05:27 AM de.wwu.criticalsystems.libhpng.init.ModelReader sortLists
+Jun 08, 2016 10:03:05 AM de.wwu.criticalsystems.libhpng.init.ModelReader sortLists
 INFORMATION: Model lists sorted successfully.
-Jun 02, 2016 10:05:28 AM de.wwu.criticalsystems.libhpng.Main.Main main
+Jun 08, 2016 10:03:05 AM de.wwu.criticalsystems.libhpng.Main.Main libhpngMain
 INFORMATION: Model has been read successfully.
+read --path "examples/example2.xml"
+// libhpng 1.1.0.RELEASE log opened at 2016-06-08 10:41:31
+quit
+// libhpng 1.1.0.RELEASE log closed at 2016-06-08 10:41:35
+// libhpng 1.1.0.RELEASE log opened at 2016-06-08 10:41:46
+quit
+// libhpng 1.1.0.RELEASE log closed at 2016-06-08 10:41:49
+// libhpng 1.1.0.RELEASE log opened at 2016-06-08 11:18:15
