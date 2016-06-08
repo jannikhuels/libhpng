@@ -2,19 +2,18 @@ package de.wwu.criticalsystems.libhpng.simulation;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
-
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.model.*;
 import de.wwu.criticalsystems.libhpng.plotting.*;
-import de.wwu.criticalsystems.libhpng.simulation.ConfidenceIntervalCalculator.PropertyType;
+
 
 public class PropertyChecker {
 	
-	private HPnGModel model;
-	private MarkingPlot plot;
-	
 	private static enum PropertyFamily {discrete, continuous, undefined}
 
+	private HPnGModel model;
+	private MarkingPlot plot;	
+	
 	public Boolean checkProperty(SimpleNode root, MarkingPlot plot, HPnGModel model){
 	
 		this.model = model;
@@ -23,8 +22,8 @@ public class PropertyChecker {
 		Boolean fulfilled = false;
 		
 		Double time = getTimeFromRoot(root);
-		SimpleNode propertyRoot = getPropertyRoot(root);
-		//TODO: PROB case instead of PROBQ
+		
+		SimpleNode propertyRoot = getPropertyRoot(root);		
 		if (propertyRoot == null)
 			System.out.println("Property Error");
 		
@@ -32,17 +31,25 @@ public class PropertyChecker {
 		
 		return fulfilled;		
 	}
+
 	
-	
-	private static Double getTimeFromRoot(SimpleNode propertyRoot){
+	public static Double getMaxTimeForSimulation(SimpleNode propertyRoot){
 		
-		for (int i=0;i < propertyRoot.jjtGetNumChildren(); i++){
-			if (propertyRoot.jjtGetChild(i).toString().equals("TIME"))
-				return Double.parseDouble(((SimpleNode)propertyRoot.jjtGetChild(i).jjtGetChild(0)).jjtGetValue().toString());
-		}		
-		System.out.println("Property Error!");
-		return 0.0;
+		Double maxTime = getTimeFromRoot(propertyRoot);
+		Double untilTime = checkForUntil(propertyRoot, maxTime);
+		
+		return untilTime;
 	}
+	
+	
+	public static Boolean isProbQFormula(SimpleNode root){
+		for (int i=0;i < root.jjtGetNumChildren(); i++){
+			if (root.jjtGetChild(i).toString().equals("PROBQ"))
+				return true;
+		}
+		return false;
+	}
+	
 	
 	//recursive method for checking property
 	private Boolean checkAnyProperty(SimpleNode propertyRoot, Double time){
@@ -65,19 +72,18 @@ public class PropertyChecker {
 		return false;
 	}
 
+	
 	private Boolean checkAtomicProperty(SimpleNode propertyRoot, Double time) {
 		
 		Double value;
+		String id = null;	
 		GuardArc guardArc = null;
-		String temp = null;
-		String id = null;
 		
-		PropertyType type = getAtomicPropertyType(propertyRoot);
+		String type = propertyRoot.toString();
 		
-		temp = getPropertyID(propertyRoot);
-		
-		//get place id for guard arc case
-		if (type.equals(PropertyType.arc)){
+		//get ID of referenced place or transition, for guard arc condition get place ID for corresponding place
+		String temp = getPropertyID(propertyRoot);
+		if (type.equals("ATOMIC_ARC")){			
 			for (Arc arc : model.getArcs()){
 				if (arc.getId().equals(temp) && arc.getClass().equals(GuardArc.class)){
 					guardArc = (GuardArc)arc;
@@ -86,7 +92,8 @@ public class PropertyChecker {
 				}
 			}
 		} else
-			id = temp;		
+			id = temp;	
+		
 		if (id == null){
 			System.out.println("Property Error!");
 			return false;
@@ -98,7 +105,7 @@ public class PropertyChecker {
 		
 		//set boundaries for upper boundary, lower boundary and guard arc case
 		switch (type){
-		case ubound:
+		case "ATOMIC_UBOUND":
 			for (Place place : model.getPlaces()){				
 				if (place.getId().equals(id) && place.getClass().equals(ContinuousPlace.class)){
 					if (((ContinuousPlace)place).getUpperBoundaryInfinity() && (compare.equals("<") || compare.equals("<=")))
@@ -113,40 +120,40 @@ public class PropertyChecker {
 				return false;
 			}
 			break;
-		case arc:
-			boundary = guardArc.getWeight();
-			break;
-		case lbound:
+		case "ATOMIC_LBOUND":
 			boundary = 0.0;
 			break;
+		case "ATOMIC_ARC":
+			boundary = guardArc.getWeight();
+			break;		
 		default:
 			break;
 		}
 		
 		//compare values depending on case
 		switch (type){
-			case fluidlevel:
-			case ubound:
-			case lbound:
-			case arc:
+			case "ATOMIC_FLUID":
+			case "ATOMIC_UBOUND":
+			case "ATOMIC_LBOUND":
+			case "ATOMIC_ARC":
 				value = ((ContinuousPlaceEntry)currentEntry).getFluidLevel();
 				if (currentEntry.getTime() < time)
 					value = Math.max(0.0, value + ((ContinuousPlaceEntry)currentEntry).getDrift()*(time - currentEntry.getTime()));				
 				return (compareValues(value, boundary, compare));
-			case token:
+			case "ATOMIC_TOKEN":
 				value = ((DiscretePlaceEntry)currentEntry).getNumberOfTokens().doubleValue();
 				return (compareValues(value, boundary, compare));
-			case drift:
+			case "ATOMIC_DRIFT":
 				value = ((ContinuousPlaceEntry)currentEntry).getDrift();
 				return (compareValues(value, boundary, compare));
-			case enabled:
+			case "ATOMIC_ENABLED":
 				return ((TransitionEntry)currentEntry).getEnabled();
-			case clock:
+			case "ATOMIC_CLOCK":
 				value = ((DeterministicTransitionEntry)currentEntry).getClock();
 				return (compareValues(value, boundary, compare));
-			case firings:
+			case "ATOMIC_FIRINGS":
 				value = ((GeneralTransitionEntry)currentEntry).getFirings().doubleValue();
-				return (compareValues(value, boundary, compare));			
+				return (compareValues(value, boundary, compare));
 		}
 		
 		System.out.println("Property Error");
@@ -161,27 +168,27 @@ public class PropertyChecker {
 		if (t1 > t2)
 			System.out.println("Property Error");
 		
-		SimpleNode psi1 = (SimpleNode)propertyRoot.jjtGetChild(2);
-		SimpleNode psi2 = (SimpleNode)propertyRoot.jjtGetChild(3);		
-		PropertyFamily psi1Family = checkPropertyFamily(psi1);
-		PropertyFamily psi2Family = checkPropertyFamily(psi2);
+		SimpleNode phi1 = (SimpleNode)propertyRoot.jjtGetChild(2);
+		SimpleNode phi2 = (SimpleNode)propertyRoot.jjtGetChild(3);		
+		PropertyFamily phi1Family = checkPropertyFamily(phi1);
+		PropertyFamily phi2Family = checkPropertyFamily(phi2);
 		
-		if (psi1Family.equals(PropertyFamily.undefined) || psi1Family.equals(PropertyFamily.undefined))
+		if (phi1Family.equals(PropertyFamily.undefined) || phi1Family.equals(PropertyFamily.undefined))
 			System.out.println("Property Error");
 				
 		//check t = time	
-		if (!checkAnyProperty(psi1, time))
+		if (!checkAnyProperty(phi1, time))
 			return false;		
 		
 		//check interval [time, t1)
 		Double currentEventTime = plot.getNextEventTime(time);
 		Double previousEventTime = time;
 		while (currentEventTime < t1){		
-			if (psi1Family.equals(PropertyFamily.discrete)){
-				if (!checkAnyProperty(psi1, currentEventTime))
+			if (phi1Family.equals(PropertyFamily.discrete)){
+				if (!checkAnyProperty(phi1, currentEventTime))
 					return false;
 			} else {
-				if (findTForInvalidProperty(previousEventTime, currentEventTime, false, true, psi1) != -1.0)
+				if (findTForInvalidProperty(previousEventTime, currentEventTime, false, true, phi1) != -1.0)
 					return false;
 			}
 			previousEventTime = currentEventTime;
@@ -189,7 +196,7 @@ public class PropertyChecker {
 		}
 		
 		//check interval [t1, t2]
-		if (plot.eventAtTime(t1) && checkAnyProperty(psi2, t1))
+		if (plot.eventAtTime(t1) && checkAnyProperty(phi2, t1))
 			return true;
 		
 		currentEventTime = plot.getNextEventTime(t1);
@@ -197,43 +204,46 @@ public class PropertyChecker {
 		
 		while (currentEventTime < t2){		
 			
-			if (psi2Family.equals(PropertyFamily.discrete) && psi1Family.equals(PropertyFamily.discrete)){
+			if (phi2Family.equals(PropertyFamily.discrete) && phi1Family.equals(PropertyFamily.discrete)){
+			//both discrete
 				
-				if (checkAnyProperty(psi2, currentEventTime))
+				if (checkAnyProperty(phi2, currentEventTime))
 					return true;
-				if (!checkAnyProperty(psi1, currentEventTime))
+				if (!checkAnyProperty(phi1, currentEventTime))
 					return false;
 				
-			} else if (psi2Family.equals(PropertyFamily.discrete) && psi1Family.equals(PropertyFamily.continuous)){
+			} else if (phi2Family.equals(PropertyFamily.discrete) && phi1Family.equals(PropertyFamily.continuous)){
+			//phi1 continuous and phi2 discrete	
 				
-				Double tNotPsi1 = findTForInvalidProperty(previousEventTime, currentEventTime, false, false, psi1);				
-				if (checkAnyProperty(psi2, currentEventTime) && (tNotPsi1 == -1.0 || tNotPsi1 >= currentEventTime))
+				Double tNotPhi1 = findTForInvalidProperty(previousEventTime, currentEventTime, false, false, phi1);				
+				if (checkAnyProperty(phi2, currentEventTime) && (tNotPhi1 == -1.0 || tNotPhi1 >= currentEventTime))
 					return true;				
-				if (!checkAnyProperty(psi1, currentEventTime) || (tNotPsi1 > -1.0 && tNotPsi1 < currentEventTime))
+				if (!checkAnyProperty(phi1, currentEventTime) || (tNotPhi1 > -1.0 && tNotPhi1 < currentEventTime))
 					return false;
 				
 			} else {
-				//psi2 is continuous
+			//phi2 is continuous
 				
-				//search in current interval for a time tPsi2 where psi2 is fulfilled
-				Double tPsi2 = findTForProperty(previousEventTime, currentEventTime, false, true, psi2);
+				//search in current interval for a time tphi2 where phi2 is fulfilled
+				Double tPhi2 = findTForProperty(previousEventTime, currentEventTime, false, true, phi2);
 				
-				if (psi1Family.equals(PropertyFamily.discrete)){
+				if (phi1Family.equals(PropertyFamily.discrete)){
+				//phi2 discrete
 					
-					if (tPsi2 > -1.0)
+					if (tPhi2 > -1.0)
 						return true;					
-					if (!checkAnyProperty(psi1, currentEventTime))
+					if (!checkAnyProperty(phi1, currentEventTime))
 						return false;
 					
 				} else {
-					//psi1 and psi2 are continuous
+				//both continuous
 					
-					if (tPsi2 > -1.0){
-						if (findTForInvalidProperty(previousEventTime, tPsi2, false, false, psi1) != -1.0)
+					if (tPhi2 > -1.0){
+						if (findTForInvalidProperty(previousEventTime, tPhi2, false, false, phi1) != -1.0)
 							return false;
 						return true;
 					} else {
-						if (findTForInvalidProperty(previousEventTime, currentEventTime, false, true, psi1) != -1.0)
+						if (findTForInvalidProperty(previousEventTime, currentEventTime, false, true, phi1) != -1.0)
 							return false;
 					}
 				}
@@ -244,168 +254,10 @@ public class PropertyChecker {
 		return false;
 	}
 
-	private PropertyFamily checkPropertyFamily(SimpleNode propertyRoot){
-		
-		switch (propertyRoot.toString()){
-			case "ATOMIC_FLUID":
-			case "ATOMIC_CLOCK":
-				return PropertyFamily.continuous;
-				
-			case "ATOMIC_TOKENS":
-			case "ATOMIC_ENABLED":
-			case "ATOMIC_FIRINGS":
-			case "ATOMIC_DRIFT":
-			case "ATOMIC_UBOUND":
-			case "ATOMIC_LBOUND":
-			case "ATOMIC_ARC":	
-				return PropertyFamily.discrete;
-				
-			case "NOT":
-				return checkPropertyFamily((SimpleNode)propertyRoot.jjtGetChild(0));
-				
-			case "AND":
-			case "OR":
-				return checkCombinedPropertyFamily((SimpleNode)propertyRoot.jjtGetChild(0), (SimpleNode)propertyRoot.jjtGetChild(1));
-				
-			case "UNTIL":
-				return checkCombinedPropertyFamily((SimpleNode)propertyRoot.jjtGetChild(2), (SimpleNode)propertyRoot.jjtGetChild(3));
-		}
-			
-		return PropertyFamily.undefined;
-	}
 	
-	
-	private PropertyFamily checkCombinedPropertyFamily(SimpleNode property1, SimpleNode property2){
-		
-		PropertyFamily pf1 = checkPropertyFamily(property1);
-		PropertyFamily pf2 = checkPropertyFamily(property2);
-		
-		if (pf1.equals(PropertyFamily.undefined) || pf2.equals(PropertyFamily.undefined))
-			return PropertyFamily.undefined;
-		
-		if (pf1.equals(PropertyFamily.continuous) || pf2.equals(PropertyFamily.continuous))
-			return PropertyFamily.continuous;
-		
-		return PropertyFamily.discrete;
-	}
-
-
-	private PropertyType getAtomicPropertyType(SimpleNode propertyRoot) {
-		
-		switch (propertyRoot.toString()){
-			case "ATOMIC_FLUID":
-				return PropertyType.fluidlevel;
-			case "ATOMIC_TOKENS":
-				return PropertyType.token;
-			case "ATOMIC_ENABLED":
-				return PropertyType.enabled;
-			case "ATOMIC_CLOCK":
-				return PropertyType.clock;
-			case "ATOMIC_FIRINGS":
-				return PropertyType.firings;
-			case "ATOMIC_DRIFT":
-				return PropertyType.drift;
-			case "ATOMIC_UBOUND":
-				return PropertyType.ubound;
-			case "ATOMIC_LBOUND":
-				return PropertyType.lbound;
-			case "ATOMIC_ARC":	
-				return PropertyType.arc;
-		}
-		System.out.println("Property Error!");
-		return null;
-	}
-
-	
-	private PlotEntry getCurrentEntry(Double time, PropertyType type, String id) {
-		
-		PlotEntry currentEntry = null;
-		
-		if (type.equals(PropertyType.fluidlevel) || type.equals(PropertyType.token) || type.equals(PropertyType.drift) || type.equals(PropertyType.ubound) || type.equals(PropertyType.lbound)){
-			for (Place place : model.getPlaces()){				
-				if (place.getId().equals(id))
-					return plot.getPlacePlots().get(place.getId()).getNextEntryBeforeOrAtGivenTime(time);
-			}	
-		} else {
-			for (Transition transition : model.getTransitions()){;
-				if (transition.getId().equals(id))
-					return plot.getTransitionPlots().get(transition.getId()).getNextEntryBeforeOrAtGivenTime(time);
-			}			
-		}
-		System.out.println("ID error in Property: " + id);		
-		return currentEntry;
-	}
-
-	private Boolean compareValues(Double value, Double boundary, String compare){
-
-		switch (compare){
-			case ">":
-				return (value > boundary);
-			case "=":
-				return ((value - boundary) == 0.0);
-			case "<":
-				return (value < boundary);
-			case ">=":
-				return (value >= boundary);
-			case "<=":
-				return (value <= boundary);	
-		}		
-		System.out.println("Property Error!");
-		return false;
-	}
-	
-	
-	private SimpleNode getPropertyRoot(SimpleNode root){
-		for (int i=0;i < root.jjtGetNumChildren(); i++){
-			if (root.jjtGetChild(i).toString().equals("PROBQ"))
-				return (((SimpleNode)root.jjtGetChild(i).jjtGetChild(0)));
-		}
-		
-		System.out.println("Property Error!");
-		return null;
-	}
-	
-	private String getPropertyID(SimpleNode atomic){
-		
-		String id;
-		for (int i=0;i < atomic.jjtGetNumChildren(); i++){
-			if (atomic.jjtGetChild(i).toString().equals("ID")){
-				id = ((SimpleNode)atomic.jjtGetChild(i)).jjtGetValue().toString();
-				id = id.substring(1, id.length() - 1);
-				return id;
-			}
-		}
-		System.out.println("Property Error!");
-		return null;
-	}
-	
-	private Double getPropertyBoundary(SimpleNode atomic) {
-		
-		for (int i=0;i < atomic.jjtGetNumChildren(); i++){
-			if (atomic.jjtGetChild(i).toString().equals("DOUBLE"))
-				return Double.parseDouble(((SimpleNode)atomic.jjtGetChild(i)).jjtGetValue().toString());
-			else if 
-				(atomic.jjtGetChild(i).toString().equals("INTEGER")){
-				Integer value = Integer.parseInt(((SimpleNode)atomic.jjtGetChild(i)).jjtGetValue().toString());
-				return value.doubleValue();
-				}
-		}
-		return null;
-	}
-	
-	private String getPropertyCompare(SimpleNode atomic){
-		
-		for (int i=0;i < atomic.jjtGetNumChildren(); i++){
-			if (atomic.jjtGetChild(i).toString().equals("COMPARE"))
-				return ((SimpleNode)atomic.jjtGetChild(i)).jjtGetValue().toString();
-		}
-		return "";
-	}
-	
-		
 	private Double findTForProperty(Double leftBorder, Double rightBorder, Boolean leftBorderIncluded, Boolean rightBorderIncluded, SimpleNode propertyRoot){
 
-		if (leftBorder + 0.0000000001 >= rightBorder){
+		if (leftBorder + Double.MIN_VALUE >= rightBorder){
 			if (leftBorderIncluded && checkAnyProperty(propertyRoot, leftBorder))
 				return leftBorder;
 			if (rightBorderIncluded && checkAnyProperty(propertyRoot, rightBorder))
@@ -431,7 +283,7 @@ public class PropertyChecker {
 				if (checkAnyProperty(propertyRoot, leftBorder)){
 					if (leftBorderIncluded)
 						return leftBorder;
-					return leftBorder + 0.0000000001;
+					return leftBorder + Double.MIN_VALUE;
 				}
 				if (rightBorderIncluded && checkAnyProperty(propertyRoot, rightBorder))
 					return rightBorder;
@@ -463,11 +315,10 @@ public class PropertyChecker {
 		return -1.0;
 	}
 	
-	
-	
+		
 	private Double findTForInvalidProperty(Double leftBorder, Double rightBorder, Boolean leftBorderIncluded, Boolean rightBorderIncluded, SimpleNode propertyRoot){
 
-		if (leftBorder + 0.0000000001 >= rightBorder){
+		if (leftBorder + Double.MIN_VALUE >= rightBorder){
 			if (leftBorderIncluded && !checkAnyProperty(propertyRoot, leftBorder))
 				return leftBorder;
 			if (rightBorderIncluded && !checkAnyProperty(propertyRoot, rightBorder))
@@ -563,7 +414,7 @@ public class PropertyChecker {
 		if (leftBorderFulfills != invalid){
 			if (leftBorderIncluded) 
 				return leftBorder;
-			return leftBorder + 0.000000001;
+			return leftBorder + Double.MIN_VALUE;
 		}
 		
 		Double drift = ((ContinuousPlaceEntry)startEntry).getDrift();
@@ -576,8 +427,8 @@ public class PropertyChecker {
 				if (timeDelta > 0.0 && leftBorder + timeDelta < rightBorder)
 					return leftBorder + timeDelta;
 			} else {
-				if (timeDelta >= 0.0 && leftBorder + timeDelta + 0.0000001 < rightBorder)
-					return leftBorder + timeDelta + 0.000000001;
+				if (timeDelta >= 0.0 && leftBorder + timeDelta + Double.MIN_VALUE < rightBorder)
+					return leftBorder + timeDelta + Double.MIN_VALUE;
 			}
 		}
 			
@@ -625,7 +476,7 @@ public class PropertyChecker {
 		if (leftBorderFulfills != invalid){
 			if (leftBorderIncluded) 
 				return leftBorder;
-			return leftBorder + 0.000000001;
+			return leftBorder + Double.MIN_VALUE;
 		}
 		
 		if (((DeterministicTransitionEntry)startEntry).getEnabled()){
@@ -636,8 +487,8 @@ public class PropertyChecker {
 				if (timeDelta > 0.0 && leftBorder + timeDelta < rightBorder)
 					return leftBorder + timeDelta;
 			} else {
-				if (timeDelta >= 0.0 && leftBorder + timeDelta + 0.0000001 < rightBorder)
-					return leftBorder + timeDelta + 0.000000001;
+				if (timeDelta >= 0.0 && leftBorder + timeDelta + Double.MIN_VALUE < rightBorder)
+					return leftBorder + timeDelta + Double.MIN_VALUE;
 			}
 		}
 			
@@ -647,15 +498,152 @@ public class PropertyChecker {
 	}
 	
 	
+	private PropertyFamily checkPropertyFamily(SimpleNode propertyRoot){
+		
+		switch (propertyRoot.toString()){
+			case "ATOMIC_FLUID":
+			case "ATOMIC_CLOCK":
+				return PropertyFamily.continuous;
+				
+			case "ATOMIC_TOKENS":
+			case "ATOMIC_ENABLED":
+			case "ATOMIC_FIRINGS":
+			case "ATOMIC_DRIFT":
+			case "ATOMIC_UBOUND":
+			case "ATOMIC_LBOUND":
+			case "ATOMIC_ARC":	
+				return PropertyFamily.discrete;
+				
+			case "NOT":
+				return checkPropertyFamily((SimpleNode)propertyRoot.jjtGetChild(0));
+				
+			case "AND":
+			case "OR":
+				return checkCombinedPropertyFamily((SimpleNode)propertyRoot.jjtGetChild(0), (SimpleNode)propertyRoot.jjtGetChild(1));
+				
+			case "UNTIL":
+				return checkCombinedPropertyFamily((SimpleNode)propertyRoot.jjtGetChild(2), (SimpleNode)propertyRoot.jjtGetChild(3));
+		}
+			
+		return PropertyFamily.undefined;
+	}
 	
-	public static Double getMaxTimeForSimulation(SimpleNode propertyRoot){
+	
+	private PropertyFamily checkCombinedPropertyFamily(SimpleNode property1, SimpleNode property2){
 		
-		Double maxTime = getTimeFromRoot(propertyRoot);
-		Double untilTime = checkForUntil(propertyRoot, maxTime);
+		PropertyFamily pf1 = checkPropertyFamily(property1);
+		PropertyFamily pf2 = checkPropertyFamily(property2);
 		
-		return untilTime;
+		if (pf1.equals(PropertyFamily.undefined) || pf2.equals(PropertyFamily.undefined))
+			return PropertyFamily.undefined;
+		
+		if (pf1.equals(PropertyFamily.continuous) || pf2.equals(PropertyFamily.continuous))
+			return PropertyFamily.continuous;
+		
+		return PropertyFamily.discrete;
 	}
 
+	
+	private PlotEntry getCurrentEntry(Double time, String type, String id) {
+		
+		PlotEntry currentEntry = null;
+		
+		if (type.equals("ATOMIC_ENABLED") || type.equals("ATOMIC_CLOCK") || type.equals("ATOMIC_FIRINGS")){
+			for (Transition transition : model.getTransitions()){;
+				if (transition.getId().equals(id))
+					return plot.getTransitionPlots().get(transition.getId()).getNextEntryBeforeOrAtGivenTime(time);
+			}	
+		} else {
+			for (Place place : model.getPlaces()){				
+				if (place.getId().equals(id))
+					return plot.getPlacePlots().get(place.getId()).getNextEntryBeforeOrAtGivenTime(time);
+			}		
+		}
+		System.out.println("ID error in Property: " + id);		
+		return currentEntry;
+	}
+	
+
+	private Boolean compareValues(Double value, Double boundary, String compare){
+
+		switch (compare){
+			case ">":
+				return (value > boundary);
+			case "=":
+				return ((value - boundary) == 0.0);
+			case "<":
+				return (value < boundary);
+			case ">=":
+				return (value >= boundary);
+			case "<=":
+				return (value <= boundary);	
+		}		
+		System.out.println("Property Error!");
+		return false;
+	}
+	
+	
+	private static Double getTimeFromRoot(SimpleNode propertyRoot){
+		
+		for (int i=0;i < propertyRoot.jjtGetNumChildren(); i++){
+			if (propertyRoot.jjtGetChild(i).toString().equals("TIME"))
+				return Double.parseDouble(((SimpleNode)propertyRoot.jjtGetChild(i).jjtGetChild(0)).jjtGetValue().toString());
+		}		
+		System.out.println("Property Error!");
+		return 0.0;
+	}
+	
+	
+	private SimpleNode getPropertyRoot(SimpleNode root){
+		for (int i=0;i < root.jjtGetNumChildren(); i++){
+			if (root.jjtGetChild(i).toString().equals("PROBQ") || root.jjtGetChild(i).toString().equals("PROB"))
+				return (((SimpleNode)root.jjtGetChild(i).jjtGetChild(0)));
+		}
+		
+		System.out.println("Property Error!");
+		return null;
+	}
+	
+	
+	private String getPropertyID(SimpleNode atomic){
+		
+		String id;
+		for (int i=0;i < atomic.jjtGetNumChildren(); i++){
+			if (atomic.jjtGetChild(i).toString().equals("ID")){
+				id = ((SimpleNode)atomic.jjtGetChild(i)).jjtGetValue().toString();
+				id = id.substring(1, id.length() - 1);
+				return id;
+			}
+		}
+		System.out.println("Property Error!");
+		return null;
+	}
+	
+	
+	private Double getPropertyBoundary(SimpleNode atomic) {
+		
+		for (int i=0;i < atomic.jjtGetNumChildren(); i++){
+			if (atomic.jjtGetChild(i).toString().equals("DOUBLE"))
+				return Double.parseDouble(((SimpleNode)atomic.jjtGetChild(i)).jjtGetValue().toString());
+			else if 
+				(atomic.jjtGetChild(i).toString().equals("INTEGER")){
+				Integer value = Integer.parseInt(((SimpleNode)atomic.jjtGetChild(i)).jjtGetValue().toString());
+				return value.doubleValue();
+				}
+		}
+		return null;
+	}
+	
+	
+	private String getPropertyCompare(SimpleNode atomic){
+		
+		for (int i=0;i < atomic.jjtGetNumChildren(); i++){
+			if (atomic.jjtGetChild(i).toString().equals("COMPARE"))
+				return ((SimpleNode)atomic.jjtGetChild(i)).jjtGetValue().toString();
+		}
+		return "";
+	}
+	
 
 	private static Double checkForUntil(SimpleNode propertyRoot, Double maxTime) {
 		
@@ -677,5 +665,4 @@ public class PropertyChecker {
 		
 		return maxTime;
 	}
-	
 }

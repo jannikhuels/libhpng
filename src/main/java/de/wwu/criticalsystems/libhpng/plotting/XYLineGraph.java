@@ -23,13 +23,13 @@ public class XYLineGraph extends ApplicationFrame {
         setContentPane(chartPanel);
 	}
 	
+	
 	private JFreeChart chart;
-
+	private XYSeriesCollection data = new XYSeriesCollection();
+	
 	public XYSeries getSeries(String seriesName) {
 		return data.getSeries(seriesName);
 	}
-	
-	private XYSeriesCollection data = new XYSeriesCollection();
 	
 	public void addSeries(String seriesName){
 		data.addSeries(new XYSeries(seriesName));

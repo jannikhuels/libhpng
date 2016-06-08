@@ -15,6 +15,7 @@ public abstract class Plot {
 
 	private ArrayList<PlotEntry> entries = new ArrayList<PlotEntry>();
 
+	
 	public PlotEntry getNextEntryBeforeOrAtGivenTime(Double time){
 		
 		if (entries.size() == 0)
@@ -31,7 +32,8 @@ public abstract class Plot {
 	}
 	
 	
-	public PlotEntry getNextEntryAfterGivenTime(Double time){		
+	public PlotEntry getNextEntryAfterGivenTime(Double time){	
+		
 		for (PlotEntry currentEntry : entries){
 			if (currentEntry.getTime() > time)
 				return currentEntry;

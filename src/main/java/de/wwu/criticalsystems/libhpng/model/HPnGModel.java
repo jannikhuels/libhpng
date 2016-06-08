@@ -1,5 +1,6 @@
 package de.wwu.criticalsystems.libhpng.model;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import javax.xml.bind.annotation.*;
 import de.wwu.criticalsystems.libhpng.model.ContinuousArc.ContinuousArcType;
@@ -183,11 +184,14 @@ public class HPnGModel {
 			if (place.getClass().equals(ContinuousPlace.class)){
 				Double fluid = ((ContinuousPlace)place).getFluidLevel();
 				fluid += ((ContinuousPlace)place).getDrift() * timeDelta;
-				
-				if (Math.floor(fluid*1000000)/1000000 == 0.0 ) 
+				BigDecimal level = new BigDecimal(fluid);
+				level = level.setScale(14,BigDecimal.ROUND_HALF_UP);
+				if (level.doubleValue() == 0.0 ) 
 					fluid = 0.0;
-				else if (!((ContinuousPlace)place).getUpperBoundaryInfinity() && Math.ceil(fluid*1000000)/1000000 == ((ContinuousPlace)place).getUpperBoundary())
+				else if (!((ContinuousPlace)place).getUpperBoundaryInfinity() && level.doubleValue() == ((ContinuousPlace)place).getUpperBoundary())
 					fluid = ((ContinuousPlace)place).getUpperBoundary();
+				else
+					fluid = level.doubleValue();
 				
 				((ContinuousPlace)place).setFluidLevel(fluid);
 			}

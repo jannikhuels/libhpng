@@ -10,7 +10,7 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
     root.dump("");
   }*/
 
-  static final public SimpleNode Input() throws ParseException {
+  final public SimpleNode Input() throws ParseException {
  /*@bgen(jjtree) ROOT */
   SimpleNode jjtn000 = new SimpleNode(JJTROOT);
   boolean jjtc000 = true;

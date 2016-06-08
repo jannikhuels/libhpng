@@ -29,6 +29,7 @@ public class ContinuousPlacesPlotter {
 			t = StudentDist.inverseF(plots.size() - 1, 1.0 - alphaHalf);
 		}
 		
+		//plot means and confidence intervals for all continuous places
 		for (Place place : model.getPlaces()){			
 			if (place.getClass().equals(ContinuousPlace.class)){
 					
@@ -41,13 +42,10 @@ public class ContinuousPlacesPlotter {
 		
 		graph.pack();
 		RefineryUtilities.centerFrameOnScreen(graph);
-		graph.setVisible(true);
-		
+		graph.setVisible(true);		
 	}
 
 	
-	
-
 	private void plotMeansAndConfidenceIntervals(ContinuousPlace place, ArrayList<MarkingPlot> plots, Double maxTime, XYLineGraph graph, Double t){
 	
 		Double meanFluid, interval, time, fluid, ssquareFluid;
@@ -58,7 +56,7 @@ public class ContinuousPlacesPlotter {
 		meanFluid = 0.0;
 		ssquareFluid = 0.0;
 
-		//for time=0.0
+		//for time=0.0, calculate mean and s² and save to graph
 		for (MarkingPlot plot : plots){
 			currentEntry = plot.getPlacePlots().get(place.getId()).getNextEntryBeforeOrAtGivenTime(0.0);
 			fluid = ((ContinuousPlaceEntry)currentEntry).getFluidLevel();
@@ -78,10 +76,11 @@ public class ContinuousPlacesPlotter {
 		graph.addSeriesEntry(place.getId() + "_up", 0.0, (meanFluid + t * Math.sqrt(ssquareFluid/plots.size())));
 		graph.addSeriesEntry(place.getId() + "_low", 0.0, (meanFluid - t * Math.sqrt(ssquareFluid/plots.size())));
 		
-	
+		
+		
+		//for all event timings up to maxTime, calculate mean and s² and save to graph
 		time=0.0;
-		interval = maxTime;	
-	
+		interval = maxTime;		
 		while (time <= maxTime && interval > 0.0){
 						
 			meanFluid = 0.0;
@@ -122,12 +121,11 @@ public class ContinuousPlacesPlotter {
 		}
 	}
 	
+	
 	private XYLineGraph addSeriesToGraph(XYLineGraph oldGraph, String id, Integer series) {
 		
-		XYLineGraph graph = oldGraph;
-		
+		XYLineGraph graph = oldGraph;		
 		Color color = defineColor(series);
-
 		
 		graph.addSeries(id);
 		graph.getPlot().getRenderer().setSeriesPaint(series, color);			
@@ -137,11 +135,11 @@ public class ContinuousPlacesPlotter {
 		graph.addSeries(id+ "_low");
 		graph.getPlot().getRenderer().setSeriesPaint(series + 2, color);
 		graph.getPlot().getRenderer().setSeriesVisibleInLegend(series + 2, false);
-		//graph.getPlot().getRenderer().setSeriesStroke(series + 2, new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1.0f, new float[] {2.0f, 2.0f}, 0.0f));
-		
+
 		return graph;
 	}
 
+	
 	private Color defineColor(Integer i){
 		
 		while (i>5)

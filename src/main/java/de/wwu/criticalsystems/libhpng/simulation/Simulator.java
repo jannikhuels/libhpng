@@ -11,29 +11,92 @@ import de.wwu.criticalsystems.libhpng.simulation.SimulationEvent.SimulationEvent
 public class Simulator {
 	
 	public Simulator() {}
+		
 	
+	public Double getIntervalWidth() {
+		return intervalWidth;
+	}
+	public void setIntervalWidth(Double intervalWidth) {
+		this.intervalWidth = intervalWidth;
+	}
+
+	public Double getConfidenceLevel() {
+		return confidenceLevel;
+	}
+	public void setConfidenceLevel(Double confidenceLevel) {
+		this.confidenceLevel = confidenceLevel;
+	}
+
+	public Integer getFixedNumberOfRuns() {
+		return fixedNumberOfRuns;
+	}
+	public void setFixedNumberOfRuns(Integer fixedNumberOfRuns) {
+		this.fixedNumberOfRuns = fixedNumberOfRuns;
+	}
+
+
+	public Integer getMinNumberOfRuns() {
+		return minNumberOfRuns;
+	}
+	public void setMinNumberOfRuns(Integer minNumberOfRuns) {
+		this.minNumberOfRuns = minNumberOfRuns;
+	}
+
+
+	public Integer getMaxNumberOfRuns() {
+		return maxNumberOfRuns;
+	}
+	public void setMaxNumberOfRuns(Integer maxNumberOfRuns) {
+		this.maxNumberOfRuns = maxNumberOfRuns;
+	}
+
+	public Boolean getSimulationWithFixedIntervalWidth() {
+		return simulationWithFixedIntervalWidth;
+	}
+	public void setFixedIntervalWidth(Boolean simulationWithFixedIntervalWidth) {
+		this.simulationWithFixedIntervalWidth = simulationWithFixedIntervalWidth;
+	}	
+
+	
+	public Boolean getPrintRunResults() {
+		return printRunResults;
+	}
+	public void setPrintRunResults(Boolean printRunResults) {
+		this.printRunResults = printRunResults;
+	}
+
+
+	//default simulation settings
+	private Double intervalWidth = 0.05;
+	private Double confidenceLevel = 0.95;
+	private Integer fixedNumberOfRuns = 100;
+	private Integer minNumberOfRuns = 100;
+	private Integer maxNumberOfRuns = 100000;
+	private Boolean simulationWithFixedIntervalWidth = true;
+	private Boolean printRunResults = false;
+	
+
 	private HPnGModel model;
 	private Double currentTime;
 	private Double maxTime;
 	private SimulationEvent event;
 	private ArrayList<MarkingPlot> plots = new ArrayList<MarkingPlot>();
 	private MarkingPlot currentPlot;
-	private Boolean print;
+	private SimpleNode root;
 	
 	
-	//simulation function no. 1
-	public void simulateAndPlotOnly(Integer numberOfRuns, Double maxTime, HPnGModel model, Double confidenceInterval){
+	public void simulateAndPlotOnly(Double maxTime, HPnGModel model){
 		
 		this.maxTime = maxTime;
 		this.model = model;
-		this.print = true;
 
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
 				
-		for (int run = 0; run < numberOfRuns; run++){			
+		for (int run = 0; run < fixedNumberOfRuns; run++){			
 			
-			if (print) System.out.println("Starting simulation run no." + (run+1));
+			if (printRunResults)
+				System.out.println("Starting simulation run no." + (run+1));
 			
 			currentTime = 0.0;
 			model.resetMarking();
@@ -48,34 +111,49 @@ public class Simulator {
 			while (currentTime <= maxTime)
 				currentTime = getAndCompleteNextEvent();
 			
-			if (print){
+			if (printRunResults){
 				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
 				model.printCurrentMarking(false, true);	
 			}
 			
 		}
-		//ContinuousPlacesPlotter.plotMeanContinuousPlaces(model, plots, maxTime);
 		ContinuousPlacesPlotter plotter = new ContinuousPlacesPlotter();
-		plotter.plotContinuousPlaces(model, plots, maxTime, confidenceInterval);
+		plotter.plotContinuousPlaces(model, plots, maxTime, confidenceLevel);
 	}
 	
 	
-	//simulation function no. 2
-	public void simulateAndCheckPropertyWithFixedIntervalWidth(HPnGModel model, SimpleNode root, Double width, Double confidenceLevel, Integer minRuns, Integer maxRuns){
-			
-		this.maxTime = PropertyChecker.getMaxTimeForSimulation(root);
+	public void simulateAndCheckProperty(HPnGModel model, SimpleNode root){
+		
 		this.model = model;
-		this.print = true;
+		this.root = root;
+		this.maxTime = PropertyChecker.getMaxTimeForSimulation(root);
+		
+		Boolean probQ = PropertyChecker.isProbQFormula(root);
+		
+		if (probQ){
+			//property check with confidence interval calculation
+			if (simulationWithFixedIntervalWidth)
+				simulateAndCheckPropertyWithFixedIntervalWidth();
+			else
+				simulateAndCheckPropertyWithFixedNumberOfRuns();
+		} else {
+			//property check with hypothesis testing
+			simulateAndTestProperty();
+		}
+	}
+	
+	
+	private void simulateAndCheckPropertyWithFixedIntervalWidth(){
 			
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
 				
-		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(model, minRuns);
+		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(model, minNumberOfRuns);
 		
 		int run = 0;
-		while (!calc.checkBound(width) && run < maxRuns){
+		while (!calc.checkBound(intervalWidth) && run < maxNumberOfRuns){
 			
-			if (print) System.out.println("Starting simulation run no." + (run+1));
+			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
 			
 			currentTime = 0.0;
 			model.resetMarking();
@@ -92,7 +170,7 @@ public class Simulator {
 			calc.calculateSSquareForProperty(root, run+1, currentPlot);
 			calc.findTDistribution(confidenceLevel);
 			
-			if (print){
+			if (printRunResults){
 				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
 				model.printCurrentMarking(false, true);	
 			}
@@ -106,21 +184,16 @@ public class Simulator {
 	}
 	
 	
-	//simulation function no. 3
-	public void simulateAndCheckPropertyWithFixedNumberOfRuns(HPnGModel model, SimpleNode root, Integer numberOfRuns, Double confidenceLevel){
-		
-		this.maxTime = PropertyChecker.getMaxTimeForSimulation(root);
-		this.model = model;
-		this.print = false;
+	private void simulateAndCheckPropertyWithFixedNumberOfRuns(){
 			
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
 		
-		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(model, numberOfRuns);
+		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(model, fixedNumberOfRuns);
 		
-		for (int run = 0; run < numberOfRuns; run++){
+		for (int run = 0; run < fixedNumberOfRuns; run++){
 			
-			if (print) System.out.println("Starting simulation run no." + (run+1));
+			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
 
 			currentTime = 0.0;
 			model.resetMarking();
@@ -137,20 +210,60 @@ public class Simulator {
 			calc.calculateSSquareForProperty(root, run+1, currentPlot);
 			calc.findTDistribution(confidenceLevel);
 			
-			if (print) System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
-			model.printCurrentMarking(false, true);	
+			if (printRunResults){
+				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
+				model.printCurrentMarking(false, true);	
+			}
 				
 		}
-		System.out.println(numberOfRuns + " runs simulated. Mean value: " + calc.getMean() + ".");
+		System.out.println(fixedNumberOfRuns + " runs simulated. Mean value: " + calc.getMean() + ".");
 		System.out.println("Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
 	}	
 		
+	
+	private void simulateAndTestProperty(){
 		
-	//event finder
+		SampleGenerator generator = new SampleGenerator();
+		generator.initializeRandomStream();
+				
+		SequentialProbabilityRatioTester tester = new SequentialProbabilityRatioTester();
+		
+		int run = 0;
+		while (!tester.checkBound() && run < maxNumberOfRuns){
+			
+			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
+			
+			currentTime = 0.0;
+			model.resetMarking();
+			generator.sampleGeneralTransitions(model);
+		
+			currentPlot = new MarkingPlot(maxTime);
+			plots.add(currentPlot);
+			currentPlot.initialize(model);
+			
+			//simulation
+			while (currentTime <= maxTime)
+				currentTime = getAndCompleteNextEvent();			
+			
+			//tester funktionen
+			//TODO
+			
+			if (printRunResults){
+				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
+				model.printCurrentMarking(false, true);	
+			}
+			
+			run++;		
+		}
+		
+		//System.out.println(run + " runs needed. Mean value: " + calc.getMean() + ".");
+		//System.out.println("Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");			
+	}
+	
+	
 	private Double getAndCompleteNextEvent(){
 		
 		Double timeOfCurrentEvent;		
-		
 		event = new SimulationEvent(maxTime);
 		
 		//check transition events first
@@ -310,7 +423,7 @@ public class Simulator {
 				model.advanceMarking(event.getOccurenceTime() - currentTime);
 				
 			completeEvent();
-			if (print) 
+			if (printRunResults) 
 				model.printCurrentMarking(false, false);
 		}		
 		
@@ -329,13 +442,12 @@ public class Simulator {
 			model.checkGuardArcsForDiscretePlaces();
 			transition.setEnabled(false);
 			
-			//plotting
 			if (event.getEventType().equals(SimulationEventType.general_transition)){
-				if (print) System.out.println(event.getOccurenceTime() + " seconds: General transition " + transition.getId() + " is fired for the " + ((GeneralTransition)transition).getFirings() + ". time");
+				if (printRunResults) System.out.println(event.getOccurenceTime() + " seconds: General transition " + transition.getId() + " is fired for the " + ((GeneralTransition)transition).getFirings() + ". time");
 			} else if (event.getEventType().equals(SimulationEventType.immediate_transition)){
-				if (print) System.out.println(event.getOccurenceTime() + " seconds: Immediate transition " + transition.getId() + " is fired");
+				if (printRunResults) System.out.println(event.getOccurenceTime() + " seconds: Immediate transition " + transition.getId() + " is fired");
 			} else if (event.getEventType().equals(SimulationEventType.deterministic_transition)){
-				if (print) System.out.println(event.getOccurenceTime() + " seconds: Deterministic transition " + transition.getId() + " is fired");
+				if (printRunResults) System.out.println(event.getOccurenceTime() + " seconds: Deterministic transition " + transition.getId() + " is fired");
 			}
 	
 		} else if (event.getEventType() == SimulationEventType.guard_arcs_immediate || event.getEventType() == SimulationEventType.guard_arcs_continuous || event.getEventType() == SimulationEventType.guard_arcs_deterministic){
@@ -344,13 +456,13 @@ public class Simulator {
 			for (Object object: event.getRelatedObjects()){
 				Boolean fulfilled = ((GuardArc)object).checkCondition();
 				
-				if (print && fulfilled && !((GuardArc)object).getInhibitor()) 
+				if (printRunResults && fulfilled && !((GuardArc)object).getInhibitor()) 
 					System.out.println(event.getOccurenceTime() + " seconds: test arc " + ((GuardArc)object).getId() + " has its condition fulfilled for transition " + ((GuardArc)object).getConnectedTransition().getId());
-				else if (print && !fulfilled && !((GuardArc)object).getInhibitor())
+				else if (printRunResults && !fulfilled && !((GuardArc)object).getInhibitor())
 					System.out.println(event.getOccurenceTime() + " seconds: test arc " + ((GuardArc)object).getId() + " has its condition stopped being fulfilled for transition " + ((GuardArc)object).getConnectedTransition().getId());
-				else if (print && fulfilled && ((GuardArc)object).getInhibitor()) 
+				else if (printRunResults && fulfilled && ((GuardArc)object).getInhibitor()) 
 					System.out.println(event.getOccurenceTime() + " seconds: inhibitor arc " + ((GuardArc)object).getId() + " has its condition fulfilled for transition " + ((GuardArc)object).getConnectedTransition().getId());
-				else if (print && !fulfilled && ((GuardArc)object).getInhibitor())
+				else if (printRunResults && !fulfilled && ((GuardArc)object).getInhibitor())
 					System.out.println(event.getOccurenceTime() + " seconds: inhibitor arc " + ((GuardArc)object).getId() + " has its condition stopped being fulfilled for transition " + ((GuardArc)object).getConnectedTransition().getId());									
 			}			
 		} else if (event.getEventType() == SimulationEventType.place_boundary){
@@ -360,18 +472,21 @@ public class Simulator {
 				
 				if (((ContinuousPlace)object).checkLowerBoundary()){
 					((ContinuousPlace)object).checkUpperBoundary();
-					if (print)
+					if (printRunResults)
 						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + ((ContinuousPlace)object).getId() + " is empty");
 				} else {
 					((ContinuousPlace)object).checkUpperBoundary();
-					if (print)
+					if (printRunResults)
 						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + ((ContinuousPlace)object).getId() + " has reached its upper boundary");
 				}					
 			}	
 		}
 
+		//update model status
 		model.updateEnabling();
-		model.updateFluidRates();		
+		model.updateFluidRates();
+		
+		//plot status
 		currentPlot.saveAll(event.getOccurenceTime());		
 	}
 	
@@ -412,6 +527,5 @@ public class Simulator {
 		}
 		
 		return null;
-	}	
-	
+	}
 }

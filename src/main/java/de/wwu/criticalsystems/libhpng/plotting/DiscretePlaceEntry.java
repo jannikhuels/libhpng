@@ -10,7 +10,6 @@ public class DiscretePlaceEntry extends PlotEntry{
 	public Integer getNumberOfTokens() {
 		return NumberOfTokens;
 	}
-
 	public void setNumberOfTokens(Integer numberOfTokens) {
 		NumberOfTokens = numberOfTokens;
 	}

@@ -5,17 +5,12 @@ import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.model.*;
 import de.wwu.criticalsystems.libhpng.plotting.*;
 
-
-
 public class ConfidenceIntervalCalculator {
-	
 	
 	public ConfidenceIntervalCalculator(HPnGModel model, Integer min_runs) {
 		this.model = model;
 		this.min_runs = min_runs;
 	}
-
-	public static enum PropertyType{fluidlevel, token, drift, enabled, clock, firings, ubound, lbound, arc};
 
 	public void setModel(HPnGModel model) {
 		this.model = model;
@@ -40,7 +35,7 @@ public class ConfidenceIntervalCalculator {
 	public Double getT() {
 		return t;
 	}
-	
+
 	private HPnGModel model;
 	private Integer n_runs;
 	private Integer min_runs;
@@ -48,6 +43,7 @@ public class ConfidenceIntervalCalculator {
 	private Double ssquare;
 	private Double mean;
 	private Double t;
+	
 	
 	public void calculateSSquareForProperty(SimpleNode root, Integer currentRun, MarkingPlot plot) {
 		
@@ -81,15 +77,18 @@ public class ConfidenceIntervalCalculator {
 		}
 	}
 	
+	
 	public Boolean checkBound(Double width){
 		if (ssquare == null || (ssquare == 0.0 && n_runs < min_runs)) return false;
 		Double bound = Math.pow(t, 2.0)*ssquare / Math.pow(width, 2.0);
 		return (bound <= n_runs);
 	}
 	
+	
 	public Double getLowerBorder(){
 		return Math.max(0.0,(mean - t * Math.sqrt(ssquare/n_runs)));
 	}
+	
 	
 	public Double getUpperBorder(){
 		return Math.min(1.0,(mean + t * Math.sqrt(ssquare/n_runs)));

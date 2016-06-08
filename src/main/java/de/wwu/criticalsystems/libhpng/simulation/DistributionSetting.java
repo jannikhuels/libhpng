@@ -5,7 +5,6 @@ import umontreal.iro.lecuyer.rng.MRG31k3p;
 import de.wwu.criticalsystems.libhpng.model.CDFFunctionParameter;
 import de.wwu.criticalsystems.libhpng.model.GeneralTransition;
 
-//http://www.iro.umontreal.ca/~simardr/ssj/doc/html/umontreal/iro/lecuyer/randvar/RandomVariateGen.html
 public class DistributionSetting {
 	
 	//one of the following distributions with parameters mu and sigma:
@@ -434,9 +433,6 @@ public class DistributionSetting {
 	}
 	
 	
-	
-	
-	
 	//Gumbel distribution with parameters alpha, beta and delta
 	public static RandomVariateGen setGumbelDistribution(GeneralTransition transition, MRG31k3p stream){
 				
@@ -472,7 +468,7 @@ public class DistributionSetting {
 	}
 	
 	
-	//Inverse normal (Gaussian) distribution with parameters mu and lambda:
+	//Inverse normal (inverse Gaussian) distribution with parameters mu and lambda:
 	public static RandomVariateGen setInverseNormalDistribution(GeneralTransition transition, MRG31k3p stream){
 		
 		Double mu = 1.0;
@@ -607,7 +603,7 @@ public class DistributionSetting {
 		}
 		
 		if (alphaFound && lambdaFound && deltaFound && alpha > 0.0 && lambda > 0.0){
-			FrechetGen generator = new FrechetGen(stream, alpha, lambda, delta);
+			WeibullGen generator = new WeibullGen(stream, alpha, lambda, delta);
 			return generator;					
 		} else if (alpha <= 0.0)
 			System.out.println("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter alpha has to be greater than zero");

@@ -16,6 +16,7 @@ public class SampleGenerator {
 		return stream;
 	}
 
+	
 	public void initializeRandomStream(){
 		
 		int[] seeds = new int[6];
@@ -34,7 +35,7 @@ public class SampleGenerator {
     	stream = new MRG31k3p();
 	}
 
-	//create samples for all general transitions according to their CDF function and parameters
+	
 	public void sampleGeneralTransitions(HPnGModel model) {
 
     	for (Transition transition : model.getTransitions()){
@@ -51,7 +52,7 @@ public class SampleGenerator {
     	}		
 	}
 	
-	//set parameters for CDF function of general transition and return sample generator
+	
 	private RandomVariateGen setDistributionParameters(GeneralTransition transition, MRG31k3p stream){
 	
 		RandomVariateGen distributionGenerator = null;
@@ -105,6 +106,9 @@ public class SampleGenerator {
 			case inversegamma:
 				distributionGenerator = DistributionSetting.setDistributionAlphaBeta(transition, stream, (byte)1);
 				break;
+			case laplace:
+				distributionGenerator = DistributionSetting.setLaplaceDistribution(transition, stream);
+				break;
 			case logistic:
 				distributionGenerator = DistributionSetting.setDistributionAlphaLambda(transition, stream, (byte)1);
 				break;
@@ -119,6 +123,9 @@ public class SampleGenerator {
 				break;
 			case student:
 				distributionGenerator = DistributionSetting.setDistributionN(transition, stream, (byte)1);
+				break;
+			case weibull:
+				distributionGenerator = DistributionSetting.setWeibullDistribution(transition, stream);
 				break;
 		}
 		return distributionGenerator;

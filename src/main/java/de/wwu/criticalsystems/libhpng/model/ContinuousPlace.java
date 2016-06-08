@@ -1,5 +1,7 @@
 package de.wwu.criticalsystems.libhpng.model;
 
+import java.math.BigDecimal;
+
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement( name = "continuousPlace" )
@@ -80,17 +82,24 @@ public class ContinuousPlace extends Place{
 		this.currentFluidLevel = this.originalFluidLevel;
 	}
 	
-	public Boolean checkUpperBoundary(){							
-		if (!upperBoundaryInfinity && Math.ceil(currentFluidLevel*1000000)/1000000 >= upperBoundary)
+	public Boolean checkUpperBoundary(){
+		
+		BigDecimal level = new BigDecimal(currentFluidLevel);
+		level = level.setScale(14,BigDecimal.ROUND_UP);
+		
+		if (!upperBoundaryInfinity && level.doubleValue() >= upperBoundary)
 			upperBoundaryReached = true;
 		else 
 			upperBoundaryReached = false;
 		return upperBoundaryReached;
 	}
 	
-	public Boolean checkLowerBoundary(){		
-		lowerBoundaryReached = false;					
-		if (Math.floor(currentFluidLevel*1000000)/1000000 <= 0.0)
+	public Boolean checkLowerBoundary(){	
+		
+		BigDecimal level = new BigDecimal(currentFluidLevel);
+		level = level.setScale(14,BigDecimal.ROUND_DOWN);
+					
+		if (level.doubleValue() <= 0.0)
 			lowerBoundaryReached = true;
 		else
 			lowerBoundaryReached = false;

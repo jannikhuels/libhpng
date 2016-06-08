@@ -28,13 +28,13 @@ public class MarkingPlot {
 	private HashMap<String, TransitionPlot> transitionPlots = new HashMap<String, TransitionPlot>();
 	private Double maxTime;
 	
-	public void initialize(HPnGModel model){
-		
+
+	public void initialize(HPnGModel model){		
 		addAllPlaces(model);		
 		addAllTransitions(model);
-		saveAll(0.0);
-		
+		saveAll(0.0);		
 	}
+	
 		
 	public void saveAll(Double time){		
 		saveAllTransitionData(time);
@@ -53,6 +53,18 @@ public class MarkingPlot {
 			addPlace(place);
 	}
 	
+
+	public void addTransition(Transition transition) {
+		this.transitionPlots.put(transition.getId(),new TransitionPlot(transition));
+	}
+	
+	
+	public void addAllTransitions(HPnGModel model){
+		for (Transition transition: model.getTransitions())
+			addTransition(transition);
+	}
+	
+	
 	public Double getNextEventTime(Double previousTime){
 		
 		Double time = maxTime;
@@ -70,8 +82,7 @@ public class MarkingPlot {
 	    	currentPlotTime = it2.next().getValue().getNextEntryAfterGivenTime(previousTime).getTime();
 	    	if (currentPlotTime < time  && currentPlotTime > previousTime)
 	    		time = currentPlotTime;
-	    }
-		
+	    }	
 	    return time;
 	}
 	
@@ -95,106 +106,8 @@ public class MarkingPlot {
 	    }
 		
 	    return false;
-	}
-	
-	private void saveContinuousPlaceData(Double time){
-		
-		PlacePlot currentPlot;
-		
-		Iterator<Entry<String, PlacePlot>> it = placePlots.entrySet().iterator();
-	    while (it.hasNext()) {
-	       currentPlot = it.next().getValue();
-	       if (currentPlot.getReferencedPlace().getClass().equals(ContinuousPlace.class)){
-	    	   
-	    	  ContinuousPlace place = (ContinuousPlace) currentPlot.getReferencedPlace();				
-	    	  ContinuousPlaceEntry entry = new ContinuousPlaceEntry(time, place.getFluidLevel(), place.getDrift());
-	    	  currentPlot.addEntry(entry);	    	  			
-			}
-	    }
-	}
-	
-	
-	private void saveDiscretePlaceData(Double time){		
-		
-		PlacePlot currentPlot;
-		
-		Iterator<Entry<String, PlacePlot>> it = placePlots.entrySet().iterator();
-	    while (it.hasNext()) {
-	       currentPlot = it.next().getValue();
-	       if (currentPlot.getReferencedPlace().getClass().equals(DiscretePlace.class)){
-	    	   
-				DiscretePlace place = (DiscretePlace) currentPlot.getReferencedPlace();
-				DiscretePlaceEntry entry = new DiscretePlaceEntry(time, place.getNumberOfTokens());
-				currentPlot.addEntry(entry);
-			}
-	    }
-	}
-	
-	public void addTransition(Transition transition) {
-		this.transitionPlots.put(transition.getId(),new TransitionPlot(transition));
-	}
-	
-	public void addAllTransitions(HPnGModel model){
-		for (Transition transition: model.getTransitions())
-			addTransition(transition);
-	}
-	
-	
-	private void saveDeterministicTransitionData(Double time){		
-		TransitionPlot currentPlot;
-		
-		Iterator<Entry<String, TransitionPlot>> it = transitionPlots.entrySet().iterator();
-	    while (it.hasNext()) {
-	       currentPlot = it.next().getValue();
-	       if (currentPlot.getReferencedTransition().getClass().equals(DeterministicTransition.class)){
-	    	   
-	    	   DeterministicTransition transition = (DeterministicTransition) currentPlot.getReferencedTransition();
-	    	   DeterministicTransitionEntry entry = new DeterministicTransitionEntry(time, transition.getEnabled(), transition.getClock());
-    		   currentPlot.addEntry(entry);	
-			}
-	    }
-	}
-	
-	
-	private void saveImmediateOrContinuousTransitionData(Double time){		
-		
-		TransitionPlot currentPlot;
+	}	
 
-		Iterator<Entry<String, TransitionPlot>> it = transitionPlots.entrySet().iterator();
-	    while (it.hasNext()) {
-	       currentPlot = it.next().getValue();
-	       if (currentPlot.getReferencedTransition().getClass().equals(ImmediateTransition.class) || currentPlot.getReferencedTransition().getClass().equals(ContinuousTransition.class)){
-	    	   
-	    	   Transition transition = currentPlot.getReferencedTransition();
-	    	   TransitionEntry entry = new TransitionEntry(time, transition.getEnabled());
-	    	   currentPlot.addEntry(entry);  	  
-	       }
-	    }
-	}
-	
-	private void saveGeneralTransitionData(Double time){		
-		
-		TransitionPlot currentPlot;
-		
-		Iterator<Entry<String, TransitionPlot>> it = transitionPlots.entrySet().iterator();
-	    while (it.hasNext()) {
-	       currentPlot = it.next().getValue();
-	       if (currentPlot.getReferencedTransition().getClass().equals(GeneralTransition.class)){
-	    	   
-	    	   GeneralTransition transition = (GeneralTransition)currentPlot.getReferencedTransition(); 
-	    	   GeneralTransitionEntry entry = new GeneralTransitionEntry(time, transition.getEnabled(), transition.getFirings());
-	    	   currentPlot.addEntry(entry);	    	   
-	       }
-	    }
-	}
-	
-	
-	private void saveAllTransitionData(Double time){
-		saveDeterministicTransitionData(time);
-		saveImmediateOrContinuousTransitionData(time);
-		saveGeneralTransitionData(time);
-	}
-	
 	
 	public void printPlot(){
 					
@@ -213,6 +126,7 @@ public class MarkingPlot {
 			}
 	    }		
 	}
+	
 	
 	public void plotContinuousPlaces(){
 		XYLineGraph graph = new XYLineGraph("Continuous Places", "time", "fluid level");
@@ -253,4 +167,95 @@ public class MarkingPlot {
         graph.setVisible(true);
 	}
 
+	
+	private void saveContinuousPlaceData(Double time){
+		
+		PlacePlot currentPlot;
+		
+		Iterator<Entry<String, PlacePlot>> it = placePlots.entrySet().iterator();
+	    while (it.hasNext()) {
+	       currentPlot = it.next().getValue();
+	       if (currentPlot.getReferencedPlace().getClass().equals(ContinuousPlace.class)){
+	    	   
+	    	  ContinuousPlace place = (ContinuousPlace) currentPlot.getReferencedPlace();				
+	    	  ContinuousPlaceEntry entry = new ContinuousPlaceEntry(time, place.getFluidLevel(), place.getDrift());
+	    	  currentPlot.addEntry(entry);	    	  			
+			}
+	    }
+	}
+	
+	
+	private void saveDiscretePlaceData(Double time){		
+		
+		PlacePlot currentPlot;
+		
+		Iterator<Entry<String, PlacePlot>> it = placePlots.entrySet().iterator();
+	    while (it.hasNext()) {
+	       currentPlot = it.next().getValue();
+	       if (currentPlot.getReferencedPlace().getClass().equals(DiscretePlace.class)){
+	    	   
+				DiscretePlace place = (DiscretePlace) currentPlot.getReferencedPlace();
+				DiscretePlaceEntry entry = new DiscretePlaceEntry(time, place.getNumberOfTokens());
+				currentPlot.addEntry(entry);
+			}
+	    }
+	}
+	
+	
+	private void saveDeterministicTransitionData(Double time){		
+		
+		TransitionPlot currentPlot;
+		
+		Iterator<Entry<String, TransitionPlot>> it = transitionPlots.entrySet().iterator();
+	    while (it.hasNext()) {
+	       currentPlot = it.next().getValue();
+	       if (currentPlot.getReferencedTransition().getClass().equals(DeterministicTransition.class)){
+	    	   
+	    	   DeterministicTransition transition = (DeterministicTransition) currentPlot.getReferencedTransition();
+	    	   DeterministicTransitionEntry entry = new DeterministicTransitionEntry(time, transition.getEnabled(), transition.getClock());
+    		   currentPlot.addEntry(entry);	
+			}
+	    }
+	}
+	
+	
+	private void saveImmediateOrContinuousTransitionData(Double time){		
+		
+		TransitionPlot currentPlot;
+
+		Iterator<Entry<String, TransitionPlot>> it = transitionPlots.entrySet().iterator();
+	    while (it.hasNext()) {
+	       currentPlot = it.next().getValue();
+	       if (currentPlot.getReferencedTransition().getClass().equals(ImmediateTransition.class) || currentPlot.getReferencedTransition().getClass().equals(ContinuousTransition.class)){
+	    	   
+	    	   Transition transition = currentPlot.getReferencedTransition();
+	    	   TransitionEntry entry = new TransitionEntry(time, transition.getEnabled());
+	    	   currentPlot.addEntry(entry);  	  
+	       }
+	    }
+	}
+	
+	
+	private void saveGeneralTransitionData(Double time){		
+		
+		TransitionPlot currentPlot;
+		
+		Iterator<Entry<String, TransitionPlot>> it = transitionPlots.entrySet().iterator();
+	    while (it.hasNext()) {
+	       currentPlot = it.next().getValue();
+	       if (currentPlot.getReferencedTransition().getClass().equals(GeneralTransition.class)){
+	    	   
+	    	   GeneralTransition transition = (GeneralTransition)currentPlot.getReferencedTransition(); 
+	    	   GeneralTransitionEntry entry = new GeneralTransitionEntry(time, transition.getEnabled(), transition.getFirings());
+	    	   currentPlot.addEntry(entry);	    	   
+	       }
+	    }
+	}
+	
+	
+	private void saveAllTransitionData(Double time){
+		saveDeterministicTransitionData(time);
+		saveImmediateOrContinuousTransitionData(time);
+		saveGeneralTransitionData(time);
+	}
 }
