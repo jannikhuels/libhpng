@@ -92,10 +92,10 @@ SimpleNode Input()      :
 /*@egen*/
 }
 
-void Psi()       :
+void Phi()       :
 {Token t;}
 {
- <LBRACE> Psi() <RBRACE> | And() | Or() | Until() | Not() | Atomic()
+ <LBRACE> Phi() <RBRACE> | And() | Or() | Until() | Not() | Atomic()
 }
 
 void Atomic()      :
@@ -113,7 +113,7 @@ void Not()     :
 {/*@bgen(jjtree) NOT */
     try {
 /*@egen*/
-    <NOT> Psi()/*@bgen(jjtree)*/
+    <NOT> Phi()/*@bgen(jjtree)*/
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -145,7 +145,7 @@ void And()     :
 {/*@bgen(jjtree) AND */
    try {
 /*@egen*/
-   <AND> <LBRACE> Psi() <SEP> Psi() <RBRACE>/*@bgen(jjtree)*/
+   <AND> <LBRACE> Phi() <SEP> Phi() <RBRACE>/*@bgen(jjtree)*/
    } catch (Throwable jjte000) {
      if (jjtc000) {
        jjtree.clearNodeScope(jjtn000);
@@ -177,7 +177,7 @@ void Or()    :
 {/*@bgen(jjtree) OR */
    try {
 /*@egen*/
-   <OR> <LBRACE> Psi() <SEP> Psi() <RBRACE>/*@bgen(jjtree)*/
+   <OR> <LBRACE> Phi() <SEP> Phi() <RBRACE>/*@bgen(jjtree)*/
    } catch (Throwable jjte000) {
      if (jjtc000) {
        jjtree.clearNodeScope(jjtn000);
@@ -209,7 +209,7 @@ void Until()       :
 {/*@bgen(jjtree) UNTIL */
    try {
 /*@egen*/
-   <UNTIL> <LBRACESQ> Double() <SEP> Double() <RBRACESQ> <LBRACE> Psi() <SEP> Psi() <RBRACE>/*@bgen(jjtree)*/
+   <UNTIL> <LBRACESQ> Double() <SEP> Double() <RBRACESQ> <LBRACE> Phi() <SEP> Phi() <RBRACE>/*@bgen(jjtree)*/
    } catch (Throwable jjte000) {
      if (jjtc000) {
        jjtree.clearNodeScope(jjtn000);
@@ -241,7 +241,7 @@ void Prob()      :
 {/*@bgen(jjtree) PROB */
    try {
 /*@egen*/
-   <PROB> Compare() Double() <LBRACE> Psi() <RBRACE>/*@bgen(jjtree)*/
+   <PROB> Compare() Double() <LBRACE> Phi() <RBRACE>/*@bgen(jjtree)*/
    } catch (Throwable jjte000) {
      if (jjtc000) {
        jjtree.clearNodeScope(jjtn000);
@@ -273,7 +273,7 @@ void ProbQ()       :
 {/*@bgen(jjtree) PROBQ */
    try {
 /*@egen*/
-   <PROBQ> <LBRACE> Psi() <RBRACE>/*@bgen(jjtree)*/
+   <PROBQ> <LBRACE> Phi() <RBRACE>/*@bgen(jjtree)*/
    } catch (Throwable jjte000) {
      if (jjtc000) {
        jjtree.clearNodeScope(jjtn000);

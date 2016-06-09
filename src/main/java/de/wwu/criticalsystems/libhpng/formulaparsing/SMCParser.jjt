@@ -57,10 +57,10 @@ SimpleNode Input() #ROOT:
    Time() <COLON> (Prob() | ProbQ()) <EOL> {return jjtThis;}
 }
 
-void Psi() #void :
+void Phi() #void :
 {Token t;}
 {
- <LBRACE> Psi() <RBRACE> | And() | Or() | Until() | Not() | Atomic()
+ <LBRACE> Phi() <RBRACE> | And() | Or() | Until() | Not() | Atomic()
 }
 
 void Atomic() #void:
@@ -72,37 +72,37 @@ void Atomic() #void:
 void Not() #NOT:
 {}
 {
-    <NOT> Psi() 
+    <NOT> Phi() 
 }
 
 void And() #AND:
 {}
 {
-   <AND> <LBRACE> Psi() <SEP> Psi() <RBRACE>
+   <AND> <LBRACE> Phi() <SEP> Phi() <RBRACE>
 }
 
 void Or() #OR:
 {}
 {
-   <OR> <LBRACE> Psi() <SEP> Psi() <RBRACE>
+   <OR> <LBRACE> Phi() <SEP> Phi() <RBRACE>
 }
 
 void Until() #UNTIL:
 {}
 {
-   <UNTIL> <LBRACESQ> Double() <SEP> Double() <RBRACESQ> <LBRACE> Psi() <SEP> Psi() <RBRACE>
+   <UNTIL> <LBRACESQ> Double() <SEP> Double() <RBRACESQ> <LBRACE> Phi() <SEP> Phi() <RBRACE>
 }
 
 void Prob() #PROB:
 {}
 {
-   <PROB> Compare() Double() <LBRACE> Psi() <RBRACE>
+   <PROB> Compare() Double() <LBRACE> Phi() <RBRACE>
 }
 
 void ProbQ() #PROBQ:
 {}
 {
-   <PROBQ> <LBRACE> Psi() <RBRACE>
+   <PROBQ> <LBRACE> Phi() <RBRACE>
 }
 
 void Double() #DOUBLE:

@@ -1,19 +1,19 @@
 package de.wwu.criticalsystems.libhpng.simulation;
 
+import java.util.logging.Logger;
+
 import umontreal.iro.lecuyer.probdist.StudentDist;
+import de.wwu.criticalsystems.libhpng.errorhandling.PropertyError;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.model.*;
 import de.wwu.criticalsystems.libhpng.plotting.*;
 
 public class ConfidenceIntervalCalculator {
 	
-	public ConfidenceIntervalCalculator(HPnGModel model, Integer min_runs) {
-		this.model = model;
+	public ConfidenceIntervalCalculator(HPnGModel model, Integer min_runs, Logger logger, SimpleNode root) throws PropertyError {
 		this.min_runs = min_runs;
-	}
-
-	public void setModel(HPnGModel model) {
-		this.model = model;
+		checker = new PropertyChecker(root, model);
+		checker.setLogger(logger);		
 	}
 
 	public Integer getN_runs() {
@@ -36,25 +36,23 @@ public class ConfidenceIntervalCalculator {
 		return t;
 	}
 
-	private HPnGModel model;
 	private Integer n_runs;
 	private Integer min_runs;
 	private Integer fulfilled;
 	private Double ssquare;
 	private Double mean;
 	private Double t;
+	private PropertyChecker checker; 
 	
 	
-	public void calculateSSquareForProperty(SimpleNode root, Integer currentRun, MarkingPlot plot) {
+	public void calculateSSquareForProperty(Integer currentRun, MarkingPlot plot) throws PropertyError {
 		
 		if (currentRun == 1){
 			n_runs = 0;
 			fulfilled = 0;
 		}
 					
-		PropertyChecker checker = new PropertyChecker();
-		
-		if (checker.checkProperty(root, plot, model))						
+		if (checker.checkProperty(plot))						
 			fulfilled++;
 				
 		n_runs++;	

@@ -2,6 +2,9 @@ package de.wwu.criticalsystems.libhpng.simulation;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
+
+import de.wwu.criticalsystems.libhpng.errorhandling.PropertyError;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.model.*;
 import de.wwu.criticalsystems.libhpng.plotting.*;
@@ -9,31 +12,48 @@ import de.wwu.criticalsystems.libhpng.plotting.*;
 
 public class PropertyChecker {
 	
+	public PropertyChecker(SimpleNode root, HPnGModel model) throws PropertyError{
+
+		this.model = model;
+
+		try {
+			time = getTimeFromRoot(root);			
+		} catch (PropertyError e){
+			if (logger != null)
+				logger.severe(e.getLocalizedMessage());
+			throw e;    
+		}
+		
+		propertyRoot = getPropertyRoot(root);		
+		
+		
+	}
+	
+
+	public Logger getLogger() {
+		return logger;
+	}
+	public void setLogger(Logger logger) {
+		this.logger = logger;
+	}
+	
 	private static enum PropertyFamily {discrete, continuous, undefined}
 
 	private HPnGModel model;
 	private MarkingPlot plot;	
+	private Logger logger;
+	private Double time = 0.0;
+	private SimpleNode propertyRoot;
 	
-	public Boolean checkProperty(SimpleNode root, MarkingPlot plot, HPnGModel model){
 	
-		this.model = model;
+	public Boolean checkProperty(MarkingPlot plot) throws PropertyError{
+	
 		this.plot = plot;
-		
-		Boolean fulfilled = false;
-		
-		Double time = getTimeFromRoot(root);
-		
-		SimpleNode propertyRoot = getPropertyRoot(root);		
-		if (propertyRoot == null)
-			System.out.println("Property Error");
-		
-		fulfilled = checkAnyProperty(propertyRoot, time);	
-		
-		return fulfilled;		
+		return checkAnyProperty(propertyRoot, time);	
 	}
 
 	
-	public static Double getMaxTimeForSimulation(SimpleNode propertyRoot){
+	public static Double getMaxTimeForSimulation(SimpleNode propertyRoot) throws PropertyError{
 		
 		Double maxTime = getTimeFromRoot(propertyRoot);
 		Double untilTime = checkForUntil(propertyRoot, maxTime);
@@ -52,7 +72,7 @@ public class PropertyChecker {
 	
 	
 	//recursive method for checking property
-	private Boolean checkAnyProperty(SimpleNode propertyRoot, Double time){
+	private Boolean checkAnyProperty(SimpleNode propertyRoot, Double time) throws PropertyError{
 		
 		if (propertyRoot.toString().startsWith("ATOMIC_"))
 			return checkAtomicProperty(propertyRoot, time);
@@ -68,12 +88,13 @@ public class PropertyChecker {
 				return (checkUntilProperty((SimpleNode)propertyRoot, time));
 		}
 		
-		System.out.println("Property Error");
-		return false;
+		if (logger != null)
+			logger.severe("Property Error: the property node '" + propertyRoot.toString() + "' could not be identified");
+		throw new PropertyError("Property Error: the property node '" + propertyRoot.toString() + "' could not be identified");
 	}
 
 	
-	private Boolean checkAtomicProperty(SimpleNode propertyRoot, Double time) {
+	private Boolean checkAtomicProperty(SimpleNode propertyRoot, Double time) throws PropertyError {
 		
 		Double value;
 		String id = null;	
@@ -95,8 +116,9 @@ public class PropertyChecker {
 			id = temp;	
 		
 		if (id == null){
-			System.out.println("Property Error!");
-			return false;
+			if (logger != null)
+				logger.severe("Property Error: the ID of the property node '" + propertyRoot.toString() + "' could not be matched");
+			throw new PropertyError("Property Error: the ID of the property node '" + propertyRoot.toString() + "' could not be matched");
 		}
 		
 		PlotEntry currentEntry = getCurrentEntry(time, type, id);		
@@ -116,8 +138,9 @@ public class PropertyChecker {
 				}					
 			}
 			if (boundary == null){
-				System.out.println("Property Error (boundary)");
-				return false;
+				if (logger != null)
+					logger.severe("Property Error: the boundary of the property node '" + propertyRoot.toString() + "' could not be identified");
+				throw new PropertyError("Property Error: the boundary of the property node '" + propertyRoot.toString() + "' could not be identified");
 			}
 			break;
 		case "ATOMIC_LBOUND":
@@ -156,25 +179,33 @@ public class PropertyChecker {
 				return (compareValues(value, boundary, compare));
 		}
 		
-		System.out.println("Property Error");
-		return false;
+		if (logger != null)
+			logger.severe("Property Error: the property '" + propertyRoot.toString() + "' could not be identified");
+		throw new PropertyError("Property Error: the property '" + propertyRoot.toString() + "' could not be identified");
+	
 	}
 	
 	
-	private Boolean checkUntilProperty(SimpleNode propertyRoot, Double time) {
+	private Boolean checkUntilProperty(SimpleNode propertyRoot, Double time) throws PropertyError {
 		
 		Double t1 = time + Double.parseDouble(((SimpleNode)propertyRoot.jjtGetChild(0)).jjtGetValue().toString());
 		Double t2 = time + Double.parseDouble(((SimpleNode)propertyRoot.jjtGetChild(1)).jjtGetValue().toString());
-		if (t1 > t2)
-			System.out.println("Property Error");
+		if (t1 > t2){
+			if (logger != null)
+				logger.severe("Property Error: the second border of the  is smaller than or equal to the first border for the Until property node '" + propertyRoot.toString() + "'");
+			throw new PropertyError("Property Error: the second border of the  is smaller than or equal to the first border for the Until property node '" + propertyRoot.toString() + "'");
+		}
 		
 		SimpleNode phi1 = (SimpleNode)propertyRoot.jjtGetChild(2);
 		SimpleNode phi2 = (SimpleNode)propertyRoot.jjtGetChild(3);		
 		PropertyFamily phi1Family = checkPropertyFamily(phi1);
 		PropertyFamily phi2Family = checkPropertyFamily(phi2);
 		
-		if (phi1Family.equals(PropertyFamily.undefined) || phi1Family.equals(PropertyFamily.undefined))
-			System.out.println("Property Error");
+		if (phi1Family.equals(PropertyFamily.undefined) || phi1Family.equals(PropertyFamily.undefined)){
+			if (logger != null)
+				logger.severe("Property Error: the type (discrete or continuous) of the property node '" + propertyRoot.toString() + "' could not be identified");
+			throw new PropertyError("Property Error: the type (discrete or continuous) of the property node '" + propertyRoot.toString() + "' could not be identified");
+		}
 				
 		//check t = time	
 		if (!checkAnyProperty(phi1, time))
@@ -255,7 +286,7 @@ public class PropertyChecker {
 	}
 
 	
-	private Double findTForProperty(Double leftBorder, Double rightBorder, Boolean leftBorderIncluded, Boolean rightBorderIncluded, SimpleNode propertyRoot){
+	private Double findTForProperty(Double leftBorder, Double rightBorder, Boolean leftBorderIncluded, Boolean rightBorderIncluded, SimpleNode propertyRoot) throws PropertyError{
 
 		if (leftBorder + Double.MIN_VALUE >= rightBorder){
 			if (leftBorderIncluded && checkAnyProperty(propertyRoot, leftBorder))
@@ -316,7 +347,7 @@ public class PropertyChecker {
 	}
 	
 		
-	private Double findTForInvalidProperty(Double leftBorder, Double rightBorder, Boolean leftBorderIncluded, Boolean rightBorderIncluded, SimpleNode propertyRoot){
+	private Double findTForInvalidProperty(Double leftBorder, Double rightBorder, Boolean leftBorderIncluded, Boolean rightBorderIncluded, SimpleNode propertyRoot) throws PropertyError{
 
 		if (leftBorder + Double.MIN_VALUE >= rightBorder){
 			if (leftBorderIncluded && !checkAnyProperty(propertyRoot, leftBorder))
@@ -375,13 +406,14 @@ public class PropertyChecker {
 	}
 	
 	
-	private Double findTForAtomicFluid(Double leftBorder, Double rightBorder, Boolean leftBorderIncluded, Boolean rightBorderIncluded, SimpleNode propertyRoot, Boolean invalid){
+	private Double findTForAtomicFluid(Double leftBorder, Double rightBorder, Boolean leftBorderIncluded, Boolean rightBorderIncluded, SimpleNode propertyRoot, Boolean invalid) throws PropertyError{
 		
 		Double boundary = getPropertyBoundary(propertyRoot);
 		String compare = getPropertyCompare(propertyRoot);		
 		if (boundary < 0.0){
-			System.out.println("Property Error");
-		 	return -1.0;
+			if (logger != null)
+				logger.severe("Property Error: the boundary for the atomic fluid property must be at least zero");
+			throw new PropertyError("Property Error: the boundary for the atomic fluid property must be at least zero");
 		}
 		
     	PlacePlot placePlot = null, currentPlacePlot;		
@@ -395,9 +427,10 @@ public class PropertyChecker {
 			}
 		}
 	    if (!placePlot.getReferencedPlace().getClass().equals(ContinuousPlace.class)){
-	    	System.out.println("ID Error");
-	    	return -1.0;
-	    }
+	    	if (logger != null)
+				logger.severe("Property Error: the ID of the place for the atomic fluid property must refer to a continuous place");
+			throw new PropertyError("Property Error: the ID of the place for for the atomic fluid property must refer to a continuous place");
+		}
 	    
 
 		if (!invalid && ((compare.equals("<") && boundary == 0.0) || (compare.equals(">") && !((ContinuousPlace)placePlot.getReferencedPlace()).getUpperBoundaryInfinity() && boundary > ((ContinuousPlace)placePlot.getReferencedPlace()).getUpperBoundary())))
@@ -438,13 +471,14 @@ public class PropertyChecker {
 	}
 
 	
-	private Double findTForAtomicClock(Double leftBorder, Double rightBorder, Boolean leftBorderIncluded, Boolean rightBorderIncluded, SimpleNode propertyRoot, Boolean invalid){
+	private Double findTForAtomicClock(Double leftBorder, Double rightBorder, Boolean leftBorderIncluded, Boolean rightBorderIncluded, SimpleNode propertyRoot, Boolean invalid) throws PropertyError{
 		
 		Double boundary = getPropertyBoundary(propertyRoot);
 		String compare = getPropertyCompare(propertyRoot);		
 		if (boundary < 0.0){
-			System.out.println("Property Error");
-		 	return -1.0;
+			if (logger != null)
+				logger.severe("Property Error: the boundary for the atomic clock property must be at least zero");
+			throw new PropertyError("Property Error: the boundary for the atomic clock property must be at least zero");
 		}
 		
 		TransitionPlot transitionPlot = null, currentTransitionPlot;					
@@ -458,8 +492,9 @@ public class PropertyChecker {
 			}
 		}
 	    if (!transitionPlot.getReferencedTransition().getClass().equals(DeterministicTransition.class)){
-	    	System.out.println("ID Error");
-	    	return -1.0;
+	    	if (logger != null)
+				logger.severe("Property Error: the ID of the transition for the atomic clock property must refer to a deterministic transition");
+			throw new PropertyError("Property Error: the ID of the transition for for the clock fluid property must refer to a deterministic transition");
 	    }
 	    
 	    if (!invalid && ((compare.equals("<") && boundary == 0.0)))
@@ -544,9 +579,7 @@ public class PropertyChecker {
 	}
 
 	
-	private PlotEntry getCurrentEntry(Double time, String type, String id) {
-		
-		PlotEntry currentEntry = null;
+	private PlotEntry getCurrentEntry(Double time, String type, String id) throws PropertyError {
 		
 		if (type.equals("ATOMIC_ENABLED") || type.equals("ATOMIC_CLOCK") || type.equals("ATOMIC_FIRINGS")){
 			for (Transition transition : model.getTransitions()){;
@@ -559,12 +592,13 @@ public class PropertyChecker {
 					return plot.getPlacePlots().get(place.getId()).getNextEntryBeforeOrAtGivenTime(time);
 			}		
 		}
-		System.out.println("ID error in Property: " + id);		
-		return currentEntry;
+		if (logger != null)
+			logger.severe("Property Error: the ID of the place or transition '" + id + "' could not be matched to any plot entry");
+		throw new PropertyError("Property Error: the ID of the place or transition '" + id + "' could not be matched to any plot entry");
 	}
 	
 
-	private Boolean compareValues(Double value, Double boundary, String compare){
+	private Boolean compareValues(Double value, Double boundary, String compare) throws PropertyError{
 
 		switch (compare){
 			case ">":
@@ -578,34 +612,36 @@ public class PropertyChecker {
 			case "<=":
 				return (value <= boundary);	
 		}		
-		System.out.println("Property Error!");
-		return false;
+		if (logger != null)
+			logger.severe("Property Error: the comparison '" + compare + "' could not be identified");
+		throw new PropertyError("Property Error: the comparison '" + compare + "' could not be identified");
 	}
 	
 	
-	private static Double getTimeFromRoot(SimpleNode propertyRoot){
+	private static Double getTimeFromRoot(SimpleNode propertyRoot) throws PropertyError{
 		
 		for (int i=0;i < propertyRoot.jjtGetNumChildren(); i++){
 			if (propertyRoot.jjtGetChild(i).toString().equals("TIME"))
 				return Double.parseDouble(((SimpleNode)propertyRoot.jjtGetChild(i).jjtGetChild(0)).jjtGetValue().toString());
 		}		
-		System.out.println("Property Error!");
-		return 0.0;
+		throw new PropertyError("Property Error: the time of the property node '" + propertyRoot.toString() + "' could not be identified");    
 	}
 	
 	
-	private SimpleNode getPropertyRoot(SimpleNode root){
+	private SimpleNode getPropertyRoot(SimpleNode root) throws PropertyError{
+		
 		for (int i=0;i < root.jjtGetNumChildren(); i++){
 			if (root.jjtGetChild(i).toString().equals("PROBQ") || root.jjtGetChild(i).toString().equals("PROB"))
 				return (((SimpleNode)root.jjtGetChild(i).jjtGetChild(0)));
 		}
-		
-		System.out.println("Property Error!");
-		return null;
+		if (logger != null)
+			logger.severe("Property Error: the property root could not be identified");
+		throw new PropertyError("Property Error: the property root could not be identified");
+	
 	}
 	
 	
-	private String getPropertyID(SimpleNode atomic){
+	private String getPropertyID(SimpleNode atomic) throws PropertyError{
 		
 		String id;
 		for (int i=0;i < atomic.jjtGetNumChildren(); i++){
@@ -615,12 +651,13 @@ public class PropertyChecker {
 				return id;
 			}
 		}
-		System.out.println("Property Error!");
-		return null;
+		if (logger != null)
+			logger.severe("Property Error: the ID the property node '" + atomic.toString() + "' could not be identified");
+		throw new PropertyError("Property Error: the ID the property node '" + atomic.toString() + "' could not be identified");
 	}
 	
 	
-	private Double getPropertyBoundary(SimpleNode atomic) {
+	private Double getPropertyBoundary(SimpleNode atomic) throws PropertyError {
 		
 		for (int i=0;i < atomic.jjtGetNumChildren(); i++){
 			if (atomic.jjtGetChild(i).toString().equals("DOUBLE"))
@@ -631,17 +668,22 @@ public class PropertyChecker {
 				return value.doubleValue();
 				}
 		}
-		return null;
+		if (logger != null)
+			logger.severe("Property Error: the boundary the property node '" + atomic.toString() + "' could not be identified");
+		throw new PropertyError("Property Error: the boundary the property node '" + atomic.toString() + "' could not be identified");
 	}
 	
 	
-	private String getPropertyCompare(SimpleNode atomic){
+	private String getPropertyCompare(SimpleNode atomic) throws PropertyError{
 		
 		for (int i=0;i < atomic.jjtGetNumChildren(); i++){
 			if (atomic.jjtGetChild(i).toString().equals("COMPARE"))
 				return ((SimpleNode)atomic.jjtGetChild(i)).jjtGetValue().toString();
 		}
-		return "";
+		if (logger != null)
+			logger.severe("Property Error: the comparison the property node '" + atomic.toString() + "' could not be identified");
+		throw new PropertyError("Property Error: the comparison the property node '" + atomic.toString() + "' could not be identified");
+    
 	}
 	
 
