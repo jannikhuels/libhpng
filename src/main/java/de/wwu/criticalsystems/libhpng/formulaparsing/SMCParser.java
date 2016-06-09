@@ -10,11 +10,12 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
     root.dump("");
   }*/
 
-  static final public SimpleNode Input() throws ParseException {
+  final public SimpleNode Input() throws ParseException {
  /*@bgen(jjtree) ROOT */
   SimpleNode jjtn000 = new SimpleNode(JJTROOT);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
+  
     try {
       Time();
       jj_consume_token(COLON);
@@ -31,9 +32,10 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
         throw new ParseException();
       }
       jj_consume_token(EOL);
-                                             jjtree.closeNodeScope(jjtn000, true);
-                                             jjtc000 = false;
-                                            {if (true) return jjtn000;}
+     jjtree.closeNodeScope(jjtn000, true);
+     jjtc000 = false;
+     return jjtn000;
+    
     } catch (Throwable jjte000) {
      if (jjtc000) {
        jjtree.clearNodeScope(jjtn000);
@@ -42,26 +44,25 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
        jjtree.popNode();
      }
      if (jjte000 instanceof RuntimeException) {
-       {if (true) throw (RuntimeException)jjte000;}
+       throw (RuntimeException)jjte000;
      }
      if (jjte000 instanceof ParseException) {
-       {if (true) throw (ParseException)jjte000;}
+       throw (ParseException)jjte000;
      }
-     {if (true) throw (Error)jjte000;}
+     throw (Error)jjte000;
     } finally {
      if (jjtc000) {
        jjtree.closeNodeScope(jjtn000, true);
      }
     }
-    throw new Error("Missing return statement in function");
   }
 
-  static final public void Psi() throws ParseException {
- Token t;
+  static final public void Phi() throws ParseException {
+
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case LBRACE:
       jj_consume_token(LBRACE);
-      Psi();
+      Phi();
       jj_consume_token(RBRACE);
       break;
     case AND:
@@ -137,7 +138,7 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
   jjtree.openNodeScope(jjtn000);
     try {
       jj_consume_token(NOT);
-      Psi();
+      Phi();
     } catch (Throwable jjte000) {
       if (jjtc000) {
         jjtree.clearNodeScope(jjtn000);
@@ -167,9 +168,9 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
     try {
       jj_consume_token(AND);
       jj_consume_token(LBRACE);
-      Psi();
+      Phi();
       jj_consume_token(SEP);
-      Psi();
+      Phi();
       jj_consume_token(RBRACE);
     } catch (Throwable jjte000) {
      if (jjtc000) {
@@ -200,9 +201,9 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
     try {
       jj_consume_token(OR);
       jj_consume_token(LBRACE);
-      Psi();
+      Phi();
       jj_consume_token(SEP);
-      Psi();
+      Phi();
       jj_consume_token(RBRACE);
     } catch (Throwable jjte000) {
      if (jjtc000) {
@@ -238,9 +239,9 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
       Double();
       jj_consume_token(RBRACESQ);
       jj_consume_token(LBRACE);
-      Psi();
+      Phi();
       jj_consume_token(SEP);
-      Psi();
+      Phi();
       jj_consume_token(RBRACE);
     } catch (Throwable jjte000) {
      if (jjtc000) {
@@ -273,7 +274,7 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
       Compare();
       Double();
       jj_consume_token(LBRACE);
-      Psi();
+      Phi();
       jj_consume_token(RBRACE);
     } catch (Throwable jjte000) {
      if (jjtc000) {
@@ -304,7 +305,7 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
     try {
       jj_consume_token(PROBQ);
       jj_consume_token(LBRACE);
-      Psi();
+      Phi();
       jj_consume_token(RBRACE);
     } catch (Throwable jjte000) {
      if (jjtc000) {
@@ -759,7 +760,7 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
   /** Reinitialise. */
   static public void ReInit(java.io.InputStream stream, String encoding) {
     try { jj_input_stream.ReInit(stream, encoding, 1, 1); } catch(java.io.UnsupportedEncodingException e) { throw new RuntimeException(e); }
-    token_source.ReInit(jj_input_stream);
+    SMCParserTokenManager.ReInit(jj_input_stream);
     token = new Token();
     jj_ntk = -1;
     jjtree.reset();
@@ -787,7 +788,7 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
   /** Reinitialise. */
   static public void ReInit(java.io.Reader stream) {
     jj_input_stream.ReInit(stream, 1, 1);
-    token_source.ReInit(jj_input_stream);
+    SMCParserTokenManager.ReInit(jj_input_stream);
     token = new Token();
     jj_ntk = -1;
     jjtree.reset();

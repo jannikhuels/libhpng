@@ -1,57 +1,16 @@
 package de.wwu.criticalsystems.libhpng.Main;
 
 import java.io.IOException;
-import java.util.logging.*;
 import org.springframework.shell.Bootstrap;
-import de.wwu.criticalsystems.libhpng.errorhandling.ModelNotReadableException;
-import de.wwu.criticalsystems.libhpng.init.*;
-import de.wwu.criticalsystems.libhpng.model.*;
 
 public class Main {	
  
-    public static void main(String[] args) throws IOException {
-    	Bootstrap.main(args);
-    }
-    
-    
-    public static void libhpngMain (String path){
-    	
-    	Logger logger = createLogger();    		
-		
-		try {    			
-
-			ModelReader reader = new ModelReader();
-			reader.setLogger(logger);
-			HPnGModel model = reader.readModel(path);
-			logger.info("Model has been read successfully.");	
-			System.out.println(model.toString());
-		
-		} catch (ModelNotReadableException e) {		
-			logger.severe("The model could not be read in.");
-			System.out.println("An Error occured while reading the model file. Please see the error log and recheck the model.");
-		}	
-    }
-    
-    private static Logger createLogger(){
-		
-		Logger logger = Logger.getLogger("libHPnGLog");  
-	    FileHandler handler;  
-
-	    try {  
-
-	        // This block configure the logger with handler and formatter  
-	        handler = new FileHandler("logFile.log");  
-	        logger.addHandler(handler);
-	        SimpleFormatter formatter = new SimpleFormatter();  
-	        handler.setFormatter(formatter); 
-	        logger.setUseParentHandlers(false);
-
-
-	    } catch (SecurityException e) {  
-	        e.printStackTrace();  
-	    } catch (IOException e) {  
-	        e.printStackTrace();  
-	    }
-		return logger;  
+    public static void main(String[] args){
+    		
+    	try {
+			Bootstrap.main(args);
+		} catch (IOException e) {
+			System.out.println("An error occured while loading the shell. libhpng cannot be executed.");
+		}
     }
 }

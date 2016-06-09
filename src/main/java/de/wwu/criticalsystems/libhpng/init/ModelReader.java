@@ -29,6 +29,7 @@ public class ModelReader {
 	    	File xmlFile = new File(filePath);	    	
 	    	if (!xmlFile.exists()){
 	    		if (logger != null) logger.severe("The model file could not be found.");
+	    		System.out.println("File '" + filePath + "' not found");
 				throw new ModelNotReadableException("File '" + filePath + "' not found");
 	    	}
 	    		
