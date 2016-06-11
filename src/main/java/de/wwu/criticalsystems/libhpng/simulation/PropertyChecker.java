@@ -85,7 +85,7 @@ public class PropertyChecker {
 			case "OR":
 				return (checkAnyProperty((SimpleNode)propertyRoot.jjtGetChild(0), time) || checkAnyProperty((SimpleNode)propertyRoot.jjtGetChild(1), time));
 			case "UNTIL":
-				return (checkUntilProperty((SimpleNode)propertyRoot, time));
+				return (checkUntilProperty((SimpleNode)propertyRoot, time) > -1.0);
 		}
 		
 		if (logger != null)
@@ -186,7 +186,7 @@ public class PropertyChecker {
 	}
 	
 	
-	private Boolean checkUntilProperty(SimpleNode propertyRoot, Double time) throws PropertyError {
+	private Double checkUntilProperty(SimpleNode propertyRoot, Double time) throws PropertyError {
 		
 		Double t1 = time + Double.parseDouble(((SimpleNode)propertyRoot.jjtGetChild(0)).jjtGetValue().toString());
 		Double t2 = time + Double.parseDouble(((SimpleNode)propertyRoot.jjtGetChild(1)).jjtGetValue().toString());
@@ -209,7 +209,7 @@ public class PropertyChecker {
 				
 		//check t = time	
 		if (!checkAnyProperty(phi1, time))
-			return false;		
+			return -1.0;		
 		
 		//check interval [time, t1)
 		Double currentEventTime = plot.getNextEventTime(time);
@@ -217,19 +217,20 @@ public class PropertyChecker {
 		while (currentEventTime < t1){		
 			if (phi1Family.equals(PropertyFamily.discrete)){
 				if (!checkAnyProperty(phi1, currentEventTime))
-					return false;
+					return -1.0;
 			} else {
 				if (findTForInvalidProperty(previousEventTime, currentEventTime, false, true, phi1) != -1.0)
-					return false;
+					return -1.0;
 			}
 			previousEventTime = currentEventTime;
 			currentEventTime = plot.getNextEventTime(currentEventTime);
 		}
 		
-		//check interval [t1, t2]
+		//if t1 fulfills phi2, until is already fulfilled
 		if (plot.eventAtTime(t1) && checkAnyProperty(phi2, t1))
-			return true;
+			return t1;
 		
+		//check interval [t1, t2]
 		currentEventTime = plot.getNextEventTime(t1);
 		previousEventTime = t1;
 		
@@ -239,18 +240,18 @@ public class PropertyChecker {
 			//both discrete
 				
 				if (checkAnyProperty(phi2, currentEventTime))
-					return true;
+					return currentEventTime;
 				if (!checkAnyProperty(phi1, currentEventTime))
-					return false;
+					return -1.0;
 				
 			} else if (phi2Family.equals(PropertyFamily.discrete) && phi1Family.equals(PropertyFamily.continuous)){
 			//phi1 continuous and phi2 discrete	
 				
 				Double tNotPhi1 = findTForInvalidProperty(previousEventTime, currentEventTime, false, false, phi1);				
 				if (checkAnyProperty(phi2, currentEventTime) && (tNotPhi1 == -1.0 || tNotPhi1 >= currentEventTime))
-					return true;				
+					return currentEventTime;				
 				if (!checkAnyProperty(phi1, currentEventTime) || (tNotPhi1 > -1.0 && tNotPhi1 < currentEventTime))
-					return false;
+					return -1.0;
 				
 			} else {
 			//phi2 is continuous
@@ -262,27 +263,27 @@ public class PropertyChecker {
 				//phi2 discrete
 					
 					if (tPhi2 > -1.0)
-						return true;					
+						return tPhi2;					
 					if (!checkAnyProperty(phi1, currentEventTime))
-						return false;
+						return -1.0;
 					
 				} else {
 				//both continuous
 					
 					if (tPhi2 > -1.0){
 						if (findTForInvalidProperty(previousEventTime, tPhi2, false, false, phi1) != -1.0)
-							return false;
-						return true;
+							return -1.0;
+						return tPhi2;
 					} else {
 						if (findTForInvalidProperty(previousEventTime, currentEventTime, false, true, phi1) != -1.0)
-							return false;
+							return -1.0;
 					}
 				}
 			}
 			previousEventTime = currentEventTime;
 			currentEventTime = plot.getNextEventTime(currentEventTime);
 		}
-		return false;
+		return -1.0;
 	}
 
 	
@@ -340,8 +341,68 @@ public class PropertyChecker {
 				return Math.max(tOr1, tOr2);
 
 			case "UNTIL":
-				//TODO
-				System.out.println("Nested UNTIL not supported");
+				//attention: relative time bounds
+				Double t1 = Double.parseDouble(((SimpleNode)propertyRoot.jjtGetChild(0)).jjtGetValue().toString());
+				Double t2 = Double.parseDouble(((SimpleNode)propertyRoot.jjtGetChild(1)).jjtGetValue().toString());
+				
+				if (t1 > t2){
+					if (logger != null)
+						logger.severe("Property Error: the second border of the  is smaller than or equal to the first border for the Until property node '" + propertyRoot.toString() + "'");
+					throw new PropertyError("Property Error: the second border of the  is smaller than or equal to the first border for the Until property node '" + propertyRoot.toString() + "'");
+				}
+				
+				SimpleNode psi1 = (SimpleNode)propertyRoot.jjtGetChild(2);
+				SimpleNode psi2 = (SimpleNode)propertyRoot.jjtGetChild(3);
+				
+				Double tPsi2 = findTForProperty(leftBorder + t1, rightBorder, leftBorderIncluded, false, psi2);
+				
+				if (tPsi2 > -1.0){
+				//tPsi2 within [leftBorder, rightBorder)
+					Double tPsi1 = findTForProperty(Math.min(leftBorder, tPsi2 - t2), tPsi2 - t1, true, true, psi1);
+					
+					//special case t1=0 and no tPsi1 found
+					if (t1 == 0.0 && tPsi1 == -1.0){
+						if (tPsi2 == leftBorder && !leftBorderIncluded){
+							if (checkAnyProperty(psi2, tPsi2 + Double.MIN_VALUE))
+								return tPsi2 + Double.MIN_VALUE;
+							return -1.0;
+						}							
+						return tPsi2;
+					}
+					
+					if (tPsi1 > -1.0 && findTForInvalidProperty(tPsi1, tPsi2, true, false, psi1) == -1.0){
+						if (tPsi1 == leftBorder && !leftBorderIncluded){
+							return tPsi1 + Double.MIN_VALUE;
+						}	
+						return tPsi1;
+					}						
+					return -1.0;
+					
+				} else {
+				//tPsi2 not within [leftBorder, rightBorder]
+					
+					((SimpleNode)propertyRoot.jjtGetChild(0)).jjtSetValue(0.0);
+					tPsi2 = checkUntilProperty(propertyRoot, rightBorder);
+					((SimpleNode)propertyRoot.jjtGetChild(0)).jjtSetValue(t1);
+					
+					if (tPsi2 > -1.0){
+						Double tPsi1 = findTForProperty(Math.max(leftBorder, tPsi2 - t1), rightBorder, true, true, psi1);
+						
+						//special case t1=0 and no tPsi1 found
+						if (t1 == 0.0 && tPsi1 == -1.0){
+							if (rightBorderIncluded)
+								return rightBorder;
+							return -1.0;	
+						}
+						
+						if (tPsi1 > -1.0 && findTForInvalidProperty(tPsi1, rightBorder, true, false, psi1) == -1.0){													
+							if (tPsi1 == leftBorder && !leftBorderIncluded)
+								return tPsi1 + Double.MIN_VALUE;	
+							return tPsi1;
+						}						
+						return -1.0;
+					}
+				}				
 		}		
 		return -1.0;
 	}
@@ -399,8 +460,71 @@ public class PropertyChecker {
 				return findTForInvalidProperty(tOr1, tOr1End, true, false, ((SimpleNode)propertyRoot.jjtGetChild(1)));
 	
 			case "UNTIL":
-				//TODO
-				System.out.println("Nested UNTIL not supported");
+				//attention: relative time bounds
+				Double t1 = Double.parseDouble(((SimpleNode)propertyRoot.jjtGetChild(0)).jjtGetValue().toString());
+				Double t2 = Double.parseDouble(((SimpleNode)propertyRoot.jjtGetChild(1)).jjtGetValue().toString());
+				
+				if (t1 > t2){
+					if (logger != null)
+						logger.severe("Property Error: the second border of the  is smaller than or equal to the first border for the Until property node '" + propertyRoot.toString() + "'");
+					throw new PropertyError("Property Error: the second border of the  is smaller than or equal to the first border for the Until property node '" + propertyRoot.toString() + "'");
+				}
+				
+				SimpleNode psi1 = (SimpleNode)propertyRoot.jjtGetChild(2);
+				SimpleNode psi2 = (SimpleNode)propertyRoot.jjtGetChild(3);
+				
+				Double tNotPsi1 = findTForInvalidProperty(leftBorder, rightBorder, leftBorderIncluded, rightBorderIncluded, psi1);
+				
+				if (tNotPsi1 > -1.0){
+					
+					Boolean notPsi2 = !checkAnyProperty(psi2, tNotPsi1);
+					if (notPsi2 || leftBorder < tNotPsi1 - t2){
+						if (!leftBorderIncluded){
+							if (notPsi2 ||  leftBorder + Double.MIN_VALUE < tNotPsi1 - t2)
+								return leftBorder + Double.MIN_VALUE;
+						} else
+							return leftBorder;					
+					} 
+
+					if (t1 > 0.0)
+						return tNotPsi1 - t1 + Double.MIN_VALUE;
+						
+					//special case t1 = 0
+					Double tNotPsi2 = findTForInvalidProperty(tNotPsi1, rightBorder, false, rightBorderIncluded, psi1);					
+					return tNotPsi2;					 
+					
+				} else {
+					//psi1 gilt die ganze zeit
+					
+					if (leftBorder < rightBorder - t2){
+						if (!leftBorderIncluded)
+							if (leftBorder + Double.MIN_VALUE < rightBorder - t2)
+								return leftBorder + Double.MIN_VALUE;
+						else
+							return leftBorder;					
+					} 
+					
+					((SimpleNode)propertyRoot.jjtGetChild(0)).jjtSetValue(0.0);
+					Double tPsi2 = checkUntilProperty(propertyRoot, rightBorder);
+					((SimpleNode)propertyRoot.jjtGetChild(0)).jjtSetValue(t1);
+					
+					if (tPsi2 == -1.0  || leftBorder < tPsi2 - t2){
+						if (!leftBorderIncluded){
+							if (tPsi2 == -1.0  || leftBorder + Double.MIN_VALUE < tPsi2 - t2)
+								return leftBorder + Double.MIN_VALUE;
+						} else
+							return leftBorder;	
+					}
+					
+					if (tPsi2 - rightBorder > t1){
+						return (tPsi2 - t1) + Double.MIN_VALUE;
+					}
+					
+					if (tPsi2 - rightBorder == t1){
+						if (rightBorderIncluded)
+							return rightBorder;
+					}
+				}				
 		}	    
 	    return -1.0;
 	}
@@ -691,12 +815,11 @@ public class PropertyChecker {
 		
 		Double currentMax;
 		
-		if (propertyRoot.toString().equals("UNTIL")){
+		if (propertyRoot.toString().equals("UNTIL"))			
+			maxTime = maxTime + Double.parseDouble(((SimpleNode)propertyRoot.jjtGetChild(1)).jjtGetValue().toString());
 			
-			Double t2 = maxTime + Double.parseDouble(((SimpleNode)propertyRoot.jjtGetChild(1)).jjtGetValue().toString());
-			return t2;
-			
-		} else if (propertyRoot.jjtGetNumChildren() > 0) {
+
+		if (propertyRoot.jjtGetNumChildren() > 0) {
 			
 			currentMax = checkForUntil((SimpleNode)propertyRoot.jjtGetChild(0), maxTime);
 			for (int i = 1;i < propertyRoot.jjtGetNumChildren(); i++){
