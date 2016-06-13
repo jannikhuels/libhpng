@@ -21,3 +21,9 @@ hs_err_pid*
 
 #Ignore bin folder
 bin/
+
+#Ignore target folder
+target/
+
+#Ignore *lck files
+*.lck
