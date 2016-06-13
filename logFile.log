@@ -1,11 +1,3 @@
-Jun 09, 2016 9:54:28 AM de.wwu.criticalsystems.libhpng.init.XMLReader validateAgainstSchema
-INFORMATION: The XML model file has been validated against the XML Schema file successfully.
-Jun 09, 2016 9:54:28 AM de.wwu.criticalsystems.libhpng.init.ModelReader readModel
-INFORMATION: Model structure has been read from XML file successfully.
-Jun 09, 2016 9:54:28 AM de.wwu.criticalsystems.libhpng.init.ModelReader setConnectedPlacesAndTransitions
-INFORMATION: Model object connections were set successfully.
-Jun 09, 2016 9:54:28 AM de.wwu.criticalsystems.libhpng.init.ModelReader sortLists
-INFORMATION: Model lists sorted successfully.
-Jun 09, 2016 9:54:28 AM de.wwu.criticalsystems.libhpng.shell.Commands readModel
-INFORMATION: Model has been read successfully.
-read model --path "examples/example.xml"
+Jun 13, 2016 11:14:32 AM de.wwu.criticalsystems.libhpng.Main.ModelHandler readFormula
+INFORMATION: The following formula has been parsed succesfully: 10.0:P=?(U[3.0,7.0](fluidlevel('right')<5.0, fluidlevel('left')=4.0))
+

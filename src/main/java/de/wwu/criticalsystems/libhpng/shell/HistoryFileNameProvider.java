@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class HistoryFileNameProvider extends DefaultHistoryFileNameProvider {
 
 	public String getHistoryFileName() {
-		return "logFile.log";
+		return "shellLogFile.log";
 	}
 
 	@Override

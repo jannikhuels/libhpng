@@ -6,9 +6,6 @@ import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
 import de.wwu.criticalsystems.libhpng.Main.*;
-import de.wwu.criticalsystems.libhpng.formulaparsing.ParseException;
-import de.wwu.criticalsystems.libhpng.formulaparsing.SMCParser;
-import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 
 @Component
 public class Commands implements CommandMarker {
@@ -39,15 +36,7 @@ public class Commands implements CommandMarker {
 	@CliCommand(value = "parse formula", help = "Parse a model checking formula and print the tree structure.")
 	public void parseFormula(){
 		
-		System.out.println("Please enter the model checking formula to check:");		
-		try {
-			SMCParser parser = new SMCParser(System.in);
-			SimpleNode root = parser.Input();
-			root.dump("");
-		} catch (ParseException e) {
-			System.out.println("The formula could not be parsed.");
-		}
-		
+		handler.readFormula();
 	}
 	
 	
