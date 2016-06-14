@@ -1,4 +1,6 @@
-Jun 11, 2016 11:42:25 AM de.wwu.criticalsystems.libhpng.simulation.Simulator simulateAndCheckPropertyWithFixedIntervalWidth
-INFORMATION: Simulation started for a 'P=?' property with fixed interval width
-Jun 11, 2016 11:42:26 AM de.wwu.criticalsystems.libhpng.simulation.Simulator simulateAndCheckPropertyWithFixedIntervalWidth
-INFORMATION: Simulation finished after 334 runs
+Jun 14, 2016 4:10:56 PM de.wwu.criticalsystems.libhpng.simulation.SimulationHandler simulateAndTestPROBWithFixedNumberOfRuns
+INFORMATION: Simulation started for a 'P>=x' property with sequential probability ratio test
+Jun 14, 2016 4:10:58 PM de.wwu.criticalsystems.libhpng.simulation.SimulationHandler simulateAndTestPROBWithFixedNumberOfRuns
+INFORMATION: Simulation finished after 1000 runs
+Jun 14, 2016 4:10:58 PM de.wwu.criticalsystems.libhpng.simulation.SimulationHandler simulateAndTestPROBWithFixedNumberOfRuns
+INFORMATION: Not enough runs to make a decision on the property

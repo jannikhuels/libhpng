@@ -30,37 +30,41 @@ public interface SMCParserConstants {
   /** RegularExpression Id. */
   int COLON = 12;
   /** RegularExpression Id. */
-  int PROB = 13;
+  int PROBGE = 13;
   /** RegularExpression Id. */
-  int PROBQ = 14;
+  int PROBL = 14;
   /** RegularExpression Id. */
-  int NOT = 15;
+  int PROBQ = 15;
   /** RegularExpression Id. */
-  int OR = 16;
+  int NOT = 16;
   /** RegularExpression Id. */
-  int AND = 17;
+  int OR = 17;
   /** RegularExpression Id. */
-  int UNTIL = 18;
+  int AND = 18;
   /** RegularExpression Id. */
-  int FLUID = 19;
+  int UNTIL = 19;
   /** RegularExpression Id. */
-  int TOKENS = 20;
+  int FLUID = 20;
   /** RegularExpression Id. */
-  int ENABLED = 21;
+  int TOKENS = 21;
   /** RegularExpression Id. */
-  int CLOCK = 22;
+  int ENABLED = 22;
   /** RegularExpression Id. */
-  int FIRINGS = 23;
+  int CLOCK = 23;
   /** RegularExpression Id. */
-  int DRIFT = 24;
+  int FIRINGS = 24;
   /** RegularExpression Id. */
-  int UBOUND = 25;
+  int DRIFT = 25;
   /** RegularExpression Id. */
-  int LBOUND = 26;
+  int UBOUND = 26;
   /** RegularExpression Id. */
-  int ARC = 27;
+  int LBOUND = 27;
   /** RegularExpression Id. */
-  int EOL = 28;
+  int ARC = 28;
+  /** RegularExpression Id. */
+  int TRUE = 29;
+  /** RegularExpression Id. */
+  int EOL = 30;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -80,7 +84,8 @@ public interface SMCParserConstants {
     "<ID>",
     "\",\"",
     "\":\"",
-    "\"P\"",
+    "\"P>=\"",
+    "\"P<\"",
     "\"P=?\"",
     "\"!\"",
     "\"OR\"",
@@ -95,6 +100,7 @@ public interface SMCParserConstants {
     "\"uboundary\"",
     "\"lboundary\"",
     "\"condition\"",
+    "\"tt\"",
     "<EOL>",
   };
 

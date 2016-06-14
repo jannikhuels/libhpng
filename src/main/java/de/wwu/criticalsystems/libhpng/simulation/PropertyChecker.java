@@ -3,7 +3,6 @@ package de.wwu.criticalsystems.libhpng.simulation;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
-
 import de.wwu.criticalsystems.libhpng.errorhandling.PropertyError;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.model.*;
@@ -25,8 +24,6 @@ public class PropertyChecker {
 		}
 		
 		propertyRoot = getPropertyRoot(root);		
-		
-		
 	}
 	
 
@@ -62,12 +59,31 @@ public class PropertyChecker {
 	}
 	
 	
-	public static Boolean isProbQFormula(SimpleNode root){
+	public static String getProbKind(SimpleNode root) throws PropertyError{
 		for (int i=0;i < root.jjtGetNumChildren(); i++){
 			if (root.jjtGetChild(i).toString().equals("PROBQ"))
-				return true;
+				return "PROBQ";
+			if (root.jjtGetChild(i).toString().equals("PROBGE"))
+				return "PROBGE";
+			if (root.jjtGetChild(i).toString().equals("PROBL"))
+				return "PROBL";
 		}
-		return false;
+		//if (logger != null)
+		//	logger.severe("Property Error: the kind of property (P=?, P>=x, P<x) could not be identified");
+		throw new PropertyError("Property Error: the kind of property (P=?, P>=x, P<x) could not be identified");
+	
+	}
+	
+	
+	public Double getProbBoundary(SimpleNode root) throws PropertyError{
+		for (int i=0;i < root.jjtGetNumChildren(); i++){
+			if (root.jjtGetChild(i).toString().equals("PROBGE") || root.jjtGetChild(i).toString().equals("PROBL"))
+				return Double.parseDouble(((SimpleNode)root.jjtGetChild(i).jjtGetChild(0)).jjtGetValue().toString());
+				
+		}
+		if (logger != null)
+			logger.severe("Property Error: the boundary node of the property root could not be identified");
+		throw new PropertyError("Property Error: the boundary node of the property root could not be identified");
 	}
 	
 	
@@ -78,6 +94,8 @@ public class PropertyChecker {
 			return checkAtomicProperty(propertyRoot, time);
 			
 		switch (propertyRoot.toString()){
+			case "TRUE":
+				return true;
 			case "NOT":
 				return !checkAnyProperty((SimpleNode)propertyRoot.jjtGetChild(0), time);
 			case "AND":
@@ -122,8 +140,8 @@ public class PropertyChecker {
 		}
 		
 		PlotEntry currentEntry = getCurrentEntry(time, type, id);		
-		Double boundary = getPropertyBoundary(propertyRoot);;
-		String compare = getPropertyCompare(propertyRoot);
+		Double boundary = getPropertyBoundary(propertyRoot, type);
+		String compare = getPropertyCompare(propertyRoot, type);
 		
 		//set boundaries for upper boundary, lower boundary and guard arc case
 		switch (type){
@@ -134,7 +152,8 @@ public class PropertyChecker {
 						return true;
 					else if (((ContinuousPlace)place).getUpperBoundaryInfinity())
 						return false;					
-					boundary = ((ContinuousPlace)place).getUpperBoundary();							
+					boundary = ((ContinuousPlace)place).getUpperBoundary();		
+					compare = ">=";
 				}					
 			}
 			if (boundary == null){
@@ -145,9 +164,11 @@ public class PropertyChecker {
 			break;
 		case "ATOMIC_LBOUND":
 			boundary = 0.0;
+			compare = "<=";
 			break;
 		case "ATOMIC_ARC":
 			boundary = guardArc.getWeight();
+			compare = "=";
 			break;		
 		default:
 			break;
@@ -163,7 +184,7 @@ public class PropertyChecker {
 				if (currentEntry.getTime() < time)
 					value = Math.max(0.0, value + ((ContinuousPlaceEntry)currentEntry).getDrift()*(time - currentEntry.getTime()));				
 				return (compareValues(value, boundary, compare));
-			case "ATOMIC_TOKEN":
+			case "ATOMIC_TOKENS":
 				value = ((DiscretePlaceEntry)currentEntry).getNumberOfTokens().doubleValue();
 				return (compareValues(value, boundary, compare));
 			case "ATOMIC_DRIFT":
@@ -299,6 +320,11 @@ public class PropertyChecker {
 				
 		switch (propertyRoot.toString()){			
 		
+			case "TRUE":
+				if (leftBorderIncluded)
+					return leftBorder;
+				return leftBorder + Double.MIN_VALUE;
+						
 			case "ATOMIC_FLUID":				
 				return findTForAtomicFluid(leftBorder, rightBorder, leftBorderIncluded, rightBorderIncluded, propertyRoot, false);
 				
@@ -420,9 +446,11 @@ public class PropertyChecker {
 		
 		switch (propertyRoot.toString()){			
 		
+			case "TRUE":
+				return -1.0;
+		
 			case "ATOMIC_FLUID":				
 				return findTForAtomicFluid(leftBorder, rightBorder, leftBorderIncluded, rightBorderIncluded, propertyRoot, true);
-		    	
 				
 		   	case "ATOMIC_CLOCK":
 		   		return findTForAtomicClock(leftBorder, rightBorder, leftBorderIncluded, rightBorderIncluded, propertyRoot, true);
@@ -532,8 +560,8 @@ public class PropertyChecker {
 	
 	private Double findTForAtomicFluid(Double leftBorder, Double rightBorder, Boolean leftBorderIncluded, Boolean rightBorderIncluded, SimpleNode propertyRoot, Boolean invalid) throws PropertyError{
 		
-		Double boundary = getPropertyBoundary(propertyRoot);
-		String compare = getPropertyCompare(propertyRoot);		
+		Double boundary = getPropertyBoundary(propertyRoot, "ATOMIC_FLUID");
+		String compare = getPropertyCompare(propertyRoot, "ATOMIC_FLUID");		
 		if (boundary < 0.0){
 			if (logger != null)
 				logger.severe("Property Error: the boundary for the atomic fluid property must be at least zero");
@@ -597,8 +625,8 @@ public class PropertyChecker {
 	
 	private Double findTForAtomicClock(Double leftBorder, Double rightBorder, Boolean leftBorderIncluded, Boolean rightBorderIncluded, SimpleNode propertyRoot, Boolean invalid) throws PropertyError{
 		
-		Double boundary = getPropertyBoundary(propertyRoot);
-		String compare = getPropertyCompare(propertyRoot);		
+		Double boundary = getPropertyBoundary(propertyRoot, "ATOMIC_CLOCK");
+		String compare = getPropertyCompare(propertyRoot, "ATOMIC_CLOCK");		
 		if (boundary < 0.0){
 			if (logger != null)
 				logger.severe("Property Error: the boundary for the atomic clock property must be at least zero");
@@ -671,6 +699,7 @@ public class PropertyChecker {
 			case "ATOMIC_UBOUND":
 			case "ATOMIC_LBOUND":
 			case "ATOMIC_ARC":	
+			case "TRUE":
 				return PropertyFamily.discrete;
 				
 			case "NOT":
@@ -755,6 +784,8 @@ public class PropertyChecker {
 	private SimpleNode getPropertyRoot(SimpleNode root) throws PropertyError{
 		
 		for (int i=0;i < root.jjtGetNumChildren(); i++){
+			if (root.jjtGetChild(i).toString().equals("PROBGE") || root.jjtGetChild(i).toString().equals("PROBL"))
+				return (((SimpleNode)root.jjtGetChild(i).jjtGetChild(1)));
 			if (root.jjtGetChild(i).toString().equals("PROBQ") || root.jjtGetChild(i).toString().equals("PROB"))
 				return (((SimpleNode)root.jjtGetChild(i).jjtGetChild(0)));
 		}
@@ -781,7 +812,7 @@ public class PropertyChecker {
 	}
 	
 	
-	private Double getPropertyBoundary(SimpleNode atomic) throws PropertyError {
+	private Double getPropertyBoundary(SimpleNode atomic, String type) throws PropertyError {
 		
 		for (int i=0;i < atomic.jjtGetNumChildren(); i++){
 			if (atomic.jjtGetChild(i).toString().equals("DOUBLE"))
@@ -792,22 +823,27 @@ public class PropertyChecker {
 				return value.doubleValue();
 				}
 		}
-		if (logger != null)
-			logger.severe("Property Error: the boundary the property node '" + atomic.toString() + "' could not be identified");
-		throw new PropertyError("Property Error: the boundary the property node '" + atomic.toString() + "' could not be identified");
+		if (!type.equals("ATOMIC_UBOUND") && !type.equals("ATOMIC_LBOUND") && !type.equals("ATOMIC_ARC") && !type.equals("ATOMIC_ENABLED")){
+			if (logger != null) 
+				logger.severe("Property Error: the boundary of the property node '" + atomic.toString() + "' could not be identified");
+		throw new PropertyError("Property Error: the boundary of the property node '" + atomic.toString() + "' could not be identified");
+		}
+		return 0.0;
 	}
 	
 	
-	private String getPropertyCompare(SimpleNode atomic) throws PropertyError{
+	private String getPropertyCompare(SimpleNode atomic, String type) throws PropertyError{
 		
 		for (int i=0;i < atomic.jjtGetNumChildren(); i++){
 			if (atomic.jjtGetChild(i).toString().equals("COMPARE"))
 				return ((SimpleNode)atomic.jjtGetChild(i)).jjtGetValue().toString();
 		}
-		if (logger != null)
-			logger.severe("Property Error: the comparison the property node '" + atomic.toString() + "' could not be identified");
-		throw new PropertyError("Property Error: the comparison the property node '" + atomic.toString() + "' could not be identified");
-    
+		if (!type.equals("ATOMIC_UBOUND") && !type.equals("ATOMIC_LBOUND") && !type.equals("ATOMIC_ARC") && !type.equals("ATOMIC_ENABLED")){
+			if (logger != null)
+				logger.severe("Property Error: the comparison the property node '" + atomic.toString() + "' could not be identified");
+			throw new PropertyError("Property Error: the comparison the property node '" + atomic.toString() + "' could not be identified");
+		}
+		return "";
 	}
 	
 

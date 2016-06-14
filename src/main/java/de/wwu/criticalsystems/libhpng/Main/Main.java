@@ -4,12 +4,11 @@ import java.io.IOException;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
-
-import de.wwu.criticalsystems.libhpng.errorhandling.PropertyError;
+import de.wwu.criticalsystems.libhpng.errorhandling.*;
 import de.wwu.criticalsystems.libhpng.formulaparsing.*;
 import de.wwu.criticalsystems.libhpng.init.*;
 import de.wwu.criticalsystems.libhpng.model.*;
-import de.wwu.criticalsystems.libhpng.simulation.Simulator;
+import de.wwu.criticalsystems.libhpng.simulation.SimulationHandler;
 
 public class Main {
 	
@@ -20,24 +19,33 @@ public class Main {
 		ModelReader reader = new ModelReader();
 		HPnGModel model = reader.readModel("examples/example2.xml");
 		
-		SMCParser parser = new SMCParser(System.in);
+		SimulationHandler handler = new SimulationHandler();
+		handler.setLogger(logger);
 		
-		Simulator simulator = new Simulator();
-		simulator.setLogger(logger);
+		Boolean plotonly = false;
+		handler.setPrintRunResults(false);
 		
-		//simulator.simulateAndPlotOnly(200, 30.0, model, 0.99);
+		if (plotonly)
+			try {
+				handler.simulateAndPlotOnly(30.0, model);
+			} catch (ModelNotReadableException e) {
+				e.printStackTrace();
+			}
+		else {
 		
-		
-		try {
-			SimpleNode root = parser.Input();
-			simulator.simulateAndCheckProperty(model, root);
 			
-	    } catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (PropertyError e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			try {
+			  	SMCParser parser = new SMCParser(System.in);
+				SimpleNode root = parser.Input();
+				
+				//handler.setSimulationWithFixedNumberOfRuns(true);
+				handler.simulateAndCheckProperty(model, root);
+				
+		    } catch (ParseException e) {
+				e.printStackTrace();
+			} catch (PropertyError e) {
+				e.printStackTrace();
+			}
 		}
     }
     

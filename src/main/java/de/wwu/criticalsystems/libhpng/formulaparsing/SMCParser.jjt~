@@ -32,7 +32,8 @@ TOKEN :
 | <ID: "'"(((["a"-"z","A"-"Z"])+) | (<DIGITS>))+ "'">
 | <SEP: ",">
 | <COLON: ":">
-| <PROB: "P">
+| <PROBGE: "P>=">
+| <PROBL: "P<">
 | <PROBQ: "P=?">
 | <NOT: "!">
 | <OR: "OR">
@@ -47,6 +48,7 @@ TOKEN :
 | <UBOUND: "uboundary">
 | <LBOUND: "lboundary">
 | <ARC: "condition">
+| <TRUE: "tt">
 | <EOL:  "\n" | "\r" | "\r\n" >
 }
 
@@ -54,13 +56,13 @@ TOKEN :
 SimpleNode Input() #ROOT:
 {}
 {
-   Time() <COLON> (Prob() | ProbQ()) <EOL> {return jjtThis;}
+   Time() <COLON> (ProbGE() | ProbL() | ProbQ()) <EOL> {return jjtThis;}
 }
 
-void Psi() #void :
+void Phi() #void :
 {Token t;}
 {
- <LBRACE> Psi() <RBRACE> | And() | Or() | Until() | Not() | Atomic()
+ <LBRACE> Phi() <RBRACE> | And() | Or() | Until() | Not() | Atomic() | True()
 }
 
 void Atomic() #void:
@@ -72,37 +74,43 @@ void Atomic() #void:
 void Not() #NOT:
 {}
 {
-    <NOT> Psi() 
+    <NOT> Phi() 
 }
 
 void And() #AND:
 {}
 {
-   <AND> <LBRACE> Psi() <SEP> Psi() <RBRACE>
+   <AND> <LBRACE> Phi() <SEP> Phi() <RBRACE>
 }
 
 void Or() #OR:
 {}
 {
-   <OR> <LBRACE> Psi() <SEP> Psi() <RBRACE>
+   <OR> <LBRACE> Phi() <SEP> Phi() <RBRACE>
 }
 
 void Until() #UNTIL:
 {}
 {
-   <UNTIL> <LBRACESQ> Double() <SEP> <RBRACESQ> <LBRACE> Psi() <SEP> Psi() <RBRACE>
+   <UNTIL> <LBRACESQ> Double() <SEP> Double() <RBRACESQ> <LBRACE> Phi() <SEP> Phi() <RBRACE>
 }
 
-void Prob() #PROB:
+void ProbGE() #PROBGE:
 {}
 {
-   <PROB> Compare() Double() <LBRACE> Psi() <RBRACE>
+   <PROBGE> Double() <LBRACE> Phi() <RBRACE>
+}
+
+void ProbL() #PROBL:
+{}
+{
+   <PROBL> Double() <LBRACE> Phi() <RBRACE>
 }
 
 void ProbQ() #PROBQ:
 {}
 {
-   <PROBQ> <LBRACE> Psi() <RBRACE>
+   <PROBQ> <LBRACE> Phi() <RBRACE>
 }
 
 void Double() #DOUBLE:
@@ -187,4 +195,10 @@ void Arc() #ATOMIC_ARC:
 {}
 {
   <ARC> <LBRACE> Id() <RBRACE>
+}
+
+void True() #TRUE:
+{}
+{
+	<TRUE>
 }

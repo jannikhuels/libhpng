@@ -10,18 +10,22 @@ import de.wwu.criticalsystems.libhpng.plotting.*;
 
 public class ConfidenceIntervalCalculator {
 	
-	public ConfidenceIntervalCalculator(HPnGModel model, Integer min_runs, Logger logger, SimpleNode root) throws PropertyError {
-		this.min_runs = min_runs;
+	public ConfidenceIntervalCalculator(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double confidenceLevel, Double width) throws PropertyError {
+		
+		this.minNumberOfRuns = minNumberOfRuns;
 		checker = new PropertyChecker(root, model);
-		checker.setLogger(logger);		
+		checker.setLogger(logger);
+		
+		this.confidenceLevel = confidenceLevel;
+		this.width = width;
 	}
 
-	public Integer getN_runs() {
-		return n_runs;
+	public Integer getNumberOfRuns() {
+		return numberOfRuns;
 	}
 	
-	public Integer getMin_runs() {
-		return min_runs;
+	public Integer getMinNumberOfRuns() {
+		return minNumberOfRuns;
 	}
 	
 	public Double getSsquare() {
@@ -36,59 +40,61 @@ public class ConfidenceIntervalCalculator {
 		return t;
 	}
 
-	private Integer n_runs;
-	private Integer min_runs;
+	private Integer numberOfRuns;
+	private Integer minNumberOfRuns;
 	private Integer fulfilled;
 	private Double ssquare;
 	private Double mean;
 	private Double t;
 	private PropertyChecker checker; 
-	
+	private Double confidenceLevel;
+	private Double width;
 	
 	public void calculateSSquareForProperty(Integer currentRun, MarkingPlot plot) throws PropertyError {
 		
 		if (currentRun == 1){
-			n_runs = 0;
+			numberOfRuns = 0;
 			fulfilled = 0;
 		}
 					
 		if (checker.checkProperty(plot))						
 			fulfilled++;
 				
-		n_runs++;	
-		mean = fulfilled.doubleValue() / n_runs.doubleValue();
+		numberOfRuns++;	
+		mean = fulfilled.doubleValue() / numberOfRuns.doubleValue();
 		
-		if (n_runs == 1)
+		if (numberOfRuns == 1)
 			ssquare = 0.0;
 		else
-			ssquare = (fulfilled.doubleValue()*(n_runs.doubleValue() - fulfilled.doubleValue()))/(n_runs.doubleValue()*(n_runs.doubleValue() - 1.0));		
+			ssquare = (fulfilled.doubleValue()*(numberOfRuns.doubleValue() - fulfilled.doubleValue()))/(numberOfRuns.doubleValue()*(numberOfRuns.doubleValue() - 1.0));		
 	}
 	
 
-	public void findTDistribution(Double confidenceLevel){
+	public void findTDistribution(){
 		
-		if (n_runs < 2)
+		if (numberOfRuns < 2)
 			t = 0.0;
 		else {				
 			Double alphaHalf = (1.0 - confidenceLevel)/2.0;
-			t = StudentDist.inverseF(n_runs - 1, 1.0 - alphaHalf);
+			t = StudentDist.inverseF(numberOfRuns - 1, 1.0 - alphaHalf);
 		}
 	}
 	
 	
-	public Boolean checkBound(Double width){
-		if (ssquare == null || (ssquare == 0.0 && n_runs < min_runs)) return false;
+	public Boolean checkBound(){
+		if (ssquare == null || (ssquare == 0.0 && numberOfRuns < minNumberOfRuns)) 
+			return false;
 		Double bound = Math.pow(t, 2.0)*ssquare / Math.pow(width, 2.0);
-		return (bound <= n_runs);
+		return (bound <= numberOfRuns);
 	}
 	
 	
 	public Double getLowerBorder(){
-		return Math.max(0.0,(mean - t * Math.sqrt(ssquare/n_runs)));
+		return Math.max(0.0,(mean - t * Math.sqrt(ssquare/numberOfRuns)));
 	}
 	
 	
 	public Double getUpperBorder(){
-		return Math.min(1.0,(mean + t * Math.sqrt(ssquare/n_runs)));
+		return Math.min(1.0,(mean + t * Math.sqrt(ssquare/numberOfRuns)));
 	}
 }

@@ -8,22 +8,24 @@ public interface SMCParserTreeConstants
   public int JJTAND = 3;
   public int JJTOR = 4;
   public int JJTUNTIL = 5;
-  public int JJTPROB = 6;
-  public int JJTPROBQ = 7;
-  public int JJTDOUBLE = 8;
-  public int JJTINTEGER = 9;
-  public int JJTCOMPARE = 10;
-  public int JJTID = 11;
-  public int JJTTIME = 12;
-  public int JJTATOMIC_FLUID = 13;
-  public int JJTATOMIC_TOKENS = 14;
-  public int JJTATOMIC_ENABLED = 15;
-  public int JJTATOMIC_CLOCK = 16;
-  public int JJTATOMIC_FIRINGS = 17;
-  public int JJTATOMIC_DRIFT = 18;
-  public int JJTATOMIC_UBOUND = 19;
-  public int JJTATOMIC_LBOUND = 20;
-  public int JJTATOMIC_ARC = 21;
+  public int JJTPROBGE = 6;
+  public int JJTPROBL = 7;
+  public int JJTPROBQ = 8;
+  public int JJTDOUBLE = 9;
+  public int JJTINTEGER = 10;
+  public int JJTCOMPARE = 11;
+  public int JJTID = 12;
+  public int JJTTIME = 13;
+  public int JJTATOMIC_FLUID = 14;
+  public int JJTATOMIC_TOKENS = 15;
+  public int JJTATOMIC_ENABLED = 16;
+  public int JJTATOMIC_CLOCK = 17;
+  public int JJTATOMIC_FIRINGS = 18;
+  public int JJTATOMIC_DRIFT = 19;
+  public int JJTATOMIC_UBOUND = 20;
+  public int JJTATOMIC_LBOUND = 21;
+  public int JJTATOMIC_ARC = 22;
+  public int JJTTRUE = 23;
 
 
   public String[] jjtNodeName = {
@@ -33,7 +35,8 @@ public interface SMCParserTreeConstants
     "AND",
     "OR",
     "UNTIL",
-    "PROB",
+    "PROBGE",
+    "PROBL",
     "PROBQ",
     "DOUBLE",
     "INTEGER",
@@ -49,6 +52,7 @@ public interface SMCParserTreeConstants
     "ATOMIC_UBOUND",
     "ATOMIC_LBOUND",
     "ATOMIC_ARC",
+    "TRUE",
   };
 }
-/* JavaCC - OriginalChecksum=18c4939f65e0cd912fdd7d45d0b90f4f (do not edit this line) */
+/* JavaCC - OriginalChecksum=e621d627a69ad22bd2016ae3d61abe8a (do not edit this line) */
