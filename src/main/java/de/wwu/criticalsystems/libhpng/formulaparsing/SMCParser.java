@@ -4,7 +4,7 @@ package de.wwu.criticalsystems.libhpng.formulaparsing;
 public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCParserConstants {/*@bgen(jjtree)*/
   protected static JJTSMCParserState jjtree = new JJTSMCParserState();
   /** Main entry point. */
-  /*public static void main(String args[]) throws ParseException {
+ /* public static void main(String args[]) throws ParseException {
     SMCParser parser = new SMCParser(System.in);
     SimpleNode root = parser.Input();
     root.dump("");
@@ -15,13 +15,15 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
   SimpleNode jjtn000 = new SimpleNode(JJTROOT);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
-  
     try {
       Time();
       jj_consume_token(COLON);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case PROB:
-        Prob();
+      case PROBGE:
+        ProbGE();
+        break;
+      case PROBL:
+        ProbL();
         break;
       case PROBQ:
         ProbQ();
@@ -35,7 +37,6 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
      jjtree.closeNodeScope(jjtn000, true);
      jjtc000 = false;
      return jjtn000;
-    
     } catch (Throwable jjte000) {
      if (jjtc000) {
        jjtree.clearNodeScope(jjtn000);
@@ -87,6 +88,9 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
     case LBOUND:
     case ARC:
       Atomic();
+      break;
+    case TRUE:
+      True();
       break;
     default:
       jj_la1[1] = jj_gen;
@@ -264,14 +268,45 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
     }
   }
 
-  static final public void Prob() throws ParseException {
- /*@bgen(jjtree) PROB */
-  SimpleNode jjtn000 = new SimpleNode(JJTPROB);
+  static final public void ProbGE() throws ParseException {
+ /*@bgen(jjtree) PROBGE */
+  SimpleNode jjtn000 = new SimpleNode(JJTPROBGE);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
     try {
-      jj_consume_token(PROB);
-      Compare();
+      jj_consume_token(PROBGE);
+      Double();
+      jj_consume_token(LBRACE);
+      Phi();
+      jj_consume_token(RBRACE);
+    } catch (Throwable jjte000) {
+     if (jjtc000) {
+       jjtree.clearNodeScope(jjtn000);
+       jjtc000 = false;
+     } else {
+       jjtree.popNode();
+     }
+     if (jjte000 instanceof RuntimeException) {
+       {if (true) throw (RuntimeException)jjte000;}
+     }
+     if (jjte000 instanceof ParseException) {
+       {if (true) throw (ParseException)jjte000;}
+     }
+     {if (true) throw (Error)jjte000;}
+    } finally {
+     if (jjtc000) {
+       jjtree.closeNodeScope(jjtn000, true);
+     }
+    }
+  }
+
+  static final public void ProbL() throws ParseException {
+ /*@bgen(jjtree) PROBL */
+  SimpleNode jjtn000 = new SimpleNode(JJTPROBL);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+    try {
+      jj_consume_token(PROBL);
       Double();
       jj_consume_token(LBRACE);
       Phi();
@@ -713,6 +748,20 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
     }
   }
 
+  static final public void True() throws ParseException {
+ /*@bgen(jjtree) TRUE */
+  SimpleNode jjtn000 = new SimpleNode(JJTTRUE);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+    try {
+      jj_consume_token(TRUE);
+    } finally {
+          if (jjtc000) {
+            jjtree.closeNodeScope(jjtn000, true);
+          }
+    }
+  }
+
   static private boolean jj_initialized_once = false;
   /** Generated Token Manager. */
   static public SMCParserTokenManager token_source;
@@ -729,7 +778,7 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
       jj_la1_init_0();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x6000,0xfff8008,0xff80000,};
+      jj_la1_0 = new int[] {0xe000,0x3fff0008,0x1ff00000,};
    }
 
   /** Constructor with InputStream. */
@@ -825,7 +874,7 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
   static private Token jj_consume_token(int kind) throws ParseException {
     Token oldToken;
     if ((oldToken = token).next != null) token = token.next;
-    else token = token.next = token_source.getNextToken();
+    else token = token.next = SMCParserTokenManager.getNextToken();
     jj_ntk = -1;
     if (token.kind == kind) {
       jj_gen++;
@@ -840,7 +889,7 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
 /** Get the next Token. */
   static final public Token getNextToken() {
     if (token.next != null) token = token.next;
-    else token = token.next = token_source.getNextToken();
+    else token = token.next = SMCParserTokenManager.getNextToken();
     jj_ntk = -1;
     jj_gen++;
     return token;
@@ -851,14 +900,14 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
     Token t = token;
     for (int i = 0; i < index; i++) {
       if (t.next != null) t = t.next;
-      else t = t.next = token_source.getNextToken();
+      else t = t.next = SMCParserTokenManager.getNextToken();
     }
     return t;
   }
 
   static private int jj_ntk() {
     if ((jj_nt=token.next) == null)
-      return (jj_ntk = (token.next=token_source.getNextToken()).kind);
+      return (jj_ntk = (token.next=SMCParserTokenManager.getNextToken()).kind);
     else
       return (jj_ntk = jj_nt.kind);
   }
@@ -870,7 +919,7 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
   /** Generate ParseException. */
   static public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[29];
+    boolean[] la1tokens = new boolean[31];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -884,7 +933,7 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
         }
       }
     }
-    for (int i = 0; i < 29; i++) {
+    for (int i = 0; i < 31; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

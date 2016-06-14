@@ -1,3 +1,5 @@
-Jun 13, 2016 11:14:32 AM de.wwu.criticalsystems.libhpng.Main.ModelHandler readFormula
-INFORMATION: The following formula has been parsed succesfully: 10.0:P=?(U[3.0,7.0](fluidlevel('right')<5.0, fluidlevel('left')=4.0))
-
+Jun 14, 2016 11:01:54 AM de.wwu.criticalsystems.libhpng.Main.ModelHandler readFormula
+SCHWERWIEGEND: Encountered " <COMPARE> ">= "" at line 1, column 6.
+Was expecting:
+    <NUMBER> ...
+    
