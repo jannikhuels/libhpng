@@ -6,6 +6,7 @@ import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
 import de.wwu.criticalsystems.libhpng.Main.*;
+import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 
 @Component
 public class Commands implements CommandMarker {
@@ -29,6 +30,7 @@ public class Commands implements CommandMarker {
 		@CliOption(key = { "path" }, mandatory = true, help = "The path of the xml file containing the HPnG model") final String xmlPath) {		
 		
 		handler.readModel(xmlPath);
+		
 	}
 	
 	
@@ -36,13 +38,14 @@ public class Commands implements CommandMarker {
 	@CliCommand(value = "parse formula", help = "Parse a model checking formula and print the tree structure.")
 	public void parseFormula(){
 		
-		handler.readFormula();
+		SimpleNode root = handler.readFormula();
+		root.dump("");
 	}
 	
 	
 	@CliCommand(value = "change logfile", help = "Change the path of the log file")
 	public void parse(
-			@CliOption(key = { "path" }, mandatory = true, help = "The path of the log file") final String logPath){
+			@CliOption(key = { "path" }, mandatory = true, help = "The new path of the log file") final String logPath){
 		
 		handler.setLoggerPath(logPath);
 	}
