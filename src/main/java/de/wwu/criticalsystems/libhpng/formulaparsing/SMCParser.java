@@ -4,11 +4,11 @@ package de.wwu.criticalsystems.libhpng.formulaparsing;
 public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCParserConstants {/*@bgen(jjtree)*/
   protected static JJTSMCParserState jjtree = new JJTSMCParserState();
   /** Main entry point. */
- /* public static void main(String args[]) throws ParseException {
-    SMCParser parser = new SMCParser(System.in);
+  public static void main(String args[]) throws ParseException {
+	SMCParser parser = new SMCParser(System.in);
     SimpleNode root = parser.Input();
     root.dump("");
-  }*/
+  }
 
   final public SimpleNode Input() throws ParseException {
  /*@bgen(jjtree) ROOT */
@@ -19,11 +19,17 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
       Time();
       jj_consume_token(COLON);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case PROBG:
+        ProbG();
+        break;
       case PROBGE:
         ProbGE();
         break;
       case PROBL:
         ProbL();
+        break;
+      case PROBLE:
+        ProbLE();
         break;
       case PROBQ:
         ProbQ();
@@ -34,8 +40,8 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
         throw new ParseException();
       }
       jj_consume_token(EOL);
-     jjtree.closeNodeScope(jjtn000, true);
-     jjtc000 = false;
+      jjtree.closeNodeScope(jjtn000, true);
+      jjtc000 = false;
      return jjtn000;
     } catch (Throwable jjte000) {
      if (jjtc000) {
@@ -45,10 +51,10 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
        jjtree.popNode();
      }
      if (jjte000 instanceof RuntimeException) {
-       throw (RuntimeException)jjte000;
+        throw (RuntimeException)jjte000;
      }
      if (jjte000 instanceof ParseException) {
-       throw (ParseException)jjte000;
+     	throw (ParseException)jjte000;
      }
      throw (Error)jjte000;
     } finally {
@@ -59,8 +65,7 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
   }
 
   static final public void Phi() throws ParseException {
-
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+ switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case LBRACE:
       jj_consume_token(LBRACE);
       Phi();
@@ -268,6 +273,38 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
     }
   }
 
+  static final public void ProbG() throws ParseException {
+ /*@bgen(jjtree) PROBG */
+  SimpleNode jjtn000 = new SimpleNode(JJTPROBG);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+    try {
+      jj_consume_token(PROBG);
+      Double();
+      jj_consume_token(LBRACE);
+      Phi();
+      jj_consume_token(RBRACE);
+    } catch (Throwable jjte000) {
+     if (jjtc000) {
+       jjtree.clearNodeScope(jjtn000);
+       jjtc000 = false;
+     } else {
+       jjtree.popNode();
+     }
+     if (jjte000 instanceof RuntimeException) {
+       {if (true) throw (RuntimeException)jjte000;}
+     }
+     if (jjte000 instanceof ParseException) {
+       {if (true) throw (ParseException)jjte000;}
+     }
+     {if (true) throw (Error)jjte000;}
+    } finally {
+     if (jjtc000) {
+       jjtree.closeNodeScope(jjtn000, true);
+     }
+    }
+  }
+
   static final public void ProbGE() throws ParseException {
  /*@bgen(jjtree) PROBGE */
   SimpleNode jjtn000 = new SimpleNode(JJTPROBGE);
@@ -307,6 +344,38 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
   jjtree.openNodeScope(jjtn000);
     try {
       jj_consume_token(PROBL);
+      Double();
+      jj_consume_token(LBRACE);
+      Phi();
+      jj_consume_token(RBRACE);
+    } catch (Throwable jjte000) {
+     if (jjtc000) {
+       jjtree.clearNodeScope(jjtn000);
+       jjtc000 = false;
+     } else {
+       jjtree.popNode();
+     }
+     if (jjte000 instanceof RuntimeException) {
+       {if (true) throw (RuntimeException)jjte000;}
+     }
+     if (jjte000 instanceof ParseException) {
+       {if (true) throw (ParseException)jjte000;}
+     }
+     {if (true) throw (Error)jjte000;}
+    } finally {
+     if (jjtc000) {
+       jjtree.closeNodeScope(jjtn000, true);
+     }
+    }
+  }
+
+  static final public void ProbLE() throws ParseException {
+ /*@bgen(jjtree) PROBLE */
+  SimpleNode jjtn000 = new SimpleNode(JJTPROBLE);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+    try {
+      jj_consume_token(PROBLE);
       Double();
       jj_consume_token(LBRACE);
       Phi();
@@ -774,11 +843,16 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
   static private int jj_gen;
   static final private int[] jj_la1 = new int[3];
   static private int[] jj_la1_0;
+  static private int[] jj_la1_1;
   static {
       jj_la1_init_0();
+      jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0xe000,0x3fff0008,0x1ff00000,};
+      jj_la1_0 = new int[] {0x3e000,0xfffc0008,0x7fc00000,};
+   }
+   private static void jj_la1_init_1() {
+      jj_la1_1 = new int[] {0x0,0x0,0x0,};
    }
 
   /** Constructor with InputStream. */
@@ -919,7 +993,7 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
   /** Generate ParseException. */
   static public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[31];
+    boolean[] la1tokens = new boolean[33];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -930,10 +1004,13 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
           if ((jj_la1_0[i] & (1<<j)) != 0) {
             la1tokens[j] = true;
           }
+          if ((jj_la1_1[i] & (1<<j)) != 0) {
+            la1tokens[32+j] = true;
+          }
         }
       }
     }
-    for (int i = 0; i < 31; i++) {
+    for (int i = 0; i < 33; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;

@@ -8,24 +8,26 @@ public interface SMCParserTreeConstants
   public int JJTAND = 3;
   public int JJTOR = 4;
   public int JJTUNTIL = 5;
-  public int JJTPROBGE = 6;
-  public int JJTPROBL = 7;
-  public int JJTPROBQ = 8;
-  public int JJTDOUBLE = 9;
-  public int JJTINTEGER = 10;
-  public int JJTCOMPARE = 11;
-  public int JJTID = 12;
-  public int JJTTIME = 13;
-  public int JJTATOMIC_FLUID = 14;
-  public int JJTATOMIC_TOKENS = 15;
-  public int JJTATOMIC_ENABLED = 16;
-  public int JJTATOMIC_CLOCK = 17;
-  public int JJTATOMIC_FIRINGS = 18;
-  public int JJTATOMIC_DRIFT = 19;
-  public int JJTATOMIC_UBOUND = 20;
-  public int JJTATOMIC_LBOUND = 21;
-  public int JJTATOMIC_ARC = 22;
-  public int JJTTRUE = 23;
+  public int JJTPROBG = 6;
+  public int JJTPROBGE = 7;
+  public int JJTPROBL = 8;
+  public int JJTPROBLE = 9;
+  public int JJTPROBQ = 10;
+  public int JJTDOUBLE = 11;
+  public int JJTINTEGER = 12;
+  public int JJTCOMPARE = 13;
+  public int JJTID = 14;
+  public int JJTTIME = 15;
+  public int JJTATOMIC_FLUID = 16;
+  public int JJTATOMIC_TOKENS = 17;
+  public int JJTATOMIC_ENABLED = 18;
+  public int JJTATOMIC_CLOCK = 19;
+  public int JJTATOMIC_FIRINGS = 20;
+  public int JJTATOMIC_DRIFT = 21;
+  public int JJTATOMIC_UBOUND = 22;
+  public int JJTATOMIC_LBOUND = 23;
+  public int JJTATOMIC_ARC = 24;
+  public int JJTTRUE = 25;
 
 
   public String[] jjtNodeName = {
@@ -35,8 +37,10 @@ public interface SMCParserTreeConstants
     "AND",
     "OR",
     "UNTIL",
+    "PROBG",
     "PROBGE",
     "PROBL",
+    "PROBLE",
     "PROBQ",
     "DOUBLE",
     "INTEGER",
@@ -55,4 +59,4 @@ public interface SMCParserTreeConstants
     "TRUE",
   };
 }
-/* JavaCC - OriginalChecksum=e621d627a69ad22bd2016ae3d61abe8a (do not edit this line) */
+/* JavaCC - OriginalChecksum=84510bbc1fd49f2cb76f68b6fe4221f2 (do not edit this line) */

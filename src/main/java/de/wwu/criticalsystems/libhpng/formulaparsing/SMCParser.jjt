@@ -32,8 +32,10 @@ TOKEN :
 | <ID: "'"(((["a"-"z","A"-"Z"])+) | (<DIGITS>))+ "'">
 | <SEP: ",">
 | <COLON: ":">
+| <PROBG: "P>">
 | <PROBGE: "P>=">
 | <PROBL: "P<">
+| <PROBLE: "P<=">
 | <PROBQ: "P=?">
 | <NOT: "!">
 | <OR: "OR">
@@ -56,7 +58,7 @@ TOKEN :
 SimpleNode Input() #ROOT:
 {}
 {
-   Time() <COLON> (ProbGE() | ProbL() | ProbQ()) <EOL> {return jjtThis;}
+   Time() <COLON> (ProbG() | ProbGE() | ProbL() | ProbLE() | ProbQ()) <EOL> {return jjtThis;}
 }
 
 void Phi() #void :
@@ -95,6 +97,12 @@ void Until() #UNTIL:
    <UNTIL> <LBRACESQ> Double() <SEP> Double() <RBRACESQ> <LBRACE> Phi() <SEP> Phi() <RBRACE>
 }
 
+void ProbG() #PROBG:
+{}
+{
+   <PROBG> Double() <LBRACE> Phi() <RBRACE>
+}
+
 void ProbGE() #PROBGE:
 {}
 {
@@ -105,6 +113,12 @@ void ProbL() #PROBL:
 {}
 {
    <PROBL> Double() <LBRACE> Phi() <RBRACE>
+}
+
+void ProbLE() #PROBLE:
+{}
+{
+   <PROBLE> Double() <LBRACE> Phi() <RBRACE>
 }
 
 void ProbQ() #PROBQ:

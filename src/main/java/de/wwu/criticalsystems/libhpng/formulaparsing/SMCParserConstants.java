@@ -30,41 +30,45 @@ public interface SMCParserConstants {
   /** RegularExpression Id. */
   int COLON = 12;
   /** RegularExpression Id. */
-  int PROBGE = 13;
+  int PROBG = 13;
   /** RegularExpression Id. */
-  int PROBL = 14;
+  int PROBGE = 14;
   /** RegularExpression Id. */
-  int PROBQ = 15;
+  int PROBL = 15;
   /** RegularExpression Id. */
-  int NOT = 16;
+  int PROBLE = 16;
   /** RegularExpression Id. */
-  int OR = 17;
+  int PROBQ = 17;
   /** RegularExpression Id. */
-  int AND = 18;
+  int NOT = 18;
   /** RegularExpression Id. */
-  int UNTIL = 19;
+  int OR = 19;
   /** RegularExpression Id. */
-  int FLUID = 20;
+  int AND = 20;
   /** RegularExpression Id. */
-  int TOKENS = 21;
+  int UNTIL = 21;
   /** RegularExpression Id. */
-  int ENABLED = 22;
+  int FLUID = 22;
   /** RegularExpression Id. */
-  int CLOCK = 23;
+  int TOKENS = 23;
   /** RegularExpression Id. */
-  int FIRINGS = 24;
+  int ENABLED = 24;
   /** RegularExpression Id. */
-  int DRIFT = 25;
+  int CLOCK = 25;
   /** RegularExpression Id. */
-  int UBOUND = 26;
+  int FIRINGS = 26;
   /** RegularExpression Id. */
-  int LBOUND = 27;
+  int DRIFT = 27;
   /** RegularExpression Id. */
-  int ARC = 28;
+  int UBOUND = 28;
   /** RegularExpression Id. */
-  int TRUE = 29;
+  int LBOUND = 29;
   /** RegularExpression Id. */
-  int EOL = 30;
+  int ARC = 30;
+  /** RegularExpression Id. */
+  int TRUE = 31;
+  /** RegularExpression Id. */
+  int EOL = 32;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -84,8 +88,10 @@ public interface SMCParserConstants {
     "<ID>",
     "\",\"",
     "\":\"",
+    "\"P>\"",
     "\"P>=\"",
     "\"P<\"",
+    "\"P<=\"",
     "\"P=?\"",
     "\"!\"",
     "\"OR\"",

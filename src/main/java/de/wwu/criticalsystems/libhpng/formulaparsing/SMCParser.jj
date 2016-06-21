@@ -36,8 +36,10 @@ TOKEN :
 | <ID: "'"(((["a"-"z","A"-"Z"])+) | (<DIGITS>))+ "'">
 | <SEP: ",">
 | <COLON: ":">
+| <PROBG: "P>">
 | <PROBGE: "P>=">
 | <PROBL: "P<">
+| <PROBLE: "P<=">
 | <PROBQ: "P=?">
 | <NOT: "!">
 | <OR: "OR">
@@ -66,11 +68,11 @@ SimpleNode Input()      :
 {/*@bgen(jjtree) ROOT */
    try {
 /*@egen*/
-   Time() <COLON> (ProbGE() | ProbL() | ProbQ()) <EOL>/*@bgen(jjtree)*/
-                                                       {
-                                                         jjtree.closeNodeScope(jjtn000, true);
-                                                         jjtc000 = false;
-                                                       }
+   Time() <COLON> (ProbG() | ProbGE() | ProbL() | ProbLE() | ProbQ()) <EOL>/*@bgen(jjtree)*/
+                                                                            {
+                                                                              jjtree.closeNodeScope(jjtn000, true);
+                                                                              jjtc000 = false;
+                                                                            }
 /*@egen*/ {return jjtn000;}/*@bgen(jjtree)*/
    } catch (Throwable jjte000) {
      if (jjtc000) {
@@ -234,6 +236,38 @@ void Until()       :
 /*@egen*/
 }
 
+void ProbG()       :
+{/*@bgen(jjtree) PROBG */
+  SimpleNode jjtn000 = new SimpleNode(JJTPROBG);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) PROBG */
+   try {
+/*@egen*/
+   <PROBG> Double() <LBRACE> Phi() <RBRACE>/*@bgen(jjtree)*/
+   } catch (Throwable jjte000) {
+     if (jjtc000) {
+       jjtree.clearNodeScope(jjtn000);
+       jjtc000 = false;
+     } else {
+       jjtree.popNode();
+     }
+     if (jjte000 instanceof RuntimeException) {
+       throw (RuntimeException)jjte000;
+     }
+     if (jjte000 instanceof ParseException) {
+       throw (ParseException)jjte000;
+     }
+     throw (Error)jjte000;
+   } finally {
+     if (jjtc000) {
+       jjtree.closeNodeScope(jjtn000, true);
+     }
+   }
+/*@egen*/
+}
+
 void ProbGE()        :
 {/*@bgen(jjtree) PROBGE */
   SimpleNode jjtn000 = new SimpleNode(JJTPROBGE);
@@ -276,6 +310,38 @@ void ProbL()       :
    try {
 /*@egen*/
    <PROBL> Double() <LBRACE> Phi() <RBRACE>/*@bgen(jjtree)*/
+   } catch (Throwable jjte000) {
+     if (jjtc000) {
+       jjtree.clearNodeScope(jjtn000);
+       jjtc000 = false;
+     } else {
+       jjtree.popNode();
+     }
+     if (jjte000 instanceof RuntimeException) {
+       throw (RuntimeException)jjte000;
+     }
+     if (jjte000 instanceof ParseException) {
+       throw (ParseException)jjte000;
+     }
+     throw (Error)jjte000;
+   } finally {
+     if (jjtc000) {
+       jjtree.closeNodeScope(jjtn000, true);
+     }
+   }
+/*@egen*/
+}
+
+void ProbLE()        :
+{/*@bgen(jjtree) PROBLE */
+  SimpleNode jjtn000 = new SimpleNode(JJTPROBLE);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) PROBLE */
+   try {
+/*@egen*/
+   <PROBLE> Double() <LBRACE> Phi() <RBRACE>/*@bgen(jjtree)*/
    } catch (Throwable jjte000) {
      if (jjtc000) {
        jjtree.clearNodeScope(jjtn000);
