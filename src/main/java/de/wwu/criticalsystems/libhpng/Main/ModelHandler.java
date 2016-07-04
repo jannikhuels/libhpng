@@ -11,11 +11,13 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 import de.wwu.criticalsystems.libhpng.errorhandling.ModelNotReadableException;
+import de.wwu.criticalsystems.libhpng.errorhandling.PropertyException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.ParseException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SMCParser;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.init.ModelReader;
 import de.wwu.criticalsystems.libhpng.model.HPnGModel;
+import de.wwu.criticalsystems.libhpng.simulation.SimulationHandler;
 
 
 public class ModelHandler {
@@ -45,7 +47,8 @@ public class ModelHandler {
 	private HPnGModel model;
 	private Logger logger;	
 	private String loggerPath = "logFile.log";
-	    
+	SMCParser parser;
+	
 	
 	public SimpleNode readFormula(){
 		
@@ -58,7 +61,11 @@ public class ModelHandler {
 			formula += "\n";
 			InputStream stream = new ByteArrayInputStream(formula.getBytes(StandardCharsets.UTF_8));
 			
-			SMCParser parser = new SMCParser(stream);
+			 if (parser == null) 
+				 parser = new SMCParser(stream);
+			 else 
+				 SMCParser.ReInit(stream);
+			 
 			SimpleNode root = parser.Input();
 		
 			if (logger != null) 
@@ -77,11 +84,10 @@ public class ModelHandler {
 			System.out.println("The input could not be read in. Please see the error log.");
 			if (logger != null) 
 				logger.severe(e.getLocalizedMessage());	
-		}
-		
-		return null;
-		
+		}		
+		return null;		
 	}
+	
 	
 	public void readModel(String xmlPath){
 		
@@ -97,6 +103,38 @@ public class ModelHandler {
 				logger.severe("The model could not be read in.");
 			System.out.println("An Error occured while reading the model file. Please see the error log and recheck the model.");
 		}			
+	}
+	
+	
+	public void checkFormula(SimpleNode root){
+		
+		SimulationHandler simulationHandler = new SimulationHandler();
+		simulationHandler.setLogger(logger);
+    	
+    	try {
+			simulationHandler.simulateAndCheckProperty(model, root);
+		} catch (PropertyException e) {
+			System.out.println("The formula to check is invalid. Please see the error log.");
+			if (logger != null) 
+				logger.severe(e.getLocalizedMessage());	
+		}    			
+	}	
+	
+	
+	public void plotPlaces(Double maxTime){
+		
+		SimulationHandler simulationHandler = new SimulationHandler();
+		simulationHandler.setLogger(logger);
+		//simulationHandler.setPrintRunResults(true);
+    	
+		try {
+			simulationHandler.simulateAndPlotOnly(maxTime, model);
+			
+		} catch (ModelNotReadableException e) {
+			if (logger != null) 
+				logger.severe("The model could not be read in.");
+			System.out.println("An Error occured while reading the model file. Please see the error log and recheck the model.");
+		}    			
 	}
 	
 	
@@ -120,6 +158,4 @@ public class ModelHandler {
 	    }
     }
 
-
-	
 }

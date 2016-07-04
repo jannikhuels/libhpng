@@ -4,11 +4,11 @@ package de.wwu.criticalsystems.libhpng.formulaparsing;
 public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCParserConstants {/*@bgen(jjtree)*/
   protected static JJTSMCParserState jjtree = new JJTSMCParserState();
   /** Main entry point. */
-  public static void main(String args[]) throws ParseException {
+  /*public static void main(String args[]) throws ParseException {
 	SMCParser parser = new SMCParser(System.in);
     SimpleNode root = parser.Input();
     root.dump("");
-  }
+  }*/
 
   final public SimpleNode Input() throws ParseException {
  /*@bgen(jjtree) ROOT */
@@ -53,15 +53,12 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
      if (jjte000 instanceof RuntimeException) {
         throw (RuntimeException)jjte000;
      }
-     if (jjte000 instanceof ParseException) {
-     	throw (ParseException)jjte000;
-     }
-     throw (Error)jjte000;
+     throw new ParseException(jjte000.getLocalizedMessage());
     } finally {
      if (jjtc000) {
        jjtree.closeNodeScope(jjtn000, true);
      }
-    }
+    }    
   }
 
   static final public void Phi() throws ParseException {

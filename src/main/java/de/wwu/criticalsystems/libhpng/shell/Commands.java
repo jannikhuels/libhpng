@@ -13,33 +13,55 @@ public class Commands implements CommandMarker {
 	
 	private ModelHandler handler = new ModelHandler();
 	
-	@CliAvailabilityIndicator({"read model","change logfile"})
+	@CliAvailabilityIndicator({"read model","change logfile", "parse formula"})
 	public boolean isAvailable() {
 		return true;
 	}
 	
-	@CliAvailabilityIndicator({"parse formula"})
-	public boolean isParseFormulaAvailable() {
-		//if (handler.getModel() == null) return false;
+	@CliAvailabilityIndicator({"check formula"})
+	public boolean isCheckFormulaAvailable() {
+		if (handler.getModel() == null) return false;
 		return true;
 	}
+	
+	@CliAvailabilityIndicator({"plot"})
+	public boolean isPlotAvailable() {
+		if (handler.getModel() == null) return false;
+		return true;
+	}	
 	
 	
 	@CliCommand(value = "read model", help = "Reads in an HPnG model")
 	public void readModel(
 		@CliOption(key = { "path" }, mandatory = true, help = "The path of the xml file containing the HPnG model") final String xmlPath) {		
 		
-		handler.readModel(xmlPath);
-		
+		handler.readModel(xmlPath);		
 	}
 	
-	
-	
+		
 	@CliCommand(value = "parse formula", help = "Parse a model checking formula and print the tree structure.")
 	public void parseFormula(){
 		
 		SimpleNode root = handler.readFormula();
-		root.dump("");
+		if (root != null)
+			root.dump("");		
+	}
+	
+	
+	@CliCommand(value = "check formula", help = "Check a model checking formula by simulation the model. ('read model' has to be executed first.)")
+	public void checkFormula(){
+		
+		SimpleNode root = handler.readFormula();
+		if (root != null )
+			handler.checkFormula(root);		
+	}
+	
+	
+	@CliCommand(value = "plot", help = "Plot continuous places by simulating the model. ('read model' has to be executed first.)")
+	public void plot(
+		@CliOption(key = { "maxtime" }, mandatory = true, help = "The maximum time for the simulation") final Double maxTime) {		
+		
+		handler.plotPlaces(maxTime);
 	}
 	
 	
