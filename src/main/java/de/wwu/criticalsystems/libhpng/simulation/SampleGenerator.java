@@ -3,7 +3,7 @@ package de.wwu.criticalsystems.libhpng.simulation;
 import java.util.Random;
 import java.util.logging.Logger;
 
-import de.wwu.criticalsystems.libhpng.errorhandling.DistributionParameterError;
+import de.wwu.criticalsystems.libhpng.errorhandling.DistributionParameterException;
 import de.wwu.criticalsystems.libhpng.model.*;
 import umontreal.iro.lecuyer.randvar.RandomVariateGen;
 import umontreal.iro.lecuyer.rng.MRG31k3p;
@@ -38,7 +38,7 @@ public class SampleGenerator {
 	}
 
 	
-	public void sampleGeneralTransitions(HPnGModel model, Logger logger) throws DistributionParameterError {
+	public void sampleGeneralTransitions(HPnGModel model, Logger logger) throws DistributionParameterException {
 
     	for (Transition transition : model.getTransitions()){
     		
@@ -55,7 +55,7 @@ public class SampleGenerator {
 	}
 	
 	
-	private RandomVariateGen setDistributionParameters(GeneralTransition transition, MRG31k3p stream, Logger logger) throws DistributionParameterError{
+	private RandomVariateGen setDistributionParameters(GeneralTransition transition, MRG31k3p stream, Logger logger) throws DistributionParameterException{
 	
 		RandomVariateGen distributionGenerator = null;
 		

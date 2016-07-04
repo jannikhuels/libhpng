@@ -15,12 +15,12 @@ public class SimulationHandler {
 	public Double getIntervalWidth() {
 		return intervalWidth;
 	}
-	public void setIntervalWidth(Double intervalWidth) throws InvalidSimulationParameterError {
+	public void setIntervalWidth(Double intervalWidth) throws InvalidSimulationParameterException {
 		
 		if (intervalWidth < 0.0 || intervalWidth > 1.0){
 			if (logger != null)
 				logger.severe("The interval width parameter must be between 0.0 and 1.0");
-			throw new InvalidSimulationParameterError("The interval width parameter must be between 0.0 and 1.0");
+			throw new InvalidSimulationParameterException("The interval width parameter must be between 0.0 and 1.0");
 		}			
 
 		this.intervalWidth = intervalWidth;
@@ -30,12 +30,12 @@ public class SimulationHandler {
 	public Double getConfidenceParameter() {
 		return confidenceParameter;
 	}
-	public void setConfidenceParameter(Double confidenceParameter) throws InvalidSimulationParameterError {
+	public void setConfidenceParameter(Double confidenceParameter) throws InvalidSimulationParameterException {
 		
 		if (confidenceParameter <= 0.0 || confidenceParameter > 1.0){
 			if (logger != null)
 				logger.severe("The confidence parameter must be between 0.0 and 1.0 but greater than 0.0");
-			throw new InvalidSimulationParameterError("The confidence parameter must be between 0.0 and 1.0 but greater than 0.0");
+			throw new InvalidSimulationParameterException("The confidence parameter must be between 0.0 and 1.0 but greater than 0.0");
 		}
 		this.confidenceParameter = confidenceParameter;
 	}
@@ -44,12 +44,12 @@ public class SimulationHandler {
 	public Double getConfidenceLevel() {
 		return confidenceLevel;
 	}
-	public void setConfidenceLevel(Double confidenceLevel) throws InvalidSimulationParameterError {
+	public void setConfidenceLevel(Double confidenceLevel) throws InvalidSimulationParameterException {
 		
 		if (confidenceLevel < 0.0 || confidenceLevel > 1.0){
 			if (logger != null)
 				logger.severe("The confidence level parameter must be between 0.0 and 1.0");
-			throw new InvalidSimulationParameterError("The confidence level parameter must be between 0.0 and 1.0");
+			throw new InvalidSimulationParameterException("The confidence level parameter must be between 0.0 and 1.0");
 		}
 		
 		this.confidenceLevel = confidenceLevel;
@@ -59,12 +59,12 @@ public class SimulationHandler {
 	public Double getType1Error() {
 		return type1Error;
 	}
-	public void setType1Error(Double type1Error) throws InvalidSimulationParameterError {
+	public void setType1Error(Double type1Error) throws InvalidSimulationParameterException {
 		
 		if (type1Error < 0.0 || type1Error > 1.0){
 			if (logger != null)
 				logger.severe("The type 1 error parameter must be between 0.0 and 1.0");
-			throw new InvalidSimulationParameterError("The type 1 error parameter must be between 0.0 and 1.0");
+			throw new InvalidSimulationParameterException("The type 1 error parameter must be between 0.0 and 1.0");
 		}
 		
 		this.type1Error = type1Error;
@@ -74,12 +74,12 @@ public class SimulationHandler {
 	public Double getType2Error() {
 		return type2Error;
 	}
-	public void setType2Error(Double type2Error) throws InvalidSimulationParameterError {
+	public void setType2Error(Double type2Error) throws InvalidSimulationParameterException {
 		
 		if (type1Error < 0.0 || type1Error > 1.0){
 			if (logger != null)
 				logger.severe("The type 2 error parameter must be between 0.0 and 1.0");
-			throw new InvalidSimulationParameterError("The type 2 error parameter must be between 0.0 and 1.0");
+			throw new InvalidSimulationParameterException("The type 2 error parameter must be between 0.0 and 1.0");
 		}
 		
 		this.type2Error = type2Error;
@@ -89,12 +89,12 @@ public class SimulationHandler {
 	public Integer getFixedNumberOfRuns() {
 		return fixedNumberOfRuns;
 	}
-	public void setFixedNumberOfRuns(Integer fixedNumberOfRuns) throws InvalidSimulationParameterError {
+	public void setFixedNumberOfRuns(Integer fixedNumberOfRuns) throws InvalidSimulationParameterException {
 		
 		if (fixedNumberOfRuns < minNumberOfRuns || fixedNumberOfRuns > maxNumberOfRuns){
 			if (logger != null)
 				logger.severe("The number of runs must be between the minimum and maximum number of runs");
-			throw new InvalidSimulationParameterError("The number of runs must be between the minimum and maximum number of runs");
+			throw new InvalidSimulationParameterException("The number of runs must be between the minimum and maximum number of runs");
 		}
 		
 		this.fixedNumberOfRuns = fixedNumberOfRuns;
@@ -104,12 +104,12 @@ public class SimulationHandler {
 	public Integer getMinNumberOfRuns() {
 		return minNumberOfRuns;
 	}
-	public void setMinNumberOfRuns(Integer minNumberOfRuns) throws InvalidSimulationParameterError {
+	public void setMinNumberOfRuns(Integer minNumberOfRuns) throws InvalidSimulationParameterException {
 		
 		if (minNumberOfRuns < 1 || minNumberOfRuns > maxNumberOfRuns){
 			if (logger != null)
 				logger.severe("The minimum number of runs must be between 1 and maximum number of runs");
-			throw new InvalidSimulationParameterError("The minimum number of runs must be between 1 and maximum number of runs");
+			throw new InvalidSimulationParameterException("The minimum number of runs must be between 1 and maximum number of runs");
 		}
 		
 		this.minNumberOfRuns = minNumberOfRuns;
@@ -119,12 +119,12 @@ public class SimulationHandler {
 	public Integer getMaxNumberOfRuns() {
 		return maxNumberOfRuns;
 	}
-	public void setMaxNumberOfRuns(Integer maxNumberOfRuns) throws InvalidSimulationParameterError {
+	public void setMaxNumberOfRuns(Integer maxNumberOfRuns) throws InvalidSimulationParameterException {
 
 		if (maxNumberOfRuns < minNumberOfRuns || maxNumberOfRuns > 1000000){
 			if (logger != null)
 				logger.severe("The maximum number of runs must be between the minimum number of runs and 1 000 000");
-			throw new InvalidSimulationParameterError("The maximum number of runs must be between the minimum number of runs and 1 000 000");
+			throw new InvalidSimulationParameterException("The maximum number of runs must be between the minimum number of runs and 1 000 000");
 		}
 		
 		this.maxNumberOfRuns = maxNumberOfRuns;
@@ -200,7 +200,7 @@ public class SimulationHandler {
 				if (printRunResults)
 					model.printCurrentMarking(true, false);
 				generator.sampleGeneralTransitions(model, logger);
-			} catch (DistributionParameterError e) {
+			} catch (DistributionParameterException e) {
 				throw new ModelNotReadableException(e.getLocalizedMessage());				
 			}
 			
@@ -225,7 +225,7 @@ public class SimulationHandler {
 	}
 	
 	
-	public void simulateAndCheckProperty(HPnGModel model, SimpleNode root) throws PropertyError{
+	public void simulateAndCheckProperty(HPnGModel model, SimpleNode root) throws PropertyException{
 		
 		this.model = model;
 		this.root = root;
@@ -237,10 +237,10 @@ public class SimulationHandler {
 		String prob = "";
 		try {
 			prob = PropertyChecker.getProbKind(root);
-		} catch (PropertyError e) {		
+		} catch (PropertyException e) {		
 			if (logger != null)
 				logger.severe(e.getLocalizedMessage());
-			throw new PropertyError(e.getLocalizedMessage());
+			throw new PropertyException(e.getLocalizedMessage());
 		}
 	
 			
@@ -279,7 +279,7 @@ public class SimulationHandler {
 	}
 	
 	
-	private void simulateAndCheckPROBQ() throws ModelNotReadableException, PropertyError{
+	private void simulateAndCheckPROBQ() throws ModelNotReadableException, PropertyException{
 			
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
@@ -298,7 +298,7 @@ public class SimulationHandler {
 			try {
 				model.resetMarking();
 				generator.sampleGeneralTransitions(model, logger);
-			} catch (DistributionParameterError e) {
+			} catch (DistributionParameterException e) {
 				throw new ModelNotReadableException(e.getLocalizedMessage());				
 			}
 		
@@ -332,7 +332,7 @@ public class SimulationHandler {
 	}
 	
 	
-	private void simulateAndCheckPROBQWithFixedNumberOfRuns() throws ModelNotReadableException, PropertyError{
+	private void simulateAndCheckPROBQWithFixedNumberOfRuns() throws ModelNotReadableException, PropertyException{
 			
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
@@ -351,7 +351,7 @@ public class SimulationHandler {
 			try {
 				model.resetMarking();
 				generator.sampleGeneralTransitions(model, logger);
-			} catch (DistributionParameterError e) {
+			} catch (DistributionParameterException e) {
 				throw new ModelNotReadableException(e.getLocalizedMessage());				
 			}
 			currentPlot = new MarkingPlot(maxTime);
@@ -381,7 +381,7 @@ public class SimulationHandler {
 	}	
 		
 	
-	private void simulateAndTestPROB(Boolean lower) throws ModelNotReadableException, PropertyError{
+	private void simulateAndTestPROB(Boolean lower) throws ModelNotReadableException, PropertyException{
 		
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
@@ -404,7 +404,7 @@ public class SimulationHandler {
 			try {
 				model.resetMarking();
 				generator.sampleGeneralTransitions(model, logger);
-			} catch (DistributionParameterError e) {
+			} catch (DistributionParameterException e) {
 				throw new ModelNotReadableException(e.getLocalizedMessage());				
 			}
 		
@@ -446,7 +446,7 @@ public class SimulationHandler {
 	}
 	
 	
-	private void simulateAndTestPROBWithFixedNumberOfRuns(Boolean lower) throws ModelNotReadableException, PropertyError{
+	private void simulateAndTestPROBWithFixedNumberOfRuns(Boolean lower) throws ModelNotReadableException, PropertyException{
 
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
@@ -468,7 +468,7 @@ public class SimulationHandler {
 			try {
 				model.resetMarking();
 				generator.sampleGeneralTransitions(model, logger);
-			} catch (DistributionParameterError e) {
+			} catch (DistributionParameterException e) {
 				throw new ModelNotReadableException(e.getLocalizedMessage());				
 			}
 		

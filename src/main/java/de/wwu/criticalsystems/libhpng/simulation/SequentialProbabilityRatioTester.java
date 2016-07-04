@@ -1,14 +1,14 @@
 package de.wwu.criticalsystems.libhpng.simulation;
 
 import java.util.logging.Logger;
-import de.wwu.criticalsystems.libhpng.errorhandling.PropertyError;
+import de.wwu.criticalsystems.libhpng.errorhandling.PropertyException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.model.HPnGModel;
 import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
 
 public class SequentialProbabilityRatioTester {
 	
-	public SequentialProbabilityRatioTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double confidenceParameter, Double type1Error, Double type2Error, Boolean lower) throws PropertyError{
+	public SequentialProbabilityRatioTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double confidenceParameter, Double type1Error, Double type2Error, Boolean lower) throws PropertyException{
 		
 		checker = new PropertyChecker(root, model);
 		checker.setLogger(logger);	
@@ -19,7 +19,7 @@ public class SequentialProbabilityRatioTester {
 		if (boundary < 0.0 || boundary > 1.0){
 			if (logger != null)
 				logger.severe("Property Error: the boundary node of the property root must be between 0.0 and 1.0");
-			throw new PropertyError("Property Error: the boundary node of the property root must be between 0.0 and 1.0");
+			throw new PropertyException("Property Error: the boundary node of the property root must be between 0.0 and 1.0");
 		}
 		
 		p0 = Math.min(1.0, boundary + confidenceParameter);
@@ -66,7 +66,7 @@ public class SequentialProbabilityRatioTester {
 	private Integer fulfilled;
 	
 	
-	public Boolean doRatioTest(Integer currentRun, MarkingPlot plot) throws PropertyError{
+	public Boolean doRatioTest(Integer currentRun, MarkingPlot plot) throws PropertyException{
 		
 		if (currentRun == 1){
 			numberOfRuns = 0;
