@@ -3,7 +3,6 @@ package de.wwu.criticalsystems.libhpng.init;
 import java.io.File;
 import java.util.Collections;
 import java.util.logging.Logger;
-
 import javax.xml.bind.JAXBException;
 import de.wwu.criticalsystems.libhpng.errorhandling.*;
 import de.wwu.criticalsystems.libhpng.model.*;
@@ -62,8 +61,7 @@ public class ModelReader {
 	
 	
 	private void setConnectedPlacesAndTransitions() throws InvalidModelConnectionException{
-		
-		
+
 		for(Arc arc: model.getArcs()){
 			Boolean fromNodeFound = false;
 			Boolean toNodeFound = false;	
@@ -140,9 +138,9 @@ public class ModelReader {
 		
 		for(Transition transition: model.getTransitions())
 			Collections.sort(transition.getConnectedArcs(),new ArcComparatorForTransitions());
+
 		
 		if (logger != null) logger.info("Model lists sorted successfully.");
 	}
 
-	
 }

@@ -1,3 +1,13 @@
-Jun 20, 2016 9:08:31 AM de.wwu.criticalsystems.libhpng.Main.ModelHandler readFormula
-INFORMATION: The following formula has been parsed successfully: 5.0:P=?(U[0.0,10.0](clock('td1')<3.0, U[0.0,10.0](fluidlevel('right')<6.0, fluidlevel('left')=5.0)))
+Jul 04, 2016 9:23:37 AM de.wwu.criticalsystems.libhpng.init.XMLReader validateAgainstSchema
+INFORMATION: The XML model file has been validated against the XML Schema file successfully.
+Jul 04, 2016 9:23:38 AM de.wwu.criticalsystems.libhpng.init.ModelReader readModel
+INFORMATION: Model structure has been read from XML file successfully.
+Jul 04, 2016 9:23:38 AM de.wwu.criticalsystems.libhpng.init.ModelReader setConnectedPlacesAndTransitions
+INFORMATION: Model object connections were set successfully.
+Jul 04, 2016 9:23:38 AM de.wwu.criticalsystems.libhpng.init.ModelReader sortLists
+INFORMATION: Model lists sorted successfully.
+Jul 04, 2016 9:23:38 AM de.wwu.criticalsystems.libhpng.Main.ModelHandler readModel
+INFORMATION: Model has been read successfully.
+Jul 04, 2016 9:24:04 AM de.wwu.criticalsystems.libhpng.Main.ModelHandler readFormula
+INFORMATION: The following formula has been parsed successfully: 0.0:P=?(U[0.0,10.0](tokens('pd1')=1, fluidlevel('pc1')>=3.0))
 

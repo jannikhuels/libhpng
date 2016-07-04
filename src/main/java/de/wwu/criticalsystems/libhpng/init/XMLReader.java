@@ -3,16 +3,13 @@ package de.wwu.criticalsystems.libhpng.init;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
-
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.*;
-
 import org.xml.sax.SAXException;
-
 import de.wwu.criticalsystems.libhpng.errorhandling.XmlNotValidException;
 import de.wwu.criticalsystems.libhpng.model.*;
 

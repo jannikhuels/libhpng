@@ -2,16 +2,24 @@
 <HPnG>
     <places>
     <discretePlace id="pd1" marking="1"/>
-    <discretePlace id="pd2" marking="0"/>
+    <discretePlace id="pd2" marking="1"/>
+    <continuousPlace id="pc1" capacity="10" infiniteCapacity="0" level="0"/>
   </places>
   <transitions> 
-  	<generalTransition cdf="normal" id="tg1" priority="0" weight="1.0E0" policy="resume">
+  	<generalTransition id="tg1" cdf="normal" priority="0" weight="1.0E0" policy="resume">
       <parameter name="mu" value="8.0"/>
       <parameter name="sigma" value="2.0"/>
      </generalTransition>
+     <continuousTransition id="tf1" rate="2.0"/>
+     <continuousTransition id="tf2" rate="1.0"/>
+     <deterministicTransition id="td1" discTime="5.0" priority="1" weight="1.0E0"/>
    </transitions>
   <arcs>
-    <discreteArc fromNode="pd1" id="da1" toNode="tg1" weight="1.0E0"/>
-    <discreteArc fromNode="tg1" id="da2" toNode="pd2" weight="1.0E0"/>
+    <discreteArc  id="da1" fromNode="pd1" toNode="tg1" weight="1.0E0"/>
+    <discreteArc  id="da2" fromNode="pd2" toNode="td1" weight="1.0E0"/>
+    <guardArc fromNode="pd1" id="ga1" isInhibitor="0" toNode="tf1" weight="1.0E0"/>
+    <guardArc fromNode="pd2" id="ga2" isInhibitor="0" toNode="tf2" weight="1.0E0"/>
+    <continuousArc id="ca1" fromNode="tf1" priority="1" share="1.0E0" toNode="pc1" weight="1.0E0"/>
+    <continuousArc id="ca2" fromNode="pc1" priority="1" share="1.0E0" toNode="tf2" weight="1.0E0"/>
    </arcs>
 </HPnG>
