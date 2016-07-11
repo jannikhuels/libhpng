@@ -2,11 +2,11 @@ package de.wwu.criticalsystems.libhpng.simulation;
 
 import java.util.Random;
 import java.util.logging.Logger;
-
+import umontreal.ssj.randvar.RandomVariateGen;
+import umontreal.ssj.rng.MRG31k3p;
 import de.wwu.criticalsystems.libhpng.errorhandling.DistributionParameterException;
 import de.wwu.criticalsystems.libhpng.model.*;
-import umontreal.iro.lecuyer.randvar.RandomVariateGen;
-import umontreal.iro.lecuyer.rng.MRG31k3p;
+
 
 public class SampleGenerator {
 	

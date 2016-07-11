@@ -103,7 +103,7 @@ public class PropertyChecker {
 			case "OR":
 				return (checkAnyProperty((SimpleNode)propertyRoot.jjtGetChild(0), time) || checkAnyProperty((SimpleNode)propertyRoot.jjtGetChild(1), time));
 			case "UNTIL":
-				return (checkUntilProperty((SimpleNode)propertyRoot, time) > -1.0);
+				return (checkUntilProperty(propertyRoot, time) > -1.0);
 		}
 		
 		if (logger != null)

@@ -92,3 +92,6 @@ check formula
 // libhpng 1.1.0.RELEASE log opened at 2016-07-04 10:55:04
 read model --path "examples/example.xml"
 plot --maxtime 30.0
+// libhpng 1.1.0.RELEASE log opened at 2016-07-11 13:13:02
+// libhpng 1.1.0.RELEASE log opened at 2016-07-11 13:13:50
+read model --path "examples/example.xml"

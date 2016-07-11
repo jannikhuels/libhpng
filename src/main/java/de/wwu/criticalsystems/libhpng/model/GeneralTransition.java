@@ -2,7 +2,7 @@ package de.wwu.criticalsystems.libhpng.model;
 
 import java.util.ArrayList;
 import javax.xml.bind.annotation.*;
-import umontreal.iro.lecuyer.randvar.RandomVariateGen;
+import umontreal.ssj.randvar.RandomVariateGen;
 
 @XmlRootElement( name = "generalTransition" )
 public class GeneralTransition extends Transition{

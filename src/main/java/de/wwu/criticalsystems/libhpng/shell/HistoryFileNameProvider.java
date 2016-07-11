@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class HistoryFileNameProvider extends DefaultHistoryFileNameProvider {
 
+	@Override
 	public String getHistoryFileName() {
 		return "shellLogFile.log";
 	}

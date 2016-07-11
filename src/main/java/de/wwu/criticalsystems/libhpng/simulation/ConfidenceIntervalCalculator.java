@@ -1,8 +1,7 @@
 package de.wwu.criticalsystems.libhpng.simulation;
 
 import java.util.logging.Logger;
-
-import umontreal.iro.lecuyer.probdist.StudentDist;
+import umontreal.ssj.probdist.StudentDist;
 import de.wwu.criticalsystems.libhpng.errorhandling.PropertyException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.model.*;

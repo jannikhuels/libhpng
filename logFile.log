@@ -1,14 +1,10 @@
-Jul 04, 2016 10:55:15 AM de.wwu.criticalsystems.libhpng.init.XMLReader validateAgainstSchema
+Jul 11, 2016 1:14:13 PM de.wwu.criticalsystems.libhpng.init.XMLReader validateAgainstSchema
 INFORMATION: The XML model file has been validated against the XML Schema file successfully.
-Jul 04, 2016 10:55:16 AM de.wwu.criticalsystems.libhpng.init.ModelReader readModel
+Jul 11, 2016 1:14:14 PM de.wwu.criticalsystems.libhpng.init.ModelReader readModel
 INFORMATION: Model structure has been read from XML file successfully.
-Jul 04, 2016 10:55:16 AM de.wwu.criticalsystems.libhpng.init.ModelReader setConnectedPlacesAndTransitions
+Jul 11, 2016 1:14:14 PM de.wwu.criticalsystems.libhpng.init.ModelReader setConnectedPlacesAndTransitions
 INFORMATION: Model object connections were set successfully.
-Jul 04, 2016 10:55:16 AM de.wwu.criticalsystems.libhpng.init.ModelReader sortLists
+Jul 11, 2016 1:14:14 PM de.wwu.criticalsystems.libhpng.init.ModelReader sortLists
 INFORMATION: Model lists sorted successfully.
-Jul 04, 2016 10:55:16 AM de.wwu.criticalsystems.libhpng.Main.ModelHandler readModel
+Jul 11, 2016 1:14:14 PM de.wwu.criticalsystems.libhpng.Main.ModelHandler readModel
 INFORMATION: Model has been read successfully.
-Jul 04, 2016 10:55:33 AM de.wwu.criticalsystems.libhpng.simulation.SimulationHandler simulateAndPlotOnly
-INFORMATION: Simulation started with plotting continuous places only
-Jul 04, 2016 10:55:42 AM de.wwu.criticalsystems.libhpng.simulation.SimulationHandler simulateAndPlotOnly
-INFORMATION: Simulation finished after 1000 runs

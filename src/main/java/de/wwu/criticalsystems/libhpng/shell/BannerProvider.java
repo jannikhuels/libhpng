@@ -9,14 +9,16 @@ import org.springframework.stereotype.Component;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class BannerProvider extends DefaultBannerProvider  {
 
+	@Override
 	public String getBanner() {
 		StringBuffer buf = new StringBuffer();
 		buf.append("Welcome to libhpng!");
 		return buf.toString();
 	}
 
+	@Override
 	public String getWelcomeMessage() {
-		return "test";
+		return null;
 	}
 	
 	@Override

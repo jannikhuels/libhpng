@@ -1,9 +1,8 @@
 package de.wwu.criticalsystems.libhpng.simulation;
 
 import java.util.logging.Logger;
-
-import umontreal.iro.lecuyer.randvar.*;
-import umontreal.iro.lecuyer.rng.MRG31k3p;
+import umontreal.ssj.randvar.*;
+import umontreal.ssj.rng.MRG31k3p;
 import de.wwu.criticalsystems.libhpng.errorhandling.DistributionParameterException;
 import de.wwu.criticalsystems.libhpng.model.CDFFunctionParameter;
 import de.wwu.criticalsystems.libhpng.model.GeneralTransition;

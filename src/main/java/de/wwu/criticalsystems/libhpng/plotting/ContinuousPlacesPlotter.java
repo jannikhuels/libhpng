@@ -3,8 +3,8 @@ package de.wwu.criticalsystems.libhpng.plotting;
 import java.awt.Color;
 import java.util.ArrayList;
 import org.jfree.ui.RefineryUtilities;
+import umontreal.ssj.probdist.StudentDist;
 
-import umontreal.iro.lecuyer.probdist.StudentDist;
 import de.wwu.criticalsystems.libhpng.model.*;
 
 public class ContinuousPlacesPlotter {
