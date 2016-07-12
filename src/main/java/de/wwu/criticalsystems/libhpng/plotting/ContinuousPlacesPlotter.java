@@ -2,6 +2,8 @@ package de.wwu.criticalsystems.libhpng.plotting;
 
 import java.awt.Color;
 import java.util.ArrayList;
+
+import javax.swing.JFrame;
 import org.jfree.ui.RefineryUtilities;
 import umontreal.ssj.probdist.StudentDist;
 
@@ -18,6 +20,8 @@ public class ContinuousPlacesPlotter {
 
 		int series=0;
 		Double t;
+		
+		System.out.println("Plotting graph...");
 		
 		XYLineGraph graph = new XYLineGraph("Continuous Places Mean", "time", "fluid level");
 			
@@ -42,6 +46,7 @@ public class ContinuousPlacesPlotter {
 		
 		graph.pack();
 		RefineryUtilities.centerFrameOnScreen(graph);
+		graph.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		graph.setVisible(true);		
 	}
 

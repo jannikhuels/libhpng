@@ -10,6 +10,7 @@ import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
+import de.wwu.criticalsystems.libhpng.errorhandling.InvalidSimulationParameterException;
 import de.wwu.criticalsystems.libhpng.errorhandling.ModelNotReadableException;
 import de.wwu.criticalsystems.libhpng.errorhandling.PropertyException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.ParseException;
@@ -23,7 +24,9 @@ import de.wwu.criticalsystems.libhpng.simulation.SimulationHandler;
 public class ModelHandler {
 	
 	public ModelHandler(){
-		createLogger();   
+		createLogger();
+		simulationHandler = new SimulationHandler();
+		simulationHandler.setLogger(logger);
 	}
 	
 
@@ -41,13 +44,15 @@ public class ModelHandler {
 	public void setLoggerPath(String loggerPath) {
 		this.loggerPath = loggerPath;
 		createLogger();
+		simulationHandler.setLogger(logger);	    
 	}
-
+	
 	
 	private HPnGModel model;
 	private Logger logger;	
 	private String loggerPath = "logFile.log";
-	SMCParser parser;
+	private SMCParser parser;
+	private SimulationHandler simulationHandler;
 	
 	
 	public SimpleNode readFormula(){
@@ -96,7 +101,8 @@ public class ModelHandler {
 			reader.setLogger(logger);
 			model = reader.readModel(xmlPath);
 			if (logger != null) 
-				logger.info("Model has been read successfully.");	
+				logger.info("Model '" + xmlPath + "' has been read successfully.");	
+			System.out.println("Model '" + xmlPath + "' has been read successfully.");
 		
 		} catch (ModelNotReadableException e) {		
 			if (logger != null) 
@@ -107,10 +113,7 @@ public class ModelHandler {
 	
 	
 	public void checkFormula(SimpleNode root){
-		
-		SimulationHandler simulationHandler = new SimulationHandler();
-		simulationHandler.setLogger(logger);
-    	
+	
     	try {
 			simulationHandler.simulateAndCheckProperty(model, root);
 		} catch (PropertyException e) {
@@ -122,11 +125,7 @@ public class ModelHandler {
 	
 	
 	public void plotPlaces(Double maxTime){
-		
-		SimulationHandler simulationHandler = new SimulationHandler();
-		simulationHandler.setLogger(logger);
-		//simulationHandler.setPrintRunResults(true);
-    	
+		   	
 		try {
 			simulationHandler.simulateAndPlotOnly(maxTime, model);
 			
@@ -157,5 +156,81 @@ public class ModelHandler {
 	        System.out.println("logger could not be initialized."); 
 	    }
     }
+    
+    
+    
+    public void changeParameter(String parameter, Object value){
+    	
+    	try {
+    		
+    		//change selected parameter
+	    	switch (parameter){
+	    		case "half interval width":				
+					simulationHandler.setHalfIntervalWidth((Double)value);
+					break;
+	    		case "half width of indifference region":
+	    			simulationHandler.setHalfWidthOfIndifferenceRegion((Double)value);
+	    			break;
+	    		case "confidence level":
+	    			simulationHandler.setConfidenceLevel((Double)value);
+	    			break;
+	    		case "type 1 error":
+	    			simulationHandler.setType1Error((Double)value);
+	    			break;
+	    		case "type 2 error":
+	    			simulationHandler.setType2Error((Double)value);
+	    			break;
+	    		case "fixed number of runs":
+	    			simulationHandler.setFixedNumberOfRuns((Integer)value);
+	    			break;
+	    		case "min number of runs":
+	    			simulationHandler.setMinNumberOfRuns((Integer)value);
+	    			break;
+	    		case "max number of runs":
+	    			simulationHandler.setMaxNumberOfRuns((Integer)value);
+	    			break;
+	    		case "simulation with fixed number of runs":
+	    			simulationHandler.setSimulationWithFixedNumberOfRuns((Boolean)value);
+	    			break;
+	    		case "print run results":
+	    			simulationHandler.setPrintRunResults((Boolean)value);
+	    			break;					
+	    	}
+	    	
+	    } catch (InvalidSimulationParameterException e) {
+	    	if (logger != null) 
+				logger.severe("The " + parameter + " parameter chould not be changed.");
+			System.out.println("An Error occured while changing the parameter. Please see the error log.");
+		
+	    }
+    }
+    
+    
+    
+    
+    public void printParameters(){
+    	
 
+    	System.out.println("- half interval width of the confidence interval: " + simulationHandler.getHalfIntervalWidth());
+    	System.out.println("- half width of the indifference region: " + simulationHandler.getHalfWidthOfIndifferenceRegion());
+    	System.out.println("- confidence level: " + simulationHandler.getConfidenceLevel());
+    	System.out.println("- type 1 error: " + simulationHandler.getType1Error());
+    	System.out.println("- type 2 error: " + simulationHandler.getType2Error());
+    	System.out.println("- fixed number of runs: " + simulationHandler.getFixedNumberOfRuns());
+    	
+    	if (simulationHandler.getSimulationWithFixedNumberOfRuns())
+    		System.out.println("- property check is set to: fixed number of runs");
+    	else
+    		System.out.println("- property check is set to: optimal number or runs");
+    	
+    	System.out.println("- minimum number of runs: " + simulationHandler.getMinNumberOfRuns());
+    	System.out.println("- maximum number of runs: " + simulationHandler.getMaxNumberOfRuns());
+
+    	if (simulationHandler.getPrintRunResults())
+    		System.out.println("- printing the results of the single simulation runs: enabled");
+    	else
+    		System.out.println("- printing the results of the single simulation runs: disabled");
+    
+    }
+    	
 }

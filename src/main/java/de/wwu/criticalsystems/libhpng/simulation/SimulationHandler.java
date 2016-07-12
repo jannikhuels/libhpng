@@ -12,32 +12,34 @@ public class SimulationHandler {
 
 	public SimulationHandler(){}
 	
-	public Double getIntervalWidth() {
-		return intervalWidth;
+	public Double getHalfIntervalWidth() {
+		return halfIntervalWidth;
 	}
-	public void setIntervalWidth(Double intervalWidth) throws InvalidSimulationParameterException {
+	public void setHalfIntervalWidth(Double halfIntervalWidth) throws InvalidSimulationParameterException {
 		
-		if (intervalWidth < 0.0 || intervalWidth > 1.0){
+		if (halfIntervalWidth < 0.0 || halfIntervalWidth > 1.0){
 			if (logger != null)
-				logger.severe("The interval width parameter must be between 0.0 and 1.0");
-			throw new InvalidSimulationParameterException("The interval width parameter must be between 0.0 and 1.0");
+				logger.severe("The half interval width parameter must be between 0.0 and 1.0");
+			throw new InvalidSimulationParameterException("The half interval width parameter must be between 0.0 and 1.0");
 		}			
 
-		this.intervalWidth = intervalWidth;
+		this.halfIntervalWidth = halfIntervalWidth;
+		if (logger != null) logger.info("The half interval width has been changed to: " + halfIntervalWidth);
 	}
 
 
-	public Double getConfidenceParameter() {
-		return confidenceParameter;
+	public Double getHalfWidthOfIndifferenceRegion() {
+		return halfWidthOfIndifferenceRegion;
 	}
-	public void setConfidenceParameter(Double confidenceParameter) throws InvalidSimulationParameterException {
+	public void setHalfWidthOfIndifferenceRegion(Double halfWidthOfIndifferenceRegion) throws InvalidSimulationParameterException {
 		
-		if (confidenceParameter <= 0.0 || confidenceParameter > 1.0){
+		if (halfWidthOfIndifferenceRegion <= 0.0 || halfWidthOfIndifferenceRegion > 1.0){
 			if (logger != null)
-				logger.severe("The confidence parameter must be between 0.0 and 1.0 but greater than 0.0");
-			throw new InvalidSimulationParameterException("The confidence parameter must be between 0.0 and 1.0 but greater than 0.0");
+				logger.severe("The half width of the indifference region must be between 0.0 and 1.0 but greater than 0.0");
+			throw new InvalidSimulationParameterException("The half width of the indifference region must be between 0.0 and 1.0 but greater than 0.0");
 		}
-		this.confidenceParameter = confidenceParameter;
+		this.halfWidthOfIndifferenceRegion = halfWidthOfIndifferenceRegion;
+		if (logger != null) logger.info("The half width of the indifference region has been changed to: " + halfWidthOfIndifferenceRegion);
 	}
 	
 	
@@ -53,6 +55,7 @@ public class SimulationHandler {
 		}
 		
 		this.confidenceLevel = confidenceLevel;
+		if (logger != null) logger.info("The confidence level has been changed to: " + confidenceLevel);
 	}
 	
 
@@ -68,6 +71,7 @@ public class SimulationHandler {
 		}
 		
 		this.type1Error = type1Error;
+		if (logger != null) logger.info("The type 1 error has been changed to: " + type1Error);
 	}
 
 
@@ -76,13 +80,14 @@ public class SimulationHandler {
 	}
 	public void setType2Error(Double type2Error) throws InvalidSimulationParameterException {
 		
-		if (type1Error < 0.0 || type1Error > 1.0){
+		if (type2Error < 0.0 || type2Error > 1.0){
 			if (logger != null)
 				logger.severe("The type 2 error parameter must be between 0.0 and 1.0");
 			throw new InvalidSimulationParameterException("The type 2 error parameter must be between 0.0 and 1.0");
 		}
 		
 		this.type2Error = type2Error;
+		if (logger != null) logger.info("The type 2 error has been changed to: " + type2Error);
 	}
 
 
@@ -98,6 +103,7 @@ public class SimulationHandler {
 		}
 		
 		this.fixedNumberOfRuns = fixedNumberOfRuns;
+		if (logger != null) logger.info("The (fixed) number of runs has been changed to: " + fixedNumberOfRuns);
 	}
 
 
@@ -113,6 +119,7 @@ public class SimulationHandler {
 		}
 		
 		this.minNumberOfRuns = minNumberOfRuns;
+		if (logger != null) logger.info("The minimum number of runs has been changed to: " + minNumberOfRuns);
 	}
 
 
@@ -128,6 +135,7 @@ public class SimulationHandler {
 		}
 		
 		this.maxNumberOfRuns = maxNumberOfRuns;
+		if (logger != null) logger.info("The maximum number of runs has been changed to: " + maxNumberOfRuns);
 	}
 
 	
@@ -136,6 +144,12 @@ public class SimulationHandler {
 	}
 	public void setSimulationWithFixedNumberOfRuns(Boolean simulationWithFixedNumberOfRuns) {
 		this.simulationWithFixedNumberOfRuns = simulationWithFixedNumberOfRuns;
+		if (logger != null){
+			if (simulationWithFixedNumberOfRuns)
+				logger.info("The simulation has been set to simulation with fixed number of runs");
+			else
+				logger.info("The simulation has been set to simulation with optimal number of runs");
+		}
 	}	
 
 	
@@ -144,6 +158,12 @@ public class SimulationHandler {
 	}
 	public void setPrintRunResults(Boolean printRunResults) {
 		this.printRunResults = printRunResults;
+		if (logger != null){
+			if (printRunResults)
+				logger.info("Printing of results has been turned on.");
+			else
+				logger.info("Printing of results has been turned off.");
+		}
 	}
 	
 	public Logger getLogger() {
@@ -154,8 +174,8 @@ public class SimulationHandler {
 	}
 	
 	//default simulation settings
-	private Double intervalWidth = 0.005;
-	private Double confidenceParameter = 0.005;
+	private Double halfIntervalWidth = 0.005;
+	private Double halfWidthOfIndifferenceRegion = 0.005;
 	private Double confidenceLevel = 0.95;
 	private Double type1Error = 0.05;
 	private Double type2Error = 0.05;
@@ -188,6 +208,8 @@ public class SimulationHandler {
 		generator.initializeRandomStream();
 		if (logger != null)
 			logger.info("Simulation started with plotting continuous places only");
+		if (!printRunResults)
+			System.out.println("Running simulation...");
 				
 		for (int run = 0; run < fixedNumberOfRuns; run++){			
 			
@@ -287,8 +309,10 @@ public class SimulationHandler {
 		if (logger != null)
 			logger.info("Simulation started for a 'P=?' property with fixed interval width");
 	
-		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(model, minNumberOfRuns, logger, root, confidenceLevel, intervalWidth);
+		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(model, minNumberOfRuns, logger, root, confidenceLevel, halfIntervalWidth);
 		
+		if (!printRunResults)
+			System.out.println("Running simulation...");
 		int run = 0;
 		while (!calc.checkBound() && run < maxNumberOfRuns){
 			
@@ -341,8 +365,10 @@ public class SimulationHandler {
 			logger.info("Simulation started for a 'P=?' property with fixed number of runs");
 		
 		
-		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(model, fixedNumberOfRuns, logger, root, confidenceLevel, intervalWidth);
+		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(model, fixedNumberOfRuns, logger, root, confidenceLevel, halfIntervalWidth);
 		
+		if (!printRunResults)
+			System.out.println("Running simulation...");
 		for (int run = 0; run < fixedNumberOfRuns; run++){
 			
 			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
@@ -393,8 +419,10 @@ public class SimulationHandler {
 				logger.info("Simulation started for a 'P>=x' property with sequential probability ratio test");
 		}
 		
-		SequentialProbabilityRatioTester tester = new SequentialProbabilityRatioTester(model, minNumberOfRuns, logger, root, confidenceParameter, type1Error, type2Error, lower);
+		SequentialProbabilityRatioTester tester = new SequentialProbabilityRatioTester(model, minNumberOfRuns, logger, root, halfWidthOfIndifferenceRegion, type1Error, type2Error, lower);
 		
+		if (!printRunResults)
+			System.out.println("Running simulation...");
 		int run = 0;
 		while (!tester.getResultAchieved() && run < maxNumberOfRuns){
 			
@@ -441,7 +469,7 @@ public class SimulationHandler {
 				else
 					logger.info("The property is not fulfilled");
 			} else
-				logger.info("Not enough runs to make a decision on the property");
+				logger.info("Not enough runs executed to make a decision on the property");
 		}
 	}
 	
@@ -458,8 +486,10 @@ public class SimulationHandler {
 				logger.info("Simulation started for a 'P>=x' property with sequential probability ratio test");
 		}
 		
-		SequentialProbabilityRatioTester tester = new SequentialProbabilityRatioTester(model, minNumberOfRuns, logger, root, confidenceParameter, type1Error, type2Error, lower);
+		SequentialProbabilityRatioTester tester = new SequentialProbabilityRatioTester(model, minNumberOfRuns, logger, root, halfWidthOfIndifferenceRegion, type1Error, type2Error, lower);
 		
+		if (!printRunResults)
+			System.out.println("Running simulation...");
 		for (int run = 0; run < fixedNumberOfRuns; run++){
 			
 			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
@@ -506,7 +536,7 @@ public class SimulationHandler {
 				else
 					logger.info("The property is not fulfilled");
 			} else
-				logger.info("Not enough runs to make a decision on the property");
+				logger.info("Not enough runs executed to make a decision on the property");
 		}
 		
 	}

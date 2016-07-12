@@ -8,7 +8,7 @@ import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
 
 public class SequentialProbabilityRatioTester {
 	
-	public SequentialProbabilityRatioTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double confidenceParameter, Double type1Error, Double type2Error, Boolean lower) throws PropertyException{
+	public SequentialProbabilityRatioTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double halfWidthOfIndifferenceRegion, Double type1Error, Double type2Error, Boolean lower) throws PropertyException{
 		
 		checker = new PropertyChecker(root, model);
 		checker.setLogger(logger);	
@@ -22,10 +22,8 @@ public class SequentialProbabilityRatioTester {
 			throw new PropertyException("Property Error: the boundary node of the property root must be between 0.0 and 1.0");
 		}
 		
-		p0 = Math.min(1.0, boundary + confidenceParameter);
-		p1 = Math.max(0.0, boundary - confidenceParameter);
-		//p0 = boundary + confidenceParameter;
-		//p1 = boundary - confidenceParameter;
+		p0 = Math.min(1.0, boundary + halfWidthOfIndifferenceRegion);
+		p1 = Math.max(0.0, boundary - halfWidthOfIndifferenceRegion);
 		A = (1.0 - type2Error) / type1Error;
 		B = type2Error / (1.0 - type1Error);
 	}

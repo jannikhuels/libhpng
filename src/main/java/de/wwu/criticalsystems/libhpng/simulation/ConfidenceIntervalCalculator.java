@@ -9,14 +9,14 @@ import de.wwu.criticalsystems.libhpng.plotting.*;
 
 public class ConfidenceIntervalCalculator {
 	
-	public ConfidenceIntervalCalculator(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double confidenceLevel, Double width) throws PropertyException {
+	public ConfidenceIntervalCalculator(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double confidenceLevel, Double halfIntervalWidth) throws PropertyException {
 		
 		this.minNumberOfRuns = minNumberOfRuns;
 		checker = new PropertyChecker(root, model);
 		checker.setLogger(logger);
 		
 		this.confidenceLevel = confidenceLevel;
-		this.width = width;
+		this.halfIntervalWidth = halfIntervalWidth;
 	}
 
 	public Integer getNumberOfRuns() {
@@ -47,7 +47,7 @@ public class ConfidenceIntervalCalculator {
 	private Double t;
 	private PropertyChecker checker; 
 	private Double confidenceLevel;
-	private Double width;
+	private Double halfIntervalWidth;
 	
 	public void calculateSSquareForProperty(Integer currentRun, MarkingPlot plot) throws PropertyException {
 		
@@ -83,7 +83,7 @@ public class ConfidenceIntervalCalculator {
 	public Boolean checkBound(){
 		if (ssquare == null || (ssquare == 0.0 && numberOfRuns < minNumberOfRuns)) 
 			return false;
-		Double bound = Math.pow(t, 2.0)*ssquare / Math.pow(width, 2.0);
+		Double bound = Math.pow(t, 2.0)*ssquare / Math.pow(halfIntervalWidth, 2.0);
 		return (bound <= numberOfRuns);
 	}
 	

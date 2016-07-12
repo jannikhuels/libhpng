@@ -18,7 +18,7 @@ public class BannerProvider extends DefaultBannerProvider  {
 
 	@Override
 	public String getWelcomeMessage() {
-		return null;
+		return "Type 'help' to see all commands";
 	}
 	
 	@Override
