@@ -222,7 +222,7 @@ public class SimulationHandler {
 				if (printRunResults)
 					model.printCurrentMarking(true, false);
 				generator.sampleGeneralTransitions(model, logger);
-			} catch (DistributionParameterException e) {
+			} catch (InvalidDistributionParameterException e) {
 				throw new ModelNotReadableException(e.getLocalizedMessage());				
 			}
 			
@@ -247,7 +247,7 @@ public class SimulationHandler {
 	}
 	
 	
-	public void simulateAndCheckProperty(HPnGModel model, SimpleNode root) throws PropertyException{
+	public void simulateAndCheckProperty(HPnGModel model, SimpleNode root) throws InvalidPropertyException, ModelNotReadableException{
 		
 		this.model = model;
 		this.root = root;
@@ -259,10 +259,10 @@ public class SimulationHandler {
 		String prob = "";
 		try {
 			prob = PropertyChecker.getProbKind(root);
-		} catch (PropertyException e) {		
+		} catch (InvalidPropertyException e) {		
 			if (logger != null)
 				logger.severe(e.getLocalizedMessage());
-			throw new PropertyException(e.getLocalizedMessage());
+			throw new InvalidPropertyException(e.getLocalizedMessage());
 		}
 	
 			
@@ -295,13 +295,12 @@ public class SimulationHandler {
 		} catch (ModelNotReadableException e) {		
 			if (logger != null) 
 				logger.severe("The simulation could not be executed.");
-			System.out.println("An Error occured while simulating due to an incorrect model file. Please see the error log and recheck the model.");
-		
+			throw new ModelNotReadableException(e.getLocalizedMessage());
 		}
 	}
 	
 	
-	private void simulateAndCheckPROBQ() throws ModelNotReadableException, PropertyException{
+	private void simulateAndCheckPROBQ() throws ModelNotReadableException, InvalidPropertyException{
 			
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
@@ -322,7 +321,7 @@ public class SimulationHandler {
 			try {
 				model.resetMarking();
 				generator.sampleGeneralTransitions(model, logger);
-			} catch (DistributionParameterException e) {
+			} catch (InvalidDistributionParameterException e) {
 				throw new ModelNotReadableException(e.getLocalizedMessage());				
 			}
 		
@@ -356,7 +355,7 @@ public class SimulationHandler {
 	}
 	
 	
-	private void simulateAndCheckPROBQWithFixedNumberOfRuns() throws ModelNotReadableException, PropertyException{
+	private void simulateAndCheckPROBQWithFixedNumberOfRuns() throws ModelNotReadableException, InvalidPropertyException{
 			
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
@@ -377,7 +376,7 @@ public class SimulationHandler {
 			try {
 				model.resetMarking();
 				generator.sampleGeneralTransitions(model, logger);
-			} catch (DistributionParameterException e) {
+			} catch (InvalidDistributionParameterException e) {
 				throw new ModelNotReadableException(e.getLocalizedMessage());				
 			}
 			currentPlot = new MarkingPlot(maxTime);
@@ -407,7 +406,7 @@ public class SimulationHandler {
 	}	
 		
 	
-	private void simulateAndTestPROB(Boolean lower) throws ModelNotReadableException, PropertyException{
+	private void simulateAndTestPROB(Boolean lower) throws ModelNotReadableException, InvalidPropertyException{
 		
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
@@ -432,7 +431,7 @@ public class SimulationHandler {
 			try {
 				model.resetMarking();
 				generator.sampleGeneralTransitions(model, logger);
-			} catch (DistributionParameterException e) {
+			} catch (InvalidDistributionParameterException e) {
 				throw new ModelNotReadableException(e.getLocalizedMessage());				
 			}
 		
@@ -474,7 +473,7 @@ public class SimulationHandler {
 	}
 	
 	
-	private void simulateAndTestPROBWithFixedNumberOfRuns(Boolean lower) throws ModelNotReadableException, PropertyException{
+	private void simulateAndTestPROBWithFixedNumberOfRuns(Boolean lower) throws ModelNotReadableException, InvalidPropertyException{
 
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
@@ -498,7 +497,7 @@ public class SimulationHandler {
 			try {
 				model.resetMarking();
 				generator.sampleGeneralTransitions(model, logger);
-			} catch (DistributionParameterException e) {
+			} catch (InvalidDistributionParameterException e) {
 				throw new ModelNotReadableException(e.getLocalizedMessage());				
 			}
 		

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HPnG>
+  <places>
+    <discretePlace id="full" marking="0"/>
+    <discretePlace id="good" marking="0"/>
+    <discretePlace id="empty" marking="1"/>
+    <discretePlace id="p1_on" marking="1"/>
+    <discretePlace id="p2_on" marking="0"/>
+    <discretePlace id="stop" marking="0"/>
+    <discretePlace id="loading" marking="1"/>
+    <discretePlace id="p3_on" marking="0"/>
+    <discretePlace id="p4_on" marking="0"/>
+    <discretePlace id="p5_on" marking="0"/>
+    <discretePlace id="p6_on" marking="0"/>
+    <discretePlace id="p7_on" marking="0"/>
+    <discretePlace id="p8_on" marking="0"/>
+    <discretePlace id="loading_delayed" marking="1"/>
+    <discretePlace id="start_charging_finished" marking="0"/>
+    <discretePlace id="drain_from_grid" marking="0"/>
+    <discretePlace id="P1" marking="0"/>
+    <discretePlace id="p9_on" marking="0"/>
+    <continuousPlace capacity="90000" id="battery" level="0" infiniteCapacity="0"/>
+  </places>
+  <transitions>
+    <generalTransition cdf="normal" id="client_returned" priority="0" weight="1.0E0" policy="resume">
+<parameter name="mu" value="54.0"/>
+      <parameter name="sigma" value="6.0"/>
+</generalTransition>
+    <deterministicTransition discTime="0.05" id="T2" priority="1" weight="1.0E0"/>
+    <deterministicTransition discTime="0.05" id="T4" priority="1" weight="300.0E0"/>
+    <deterministicTransition discTime="1" id="p1_p2" priority="0" weight="1.0E0"/>
+    <deterministicTransition discTime="1" id="p2_p3" priority="0" weight="1.0E0"/>
+    <deterministicTransition discTime="1" id="p3_p4" priority="0" weight="1.0E0"/>
+    <deterministicTransition discTime="1" id="p4_p5" priority="0" weight="1.0E0"/>
+    <deterministicTransition discTime="1" id="p5_p6" priority="0" weight="1.0E0"/>
+    <deterministicTransition discTime="1" id="p6_p7" priority="0" weight="1.0E0"/>
+    <deterministicTransition discTime="1" id="p7_p8" priority="0" weight="1.0E0"/>
+    <!--<deterministicTransition discTime="48" id="tts" priority="0" weight="1.0E0"/>-->
+<generalTransition cdf="normal" id="tts" priority="0" weight="1.0E0" policy="resume">
+	<parameter name="mu" value="40.0"/>
+      <parameter name="sigma" value="6.0"/>
+</generalTransition>
+    <deterministicTransition discTime="1" id="p8_p9" priority="0" weight="1.0E0"/>
+    <deterministicTransition discTime="4" id="start_drain" priority="0" weight="1.0E0"/>
+    <deterministicTransition discTime="1" id="end_drain" priority="0" weight="1.0E0"/>
+    <deterministicTransition discTime="1" id="T0" priority="0" weight="1.0E0"/>
+    <continuousTransition id="p1_rate" rate="20000" />
+    <continuousTransition id="p2_rate" rate="20000" />
+    <continuousTransition id="p3_rate" rate="17000"/>
+    <continuousTransition id="p4_rate" rate="15000" />
+    <continuousTransition id="p5_rate" rate="9000" />
+    <continuousTransition id="p7_rate" rate="3000" />
+    <continuousTransition id="p6_rate" rate="5000" />
+    <continuousTransition id="p8_rate" rate="1000" />
+    <continuousTransition id="drain" rate="13000" />
+    <continuousTransition id="p9_rate" rate="0" />
+    <dynamicContinuousTransition id="load" >
+      <pid coef="1">p1_rate</pid>
+      <pid coef="1">p2_rate</pid>
+      <pid coef="1">p3_rate</pid>
+      <pid coef="1">p4_rate</pid>
+      <pid coef="1">p5_rate</pid>
+      <pid coef="1">p6_rate</pid>
+      <pid coef="1">p7_rate</pid>
+      <pid coef="1">p8_rate</pid>
+      <pid coef="1">p9_rate</pid>
+    </dynamicContinuousTransition>
+  </transitions>
+  <arcs>
+    <discreteArc fromNode="empty" id="0.11" toNode="T4" weight="1.0E0"/>
+    <discreteArc fromNode="T4" id="0.12"
+      toNode="good" weight="1.0E0"/>
+    <discreteArc fromNode="good" id="0.13"
+      toNode="T2" weight="1.0E0"/>
+    <discreteArc fromNode="T2" id="0.14"
+      toNode="full" weight="1.0E0"/>
+    <discreteArc fromNode="p1_on" id="0.32"
+      toNode="p1_p2" weight="1.0E0"/>
+    <discreteArc fromNode="p1_p2" id="0.33"
+      toNode="p2_on" weight="1.0E0"/>
+    <discreteArc fromNode="p2_on" id="0.34"
+      toNode="p2_p3" weight="1.0E0"/>
+    <discreteArc fromNode="loading" id="0.49"
+      toNode="client_returned" weight="1.0E0"/>
+    <discreteArc fromNode="client_returned" id="0.50" 
+      toNode="stop" weight="1.0E0"/>
+    <discreteArc fromNode="p3_on" id="0.79"
+      toNode="p3_p4" weight="1.0E0"/>
+    <discreteArc fromNode="p3_p4" id="0.80"
+      toNode="p4_on" weight="1.0E0"/>
+    <discreteArc fromNode="p4_on" id="0.81"
+      toNode="p4_p5" weight="1.0E0"/>
+    <discreteArc fromNode="p4_p5" id="0.82"
+      toNode="p5_on" weight="1.0E0"/>
+    <discreteArc fromNode="p5_on" id="0.83"
+      toNode="p5_p6" weight="1.0E0"/>
+    <discreteArc fromNode="p5_p6" id="0.84"
+      toNode="p6_on" weight="1.0E0"/>
+    <discreteArc fromNode="p6_on" id="0.85"
+      toNode="p6_p7" weight="1.0E0"/>
+    <discreteArc fromNode="p6_p7" id="0.86"
+      toNode="p7_on" weight="1.0E0"/>
+    <discreteArc fromNode="p7_on" id="0.105"
+      toNode="p7_p8" weight="1.0E0"/>
+    <discreteArc fromNode="p7_p8" id="0.106"
+      toNode="p8_on" weight="1.0E0"/>
+    <discreteArc fromNode="loading_delayed" id="0.9" 
+      toNode="tts" weight="1.0E0"/>
+    <discreteArc fromNode="tts" id="0.8"
+      toNode="p3_on" weight="1.0E0"/>
+    <discreteArc fromNode="p2_p3" id="0.21"
+      toNode="start_charging_finished" weight="1.0E0"/>
+    <discreteArc fromNode="p8_on" id="0.18"
+      toNode="p8_p9" weight="1.0E0"/>
+    <discreteArc fromNode="start_drain" id="0.38" 
+       toNode="drain_from_grid" weight="1.0E0"/>
+    <discreteArc fromNode="drain_from_grid" id="0.39" 
+       toNode="end_drain" weight="1.0E0"/>
+    <discreteArc fromNode="P1" id="0.45"
+      toNode="start_drain" weight="1.0E0"/>
+    <discreteArc fromNode="p8_p9" id="0.52"
+      toNode="p9_on" weight="1.0E0"/>
+    <discreteArc fromNode="p9_on" id="0.55"
+      toNode="T0" weight="1.0E0"/>
+    <continuousArc fromNode="load" id="0.16" priority = "1" share = "1.0E0"
+      toNode="battery" weight="1.0E0"/>
+    <continuousArc fromNode="battery" id="0.40" priority = "1" share = "1.0E0"
+      toNode="drain" weight="1.0E0"/>
+    <guardArc fromNode="p1_rate" id="0.27" isInhibitor="0" 
+      toNode="p1_on" weight="1.0E0"/>
+    <guardArc fromNode="p2_rate" id="0.29" isInhibitor="0" 
+      toNode="p2_on" weight="1.0E0"/>
+    <guardArc fromNode="p3_on" id="0.89" isInhibitor="0" 
+      toNode="p3_rate" weight="1.0E0"/>
+    <guardArc fromNode="p4_on" id="0.90" isInhibitor="0" 
+      toNode="p4_rate" weight="1.0E0"/>
+    <guardArc fromNode="p5_on" id="0.91" isInhibitor="0" 
+      toNode="p5_rate" weight="1.0E0"/>
+    <guardArc fromNode="p6_on" id="0.92" isInhibitor="0" 
+      toNode="p6_rate" weight="1.0E0"/>
+    <guardArc fromNode="p7_on" id="0.93" isInhibitor="0" 
+      toNode="p7_rate" weight="1.0E0"/>
+    <guardArc fromNode="p8_on" id="0.101" isInhibitor="0" 
+      toNode="p8_rate" weight="1.0E0"/>
+    <guardArc fromNode="battery" id="0.17" isInhibitor="0" 
+      toNode="T2" weight="90000"/>
+    <guardArc fromNode="battery" id="0.19" isInhibitor="0" 
+      toNode="T4" weight="0.0"/>
+    <guardArc fromNode="load" id="0.192" isInhibitor="1" 
+      toNode="full" weight="1.0E0"/>
+    <guardArc fromNode="loading" id="0.5" isInhibitor="0" 
+      toNode="load" weight="1.0E0"/>
+    <guardArc fromNode="drain_from_grid" id="0.41" isInhibitor="0"
+      toNode="drain" weight="1.0E0"/>
+    <guardArc fromNode="p9_on" id="0.53" isInhibitor="0" 
+      toNode="p9_rate" weight="1.0E0"/>
+  </arcs>
+</HPnG>

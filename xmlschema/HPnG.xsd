@@ -153,7 +153,7 @@
                                              <xs:element name="guardArc" maxOccurs="unbounded">
                                                    <xs:complexType>
                                                          <xs:attribute name="id" type="xs:token" use="required"></xs:attribute>
-							 <xs:attribute name="weight" type="positiveDouble" use="required"></xs:attribute>
+							 <xs:attribute name="weight" type="nonNegativeDouble" use="required"></xs:attribute>
                                                          <xs:attribute name="fromNode" type="xs:token" use="required"></xs:attribute>
 							 <xs:attribute name="toNode" type="xs:token" use="required"></xs:attribute>
                                                          <xs:attribute name="isInhibitor" type="xs:boolean" use="required"></xs:attribute>

@@ -2,14 +2,14 @@ package de.wwu.criticalsystems.libhpng.simulation;
 
 import java.util.logging.Logger;
 import umontreal.ssj.probdist.StudentDist;
-import de.wwu.criticalsystems.libhpng.errorhandling.PropertyException;
+import de.wwu.criticalsystems.libhpng.errorhandling.InvalidPropertyException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.model.*;
 import de.wwu.criticalsystems.libhpng.plotting.*;
 
 public class ConfidenceIntervalCalculator {
 	
-	public ConfidenceIntervalCalculator(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double confidenceLevel, Double halfIntervalWidth) throws PropertyException {
+	public ConfidenceIntervalCalculator(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double confidenceLevel, Double halfIntervalWidth) throws InvalidPropertyException {
 		
 		this.minNumberOfRuns = minNumberOfRuns;
 		checker = new PropertyChecker(root, model);
@@ -49,7 +49,7 @@ public class ConfidenceIntervalCalculator {
 	private Double confidenceLevel;
 	private Double halfIntervalWidth;
 	
-	public void calculateSSquareForProperty(Integer currentRun, MarkingPlot plot) throws PropertyException {
+	public void calculateSSquareForProperty(Integer currentRun, MarkingPlot plot) throws InvalidPropertyException {
 		
 		if (currentRun == 1){
 			numberOfRuns = 0;

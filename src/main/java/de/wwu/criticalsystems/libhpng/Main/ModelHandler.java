@@ -12,7 +12,7 @@ import java.util.logging.SimpleFormatter;
 
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidSimulationParameterException;
 import de.wwu.criticalsystems.libhpng.errorhandling.ModelNotReadableException;
-import de.wwu.criticalsystems.libhpng.errorhandling.PropertyException;
+import de.wwu.criticalsystems.libhpng.errorhandling.InvalidPropertyException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.ParseException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SMCParser;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
@@ -116,10 +116,10 @@ public class ModelHandler {
 	
     	try {
 			simulationHandler.simulateAndCheckProperty(model, root);
-		} catch (PropertyException e) {
+		} catch (InvalidPropertyException e) {
 			System.out.println("The formula to check is invalid. Please see the error log.");
-			if (logger != null) 
-				logger.severe(e.getLocalizedMessage());	
+		} catch (ModelNotReadableException e) {
+			System.out.println("An Error occured while simulating due to an incorrect model file. Please see the error log and recheck the model.");
 		}    			
 	}	
 	
@@ -159,40 +159,40 @@ public class ModelHandler {
     
     
     
-    public void changeParameter(String parameter, Object value){
+    public void changeParameter(Byte parameter, Object value){
     	
     	try {
     		
     		//change selected parameter
 	    	switch (parameter){
-	    		case "half interval width":				
+	    		case 0:				
 					simulationHandler.setHalfIntervalWidth((Double)value);
 					break;
-	    		case "half width of indifference region":
+	    		case 1:
 	    			simulationHandler.setHalfWidthOfIndifferenceRegion((Double)value);
 	    			break;
-	    		case "confidence level":
+	    		case 2:
 	    			simulationHandler.setConfidenceLevel((Double)value);
 	    			break;
-	    		case "type 1 error":
+	    		case 3:
 	    			simulationHandler.setType1Error((Double)value);
 	    			break;
-	    		case "type 2 error":
+	    		case 4:
 	    			simulationHandler.setType2Error((Double)value);
 	    			break;
-	    		case "fixed number of runs":
+	    		case 5:
 	    			simulationHandler.setFixedNumberOfRuns((Integer)value);
 	    			break;
-	    		case "min number of runs":
+	    		case 6:
 	    			simulationHandler.setMinNumberOfRuns((Integer)value);
 	    			break;
-	    		case "max number of runs":
+	    		case 7:
 	    			simulationHandler.setMaxNumberOfRuns((Integer)value);
 	    			break;
-	    		case "simulation with fixed number of runs":
+	    		case 8:
 	    			simulationHandler.setSimulationWithFixedNumberOfRuns((Boolean)value);
 	    			break;
-	    		case "print run results":
+	    		case 9:
 	    			simulationHandler.setPrintRunResults((Boolean)value);
 	    			break;					
 	    	}

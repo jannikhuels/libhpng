@@ -1,27 +1,27 @@
 package de.wwu.criticalsystems.libhpng.errorhandling;
 
-public class PropertyException extends Exception {
+public class InvalidPropertyException extends Exception {
 
 	private static final long serialVersionUID = -2382427696993035850L;
 
-	public PropertyException() {
+	public InvalidPropertyException() {
 		super();
 	}
 
-	public PropertyException(String message, Throwable cause,
+	public InvalidPropertyException(String message, Throwable cause,
 			boolean enableSuppression, boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
-	public PropertyException(String message, Throwable cause) {
+	public InvalidPropertyException(String message, Throwable cause) {
 		super(message, cause);
 	}
 	
-	public PropertyException(String message) {
+	public InvalidPropertyException(String message) {
 		super(message);
 	}
 
-	public PropertyException(Throwable cause) {
+	public InvalidPropertyException(Throwable cause) {
 		super(cause);
 	}
 }

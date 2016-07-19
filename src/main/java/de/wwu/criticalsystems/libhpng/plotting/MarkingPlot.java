@@ -68,19 +68,24 @@ public class MarkingPlot {
 	public Double getNextEventTime(Double previousTime){
 		
 		Double time = maxTime;
-		Double currentPlotTime;
+		Double currentPlotTime = new Double(0);
+		PlotEntry currentPlot;
 		
 		Iterator<Entry<String, PlacePlot>> it = placePlots.entrySet().iterator();
 	    while (it.hasNext()) {
-	    	currentPlotTime = it.next().getValue().getNextEntryAfterGivenTime(previousTime).getTime();
-	    	if (currentPlotTime < time && currentPlotTime > previousTime)
+	    	currentPlot = it.next().getValue().getNextEntryAfterGivenTime(previousTime);
+	    	if (currentPlot != null)
+	    		currentPlotTime = currentPlot.getTime();
+	    	if (currentPlot != null && currentPlotTime < time && currentPlotTime > previousTime)
 	    		time = currentPlotTime;
 	    }
 	    
 		Iterator<Entry<String, TransitionPlot>> it2 = transitionPlots.entrySet().iterator();
 	    while (it2.hasNext()) {
-	    	currentPlotTime = it2.next().getValue().getNextEntryAfterGivenTime(previousTime).getTime();
-	    	if (currentPlotTime < time  && currentPlotTime > previousTime)
+	    	currentPlot = it2.next().getValue().getNextEntryAfterGivenTime(previousTime);
+	    	if (currentPlot != null)
+	    		currentPlotTime = currentPlot.getTime();
+	    	if (currentPlot != null && currentPlotTime < time  && currentPlotTime > previousTime)
 	    		time = currentPlotTime;
 	    }	
 	    return time;

@@ -38,6 +38,8 @@ public abstract class Plot {
 			if (currentEntry.getTime() > time)
 				return currentEntry;
 		}
+		if (entries.size() == 0)
+			return null;
 		return entries.get(entries.size()-1);
 	}
 }
