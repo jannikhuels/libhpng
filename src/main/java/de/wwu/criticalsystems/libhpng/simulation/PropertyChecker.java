@@ -195,8 +195,8 @@ public class PropertyChecker {
 			case "ATOMIC_CLOCK":
 				value = ((DeterministicTransitionEntry)currentEntry).getClock();
 				return (compareValues(value, boundary, compare));
-			case "ATOMIC_FIRINGS":
-				value = ((GeneralTransitionEntry)currentEntry).getFirings().doubleValue();
+			case "ATOMIC_ENABLINGTIME":
+				value = ((GeneralTransitionEntry)currentEntry).getEnablingTime();
 				return (compareValues(value, boundary, compare));
 		}
 		
@@ -331,9 +331,11 @@ public class PropertyChecker {
 		   	case "ATOMIC_CLOCK":			
 		   		return findTForAtomicClock(leftBorder, rightBorder, leftBorderIncluded, rightBorderIncluded, propertyRoot, false);
 			
+		   	case "ATOMIC_ENABLINGTIME":			
+		   		return findTForAtomicEnablingTime(leftBorder, rightBorder, leftBorderIncluded, rightBorderIncluded, propertyRoot, false);
+			
 			case "ATOMIC_TOKENS":
 			case "ATOMIC_ENABLED":
-			case "ATOMIC_FIRINGS":
 			case "ATOMIC_DRIFT":
 			case "ATOMIC_UBOUND":
 			case "ATOMIC_LBOUND":
@@ -646,7 +648,7 @@ public class PropertyChecker {
 	    if (!transitionPlot.getReferencedTransition().getClass().equals(DeterministicTransition.class)){
 	    	if (logger != null)
 				logger.severe("Property Error: the ID of the transition for the atomic clock property must refer to a deterministic transition");
-			throw new InvalidPropertyException("Property Error: the ID of the transition for for the clock fluid property must refer to a deterministic transition");
+			throw new InvalidPropertyException("Property Error: the ID of the transition for for the clock property must refer to a deterministic transition");
 	    }
 	    
 	    if (!invalid && ((compare.equals("<") && boundary == 0.0)))
@@ -684,17 +686,79 @@ public class PropertyChecker {
 	   	return -1.0;
 	}
 	
+private Double findTForAtomicEnablingTime(Double leftBorder, Double rightBorder, Boolean leftBorderIncluded, Boolean rightBorderIncluded, SimpleNode propertyRoot, Boolean invalid) throws InvalidPropertyException{
+		
+		Double boundary = getPropertyBoundary(propertyRoot, "ATOMIC_ENABLINGTIME");
+		String compare = getPropertyCompare(propertyRoot, "ATOMIC_ENABLINGTIME");		
+		if (boundary < 0.0){
+			if (logger != null)
+				logger.severe("Property Error: the boundary for the atomic enabling time property must be at least zero");
+			throw new InvalidPropertyException("Property Error: the boundary for the atomic enabling time property must be at least zero");
+		}
+		
+		TransitionPlot transitionPlot = null, currentTransitionPlot;					
+		String id = getPropertyID(propertyRoot);		
+		Iterator<Entry<String, TransitionPlot>> transitionIterator = plot.getTransitionPlots().entrySet().iterator();
+	    while (transitionIterator.hasNext()) {
+	    	currentTransitionPlot = transitionIterator.next().getValue();		
+			if (currentTransitionPlot.getReferencedTransition().getId().equals(id)){
+				transitionPlot = currentTransitionPlot;
+				break;
+			}
+		}
+	    if (!transitionPlot.getReferencedTransition().getClass().equals(GeneralTransition.class)){
+	    	if (logger != null)
+				logger.severe("Property Error: the ID of the transition for the atomic enabling time property must refer to a general transition");
+			throw new InvalidPropertyException("Property Error: the ID of the transition for for the enabling time property must refer to a general transition");
+	    }
+	    
+	    if (!invalid && ((compare.equals("<") && boundary == 0.0)))
+			return -1.0;
+				
+		PlotEntry startEntry = transitionPlot.getNextEntryBeforeOrAtGivenTime(leftBorder);
+		PlotEntry endEntry = transitionPlot.getNextEntryBeforeOrAtGivenTime(rightBorder);
+		Double startClock = ((GeneralTransitionEntry)startEntry).getEnablingTime() + (leftBorder - startEntry.getTime());
+	    Double endClock = ((GeneralTransitionEntry)endEntry).getEnablingTime() + (rightBorder - endEntry.getTime());
+
+		Boolean leftBorderFulfills = compareValues(endClock, boundary, compare);
+		Boolean rightBorderFulfills = compareValues(startClock, boundary, compare);
+		
+		if (leftBorderFulfills != invalid){
+			if (leftBorderIncluded) 
+				return leftBorder;
+			return leftBorder + Double.MIN_VALUE;
+		}
+		
+		if (((GeneralTransitionEntry)startEntry).getEnabled()){
+							
+			Double timeDelta = (boundary - startClock);		
+			
+			if ((compare.contains("=") != invalid)){
+				if (timeDelta > 0.0 && leftBorder + timeDelta < rightBorder)
+					return leftBorder + timeDelta;
+			} else {
+				if (timeDelta >= 0.0 && leftBorder + timeDelta + Double.MIN_VALUE < rightBorder)
+					return leftBorder + timeDelta + Double.MIN_VALUE;
+			}
+		}
+			
+		if (rightBorderIncluded && rightBorderFulfills != invalid)
+   			return rightBorder;
+	   	return -1.0;
+	}
 	
+	
+
 	private PropertyFamily checkPropertyFamily(SimpleNode propertyRoot){
 		
 		switch (propertyRoot.toString()){
 			case "ATOMIC_FLUID":
 			case "ATOMIC_CLOCK":
+			case "ATOMIC_ENABLINGTIME":
 				return PropertyFamily.continuous;
 				
 			case "ATOMIC_TOKENS":
 			case "ATOMIC_ENABLED":
-			case "ATOMIC_FIRINGS":
 			case "ATOMIC_DRIFT":
 			case "ATOMIC_UBOUND":
 			case "ATOMIC_LBOUND":
@@ -734,7 +798,7 @@ public class PropertyChecker {
 	
 	private PlotEntry getCurrentEntry(Double time, String type, String id) throws InvalidPropertyException {
 		
-		if (type.equals("ATOMIC_ENABLED") || type.equals("ATOMIC_CLOCK") || type.equals("ATOMIC_FIRINGS")){
+		if (type.equals("ATOMIC_ENABLED") || type.equals("ATOMIC_CLOCK") || type.equals("ATOMIC_ENABLINGTIME")){
 			for (Transition transition : model.getTransitions()){;
 				if (transition.getId().equals(id))
 					return plot.getTransitionPlots().get(transition.getId()).getNextEntryBeforeOrAtGivenTime(time);

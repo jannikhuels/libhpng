@@ -1,0 +1,28 @@
+Jul 25, 2016 4:04:21 PM de.wwu.criticalsystems.libhpng.init.XMLReader validateAgainstSchema
+INFORMATION: The XML model file has been validated against the XML Schema file successfully.
+Jul 25, 2016 4:04:21 PM de.wwu.criticalsystems.libhpng.init.ModelReader readModel
+INFORMATION: Model structure has been read from XML file successfully.
+Jul 25, 2016 4:04:21 PM de.wwu.criticalsystems.libhpng.init.ModelReader setConnectedPlacesAndTransitions
+INFORMATION: Model object connections were set successfully.
+Jul 25, 2016 4:04:21 PM de.wwu.criticalsystems.libhpng.init.ModelReader sortLists
+INFORMATION: Model lists sorted successfully.
+Jul 25, 2016 4:04:21 PM de.wwu.criticalsystems.libhpng.Main.ModelHandler readModel
+INFORMATION: Model 'examples/example.xml' has been read successfully.
+Jul 25, 2016 4:05:10 PM de.wwu.criticalsystems.libhpng.Main.ModelHandler readFormula
+INFORMATION: The following formula has been parsed successfully: 0.0:P=?(U[0.0,10.0](tt,enablingtime('tg1')=8.0))
+
+Jul 25, 2016 4:05:10 PM de.wwu.criticalsystems.libhpng.simulation.SimulationHandler simulateAndCheckPROBQ
+INFORMATION: Simulation started for a 'P=?' property with fixed interval width
+Jul 25, 2016 4:05:18 PM de.wwu.criticalsystems.libhpng.simulation.SimulationHandler simulateAndCheckPROBQ
+INFORMATION: Simulation finished after 34596 runs
+Jul 25, 2016 4:05:18 PM de.wwu.criticalsystems.libhpng.simulation.SimulationHandler simulateAndCheckPROBQ
+INFORMATION: Simulation results: Mean value: 0.3422650017343045. Resulting confidence interval borders:0.3372650784553613 & 0.34726492501324774 (one sided interval width = 0.004999923278943219)
+Jul 25, 2016 4:05:59 PM de.wwu.criticalsystems.libhpng.Main.ModelHandler readFormula
+INFORMATION: The following formula has been parsed successfully: 0.0:P=?(U[0.0,20.0](tt,enablingtime('tg1')=8.0))
+
+Jul 25, 2016 4:05:59 PM de.wwu.criticalsystems.libhpng.simulation.SimulationHandler simulateAndCheckPROBQ
+INFORMATION: Simulation started for a 'P=?' property with fixed interval width
+Jul 25, 2016 4:06:07 PM de.wwu.criticalsystems.libhpng.simulation.SimulationHandler simulateAndCheckPROBQ
+INFORMATION: Simulation finished after 38415 runs
+Jul 25, 2016 4:06:07 PM de.wwu.criticalsystems.libhpng.simulation.SimulationHandler simulateAndCheckPROBQ
+INFORMATION: Simulation results: Mean value: 0.5049329688923597. Resulting confidence interval borders:0.4999330164207943 & 0.5099329213639252 (one sided interval width = 0.004999952471565455)

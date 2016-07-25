@@ -2,17 +2,17 @@ package de.wwu.criticalsystems.libhpng.plotting;
 
 public class GeneralTransitionEntry extends TransitionEntry {
 
-	public GeneralTransitionEntry(Double time, Boolean enabled, Integer firings) {
+	public GeneralTransitionEntry(Double time, Boolean enabled, Double enablingTime) {
 		super(time, enabled);
-		this.firings = firings;
+		this.enablingTime = enablingTime;
 	}
 	
-	public Integer getFirings() {
-		return firings;
+	public Double getEnablingTime() {
+		return enablingTime;
 	}
-	public void setFirings(Integer firings) {
-		this.firings = firings;
+	public void setEnablingTime(Double enablingTime) {
+		this.enablingTime = enablingTime;
 	}
 	
-	private Integer firings;
+	private Double enablingTime;
 }

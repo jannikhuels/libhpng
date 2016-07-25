@@ -49,7 +49,7 @@ TOKEN :
 | <TOKENS: "tokens">
 | <ENABLED: "enabled">
 | <CLOCK: "clock">
-| <FIRINGS: "firings">
+| <ENABLINGTIME: "enablingtime">
 | <DRIFT: "drift">
 | <UBOUND: "uboundary">
 | <LBOUND: "lboundary">
@@ -105,7 +105,7 @@ void Phi()       :
 void Atomic()      :
 {}
 {
-  Fluid() | Tokens() | Enabled() | Clock() | Firings() | Drift() | Ubound() | Lbound() | Arc()
+  Fluid() | Tokens() | Enabled() | Clock() | Enablingtime() | Drift() | Ubound() | Lbound() | Arc()
 }
 
 void Not()     :
@@ -648,16 +648,16 @@ void Clock()              :
 /*@egen*/
 }
 
-void Firings()                :
-{/*@bgen(jjtree) ATOMIC_FIRINGS */
-  SimpleNode jjtn000 = new SimpleNode(JJTATOMIC_FIRINGS);
+void Enablingtime()                     :
+{/*@bgen(jjtree) ATOMIC_ENABLINGTIME */
+  SimpleNode jjtn000 = new SimpleNode(JJTATOMIC_ENABLINGTIME);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
 /*@egen*/}
-{/*@bgen(jjtree) ATOMIC_FIRINGS */
+{/*@bgen(jjtree) ATOMIC_ENABLINGTIME */
   try {
 /*@egen*/
-  <FIRINGS> <LBRACE> Id() <RBRACE> Compare() Integer()/*@bgen(jjtree)*/
+  <ENABLINGTIME> <LBRACE> Id() <RBRACE> Compare() Double()/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);

@@ -251,7 +251,7 @@ public class MarkingPlot {
 	       if (currentPlot.getReferencedTransition().getClass().equals(GeneralTransition.class)){
 	    	   
 	    	   GeneralTransition transition = (GeneralTransition)currentPlot.getReferencedTransition(); 
-	    	   GeneralTransitionEntry entry = new GeneralTransitionEntry(time, transition.getEnabled(), transition.getFirings());
+	    	   GeneralTransitionEntry entry = new GeneralTransitionEntry(time, transition.getEnabled(), transition.getEnablingTime());
 	    	   currentPlot.addEntry(entry);	    	   
 	       }
 	    }
