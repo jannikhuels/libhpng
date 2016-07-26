@@ -27,3 +27,6 @@ target/
 
 #Ignore *lck files
 *.lck
+
+#Ignore log files
+*.log
