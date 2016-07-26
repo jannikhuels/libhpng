@@ -1,9 +1,0 @@
-- möglichst aussagekräftige Namen für Klassen, Methoden, Variablen, Pakete etc.
-
-- wenn Name aussagekräftig, zusätzliches Kommentieren nicht mehr notwendig
-
-- allgemeinen Java Coding Conventions folgen (insb. bzgl. Statements, Groß- und Kleinschreibung, keine Unterstriche)
-
-- Methoden möglichst klein halten (viele kurze statt wenige komplexe)
-
-Gutes Beispiel für weiter Richtlinien: http://geosoft.no/development/javastyle.html
