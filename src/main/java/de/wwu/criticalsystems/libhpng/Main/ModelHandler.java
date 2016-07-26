@@ -71,7 +71,7 @@ public class ModelHandler {
 			 else 
 				 SMCParser.ReInit(stream);
 			 
-			SimpleNode root = parser.Input();
+			SimpleNode root = SMCParser.Input();
 		
 			if (logger != null) 
 				logger.info("The following formula has been parsed successfully: " + formula);
@@ -206,10 +206,8 @@ public class ModelHandler {
     }
     
     
-    
-    
-    public void printParameters(){
-    	
+   
+    public void printParameters(){    	
 
     	System.out.println("- half interval width of the confidence interval: " + simulationHandler.getHalfIntervalWidth());
     	System.out.println("- half width of the indifference region: " + simulationHandler.getHalfWidthOfIndifferenceRegion());
@@ -232,5 +230,15 @@ public class ModelHandler {
     		System.out.println("- printing the results of the single simulation runs: disabled");
     
     }
+
+
+	public void loadParameters() {
+		simulationHandler.loadParameters();
+	}
+
+
+	public void storeParameters() {
+		simulationHandler.storeParameters();
+	}
     	
 }

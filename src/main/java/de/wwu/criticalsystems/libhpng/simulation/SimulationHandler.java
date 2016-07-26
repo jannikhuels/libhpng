@@ -1,6 +1,9 @@
 package de.wwu.criticalsystems.libhpng.simulation;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.logging.Logger;
 import de.wwu.criticalsystems.libhpng.errorhandling.*;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
@@ -10,7 +13,9 @@ import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
 
 public class SimulationHandler {
 
-	public SimulationHandler(){}
+	public SimulationHandler(){
+		loadParameters();
+	}
 	
 	public Double getHalfIntervalWidth() {
 		return halfIntervalWidth;
@@ -173,17 +178,17 @@ public class SimulationHandler {
 		this.logger = logger;
 	}
 	
-	//default simulation settings
-	private Double halfIntervalWidth = 0.005;
-	private Double halfWidthOfIndifferenceRegion = 0.005;
-	private Double confidenceLevel = 0.95;
-	private Double type1Error = 0.05;
-	private Double type2Error = 0.05;
-	private Integer fixedNumberOfRuns = 1000;
-	private Integer minNumberOfRuns = 100;
-	private Integer maxNumberOfRuns = 100000;
-	private Boolean simulationWithFixedNumberOfRuns = false;
-	private Boolean printRunResults = false;
+	//simulation parameters
+	private Double halfIntervalWidth;
+	private Double halfWidthOfIndifferenceRegion;
+	private Double confidenceLevel;
+	private Double type1Error;
+	private Double type2Error;
+	private Integer fixedNumberOfRuns;
+	private Integer minNumberOfRuns;
+	private Integer maxNumberOfRuns;
+	private Boolean simulationWithFixedNumberOfRuns;
+	private Boolean printRunResults;
 	
 	private Simulator simulator;
 	private Logger logger;
@@ -538,5 +543,73 @@ public class SimulationHandler {
 				logger.info("Not enough runs executed to make a decision on the property");
 		}
 		
+	}
+	
+	
+	public void loadParameters(){		
+		
+		try {
+			
+			Properties parameters = new Properties();
+			parameters.load(new FileInputStream("libhpng_parameters.cfg"));
+			
+			halfIntervalWidth = Double.parseDouble(parameters.getProperty("halfIntervalWidth"));
+			halfWidthOfIndifferenceRegion = Double.parseDouble(parameters.getProperty("halfWidthOfIndifferenceRegion"));
+			confidenceLevel = Double.parseDouble(parameters.getProperty("confidenceLevel"));
+			type1Error = Double.parseDouble(parameters.getProperty("type1Error"));
+			type2Error = Double.parseDouble(parameters.getProperty("type2Error"));
+			fixedNumberOfRuns = Integer.parseInt(parameters.getProperty("fixedNumberOfRuns"));
+			minNumberOfRuns = Integer.parseInt(parameters.getProperty("minNumberOfRuns"));
+			maxNumberOfRuns = Integer.parseInt(parameters.getProperty("maxNumberOfRuns"));
+			simulationWithFixedNumberOfRuns = Boolean.parseBoolean(parameters.getProperty("simulationWithFixedNumberOfRuns"));
+			printRunResults = Boolean.parseBoolean(parameters.getProperty("printRunResults"));
+						
+		} catch (Exception e) {
+			
+			if (logger != null)
+				logger.warning("Simulation parameters from configuration file could not be loaded. Default values are set.");
+			System.out.println("Simulation parameters from configuration file could not be loaded. Default values are set.");
+		
+			halfIntervalWidth = 0.005;
+			halfWidthOfIndifferenceRegion = 0.005;
+			confidenceLevel = 0.95;
+			type1Error = 0.05;
+			type2Error = 0.05;
+			fixedNumberOfRuns = 1000;
+			minNumberOfRuns = 100;
+			maxNumberOfRuns = 100000;
+			simulationWithFixedNumberOfRuns = false;
+			printRunResults = false;
+			
+		}
+	}
+	
+	
+	public void storeParameters(){		
+		
+		try {
+			
+			Properties parameters = new Properties();
+			
+			parameters.setProperty("halfIntervalWidth", halfIntervalWidth.toString());
+			parameters.setProperty("halfWidthOfIndifferenceRegion", halfWidthOfIndifferenceRegion.toString());
+			parameters.setProperty("confidenceLevel", confidenceLevel.toString());
+			parameters.setProperty("type1Error", type1Error.toString());
+			parameters.setProperty("type2Error", type2Error.toString());
+			parameters.setProperty("fixedNumberOfRuns", fixedNumberOfRuns.toString());
+			parameters.setProperty("minNumberOfRuns", minNumberOfRuns.toString());
+			parameters.setProperty("maxNumberOfRuns", maxNumberOfRuns.toString());
+			parameters.setProperty("simulationWithFixedNumberOfRuns", simulationWithFixedNumberOfRuns.toString());
+			parameters.setProperty("printRunResults", printRunResults.toString());
+
+			parameters.store(new FileOutputStream("libhpng_parameters.cfg"),"");
+						
+		} catch (Exception e) {
+			
+			if (logger != null)
+				logger.severe("Simulation parameters could not be saved into the configuration file.");
+			System.out.println("Simulation parameters could not be saved into the configuration file.");
+			
+		}
 	}
 }

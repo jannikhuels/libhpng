@@ -13,7 +13,7 @@ public class Commands implements CommandMarker {
 	
 	private ModelHandler handler = new ModelHandler();
 	
-	@CliAvailabilityIndicator({"read", "parse", "change logfile", "change halfintervalwidth", "change halfwidthindifferenceregion", "change confidencelevel", "change type1error", "change type2error", "change fixedruns", "change minruns", "change maxruns", "set fixedruns", "set optimalruns", "printresults on", "printresults off", "printparameters"})
+	@CliAvailabilityIndicator({"read", "parse", "change logfile", "change halfintervalwidth", "change halfwidthindifferenceregion", "change confidencelevel", "change type1error", "change type2error", "change fixedruns", "change minruns", "change maxruns", "set fixedruns", "set optimalruns", "printresults on", "printresults off", "printparameters", "loadparameters", "storeparameters"})
 	public boolean isAvailable() {
 		return true;
 	}
@@ -141,7 +141,7 @@ public class Commands implements CommandMarker {
 	
 	@CliCommand(value = "change maxruns", help = "Change the maximum number of runs parameter")
 	public void ChangeMaxNumberOfRuns(
-			@CliOption(key = { "n" }, mandatory = true, help = "The new maximum number of runs") final Integer maxNumberOfRuns){
+		@CliOption(key = { "n" }, mandatory = true, help = "The new maximum number of runs") final Integer maxNumberOfRuns){
 		
 		handler.changeParameter((byte)7, maxNumberOfRuns);
 	}
@@ -150,11 +150,13 @@ public class Commands implements CommandMarker {
 	
 	@CliCommand(value = "set fixedruns", help = "Set the simulation to run with a fixed number of runs")
 	public void ChangeSimulationWithFixedNumberOfRuns(){			
+		
 		handler.changeParameter((byte)8, true);
 	}
 	
 	@CliCommand(value = "set optimalruns", help = "Set the simulation to run with the optimal number of runs")
 	public void ChangeSimulationWitOptimalNumberOfRuns(){			
+		
 		handler.changeParameter((byte)8, false);
 	}
 	
@@ -162,11 +164,13 @@ public class Commands implements CommandMarker {
 	
 	@CliCommand(value = "printresults on", help = "Enable that the results of the single simulation runs are printed to the console")
 	public void ChangePrintRunResultsOn(){			
+		
 		handler.changeParameter((byte)9, true);
 	}
 	
 	@CliCommand(value = "printresults off", help = "Disable that the results of the single simulation runs are printed to the console")
 	public void ChangePrintRunResultsOff(){			
+		
 		handler.changeParameter((byte)9, false);
 	}
 	
@@ -174,7 +178,22 @@ public class Commands implements CommandMarker {
 
 	@CliCommand(value = "printparameters", help = "Print all simulation parameters and settings")
 	public void PrintParameters(){			
+		
 		handler.printParameters();	
+	}
+	
+	
+	
+	@CliCommand(value = "loadparameters", help = "Load all simulation parameters and settings from the configuration file")
+	public void LoadParameters(){			
+		
+		handler.loadParameters();	
+	}
+	
+	@CliCommand(value = "storeparameters", help = "Store all simulation parameters and settings into the configuration file")
+	public void StoreParameters(){			
+		
+		handler.storeParameters();	
 	}
 	
 } 
