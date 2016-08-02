@@ -8,11 +8,11 @@ import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
 
 public class SequentialProbabilityRatioTester {
 	
-	public SequentialProbabilityRatioTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double halfWidthOfIndifferenceRegion, Double type1Error, Double type2Error, Boolean lower) throws InvalidPropertyException{
+	public SequentialProbabilityRatioTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double halfWidthOfIndifferenceRegion, Double type1Error, Double type2Error, Boolean notEqual, Boolean nullHypothesisLowerEqual) throws InvalidPropertyException{
 		
 		checker = new PropertyChecker(root, model);
 		checker.setLogger(logger);	
-		this.lower = lower;
+		this.notEqual = notEqual;
 		this.minNumberOfRuns = minNumberOfRuns;
 		
 		boundary = checker.getProbBoundary(root);		
@@ -22,10 +22,16 @@ public class SequentialProbabilityRatioTester {
 			throw new InvalidPropertyException("Property Error: the boundary node of the property root must be between 0.0 and 1.0");
 		}
 		
-		p0 = Math.min(1.0, boundary + halfWidthOfIndifferenceRegion);
-		p1 = Math.max(0.0, boundary - halfWidthOfIndifferenceRegion);
 		A = (1.0 - type2Error) / type1Error;
 		B = type2Error / (1.0 - type1Error);
+		
+		if (nullHypothesisLowerEqual){
+			p0 = Math.max(0.0, boundary - halfWidthOfIndifferenceRegion);
+			p1 = Math.min(1.0, boundary + halfWidthOfIndifferenceRegion);			
+		} else {
+			p0 = Math.min(1.0, boundary + halfWidthOfIndifferenceRegion);
+			p1 = Math.max(0.0, boundary - halfWidthOfIndifferenceRegion);
+		}	
 	}
 	
 	
@@ -57,7 +63,7 @@ public class SequentialProbabilityRatioTester {
 	private Double A;
 	private Double B;
 	private PropertyChecker checker;
-	private Boolean lower;
+	private Boolean notEqual;
 	private Double boundary;
 	private Integer numberOfRuns;
 	private Integer minNumberOfRuns;
@@ -79,6 +85,7 @@ public class SequentialProbabilityRatioTester {
 			
 			Double ratio = (Math.pow(p1, fulfilled)*Math.pow(1.0 - p1, numberOfRuns - fulfilled)) / (Math.pow(p0, fulfilled)*Math.pow(1.0 - p0, numberOfRuns - fulfilled));
 			
+						
 			if (ratio < B){
 				resultAchieved = true;
 				propertyFulfilled = true;
@@ -87,7 +94,7 @@ public class SequentialProbabilityRatioTester {
 				propertyFulfilled = false;
 			}	
 			
-			if (resultAchieved && lower)
+			if (resultAchieved && notEqual)
 				propertyFulfilled = !propertyFulfilled;
 			
 		}				

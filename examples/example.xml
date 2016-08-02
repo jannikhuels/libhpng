@@ -7,8 +7,8 @@
   </places>
   <transitions> 
   	<generalTransition id="tg1" cdf="normal" priority="0" weight="1.0E0" policy="resume">
-      <parameter name="mu" value="8.0"/>
-      <parameter name="sigma" value="2.0"/>
+      <parameter name="mu" value="3.0"/>
+      <parameter name="sigma" value="0.5"/>
      </generalTransition>
      <continuousTransition id="tf1" rate="2.0"/>
      <continuousTransition id="tf2" rate="1.0"/>

@@ -67,17 +67,19 @@ public class PropertyChecker {
 				return "PROBGE";
 			if (root.jjtGetChild(i).toString().equals("PROBL"))
 				return "PROBL";
+			if (root.jjtGetChild(i).toString().equals("PROBLE"))
+				return "PROBLE";
+			if (root.jjtGetChild(i).toString().equals("PROBG"))
+				return "PROBG";
 		}
-		//if (logger != null)
-		//	logger.severe("Property Error: the kind of property (P=?, P>=x, P<x) could not be identified");
-		throw new InvalidPropertyException("Property Error: the kind of property (P=?, P>=x, P<x) could not be identified");
+		throw new InvalidPropertyException("Property Error: the kind of property (P=?, P>=x, P<=x, P<x, P>x) could not be identified");
 	
 	}
 	
 	
 	public Double getProbBoundary(SimpleNode root) throws InvalidPropertyException{
 		for (int i=0;i < root.jjtGetNumChildren(); i++){
-			if (root.jjtGetChild(i).toString().equals("PROBGE") || root.jjtGetChild(i).toString().equals("PROBL"))
+			if (root.jjtGetChild(i).toString().equals("PROBGE") || root.jjtGetChild(i).toString().equals("PROBL") || root.jjtGetChild(i).toString().equals("PROBLE") || root.jjtGetChild(i).toString().equals("PROBG"))
 				return Double.parseDouble(((SimpleNode)root.jjtGetChild(i).jjtGetChild(0)).jjtGetValue().toString());
 				
 		}
@@ -194,9 +196,13 @@ public class PropertyChecker {
 				return ((TransitionEntry)currentEntry).getEnabled();
 			case "ATOMIC_CLOCK":
 				value = ((DeterministicTransitionEntry)currentEntry).getClock();
+				if (currentEntry.getTime() < time)
+					value = value + (time - currentEntry.getTime());			
 				return (compareValues(value, boundary, compare));
 			case "ATOMIC_ENABLINGTIME":
 				value = ((GeneralTransitionEntry)currentEntry).getEnablingTime();
+				if (currentEntry.getTime() < time)
+					value = value + (time - currentEntry.getTime());
 				return (compareValues(value, boundary, compare));
 		}
 		
@@ -255,7 +261,7 @@ public class PropertyChecker {
 		currentEventTime = plot.getNextEventTime(t1);
 		previousEventTime = t1;
 		
-		while (currentEventTime < t2){		
+		while (currentEventTime <= t2){		
 			
 			if (phi2Family.equals(PropertyFamily.discrete) && phi1Family.equals(PropertyFamily.discrete)){
 			//both discrete
@@ -303,7 +309,10 @@ public class PropertyChecker {
 			}
 			previousEventTime = currentEventTime;
 			currentEventTime = plot.getNextEventTime(currentEventTime);
+			if (currentEventTime > t2)
+				currentEventTime = t2;
 		}
+	
 		return -1.0;
 	}
 
@@ -562,16 +571,73 @@ public class PropertyChecker {
 	
 	private Double findTForAtomicFluid(Double leftBorder, Double rightBorder, Boolean leftBorderIncluded, Boolean rightBorderIncluded, SimpleNode propertyRoot, Boolean invalid) throws InvalidPropertyException{
 		
+		String type = propertyRoot.toString();
+		String id = null;
+		GuardArc guardArc = null;
+		
 		Double boundary = getPropertyBoundary(propertyRoot, "ATOMIC_FLUID");
-		String compare = getPropertyCompare(propertyRoot, "ATOMIC_FLUID");		
+		String compare = getPropertyCompare(propertyRoot, "ATOMIC_FLUID");	
+		
+		//get ID of referenced place or transition, for guard arc condition get place ID for corresponding place
+		String temp = getPropertyID(propertyRoot);
+		if (type.equals("ATOMIC_ARC")){			
+			for (Arc arc : model.getArcs()){
+				if (arc.getId().equals(temp) && arc.getClass().equals(GuardArc.class)){
+					guardArc = (GuardArc)arc;
+					id = arc.getConnectedPlace().getId();
+					break;
+				}
+			}
+		} else
+			id = temp;	
+				
+		if (id == null){
+			if (logger != null)
+				logger.severe("Property Error: the ID of the property node '" + propertyRoot.toString() + "' could not be matched");
+			throw new InvalidPropertyException("Property Error: the ID of the property node '" + propertyRoot.toString() + "' could not be matched");
+		}
+		
+		//set boundaries for upper boundary, lower boundary and guard arc case
+		switch (type){
+		case "ATOMIC_UBOUND":
+			for (Place place : model.getPlaces()){				
+				if (place.getId().equals(id) && place.getClass().equals(ContinuousPlace.class)){
+					if (((ContinuousPlace)place).getUpperBoundaryInfinity() && (compare.equals("<") || compare.equals("<="))){
+						if (leftBorderIncluded) 
+							return leftBorder;
+						return leftBorder + Double.MIN_VALUE;
+					} else if (((ContinuousPlace)place).getUpperBoundaryInfinity())
+						return -1.0;					
+					boundary = ((ContinuousPlace)place).getUpperBoundary();		
+					compare = ">=";
+				}					
+			}
+			if (boundary == null){
+				if (logger != null)
+					logger.severe("Property Error: the boundary of the property node '" + propertyRoot.toString() + "' could not be identified");
+				throw new InvalidPropertyException("Property Error: the boundary of the property node '" + propertyRoot.toString() + "' could not be identified");
+			}
+			break;
+		case "ATOMIC_LBOUND":
+			boundary = 0.0;
+			compare = "<=";
+			break;
+		case "ATOMIC_ARC":
+			boundary = guardArc.getWeight();
+			compare = "=";
+			break;	
+		default:
+			break;
+		}
+		
+	
 		if (boundary < 0.0){
 			if (logger != null)
 				logger.severe("Property Error: the boundary for the atomic fluid property must be at least zero");
 			throw new InvalidPropertyException("Property Error: the boundary for the atomic fluid property must be at least zero");
 		}
 		
-    	PlacePlot placePlot = null, currentPlacePlot;		
-    	String id = getPropertyID(propertyRoot);		
+    	PlacePlot placePlot = null, currentPlacePlot;			
 		Iterator<Entry<String, PlacePlot>> placeIterator = plot.getPlacePlots().entrySet().iterator();
 	    while (placeIterator.hasNext()) {
 	    	currentPlacePlot = placeIterator.next().getValue();		
@@ -755,14 +821,14 @@ private Double findTForAtomicEnablingTime(Double leftBorder, Double rightBorder,
 			case "ATOMIC_FLUID":
 			case "ATOMIC_CLOCK":
 			case "ATOMIC_ENABLINGTIME":
+			case "ATOMIC_UBOUND":
+			case "ATOMIC_LBOUND":
+			case "ATOMIC_ARC":	
 				return PropertyFamily.continuous;
 				
 			case "ATOMIC_TOKENS":
 			case "ATOMIC_ENABLED":
 			case "ATOMIC_DRIFT":
-			case "ATOMIC_UBOUND":
-			case "ATOMIC_LBOUND":
-			case "ATOMIC_ARC":	
 			case "TRUE":
 				return PropertyFamily.discrete;
 				
@@ -848,7 +914,7 @@ private Double findTForAtomicEnablingTime(Double leftBorder, Double rightBorder,
 	private SimpleNode getPropertyRoot(SimpleNode root) throws InvalidPropertyException{
 		
 		for (int i=0;i < root.jjtGetNumChildren(); i++){
-			if (root.jjtGetChild(i).toString().equals("PROBGE") || root.jjtGetChild(i).toString().equals("PROBL"))
+			if (root.jjtGetChild(i).toString().equals("PROBGE") || root.jjtGetChild(i).toString().equals("PROBL") || root.jjtGetChild(i).toString().equals("PROBLE") || root.jjtGetChild(i).toString().equals("PROBG"))
 				return (((SimpleNode)root.jjtGetChild(i).jjtGetChild(1)));
 			if (root.jjtGetChild(i).toString().equals("PROBQ") || root.jjtGetChild(i).toString().equals("PROB"))
 				return (((SimpleNode)root.jjtGetChild(i).jjtGetChild(0)));

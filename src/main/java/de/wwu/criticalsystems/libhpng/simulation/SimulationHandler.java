@@ -283,16 +283,30 @@ public class SimulationHandler {
 				case "PROBGE":
 					//property check with hypothesis testing	
 					if (simulationWithFixedNumberOfRuns)
-						simulateAndTestPROBWithFixedNumberOfRuns(false);	
+						simulateAndTestPROBWithFixedNumberOfRuns(false, false);	
 					else
-						simulateAndTestPROB(false);	
+						simulateAndTestPROB(false, false);	
 					break;
 				case "PROBL":
 					//property check with hypothesis testing	
 					if (simulationWithFixedNumberOfRuns)
-						simulateAndTestPROBWithFixedNumberOfRuns(true);	
+						simulateAndTestPROBWithFixedNumberOfRuns(true, false);	
 					else
-						simulateAndTestPROB(true);			
+						simulateAndTestPROB(true, false);			
+					break;
+				case "PROBLE":
+					//property check with hypothesis testing	
+					if (simulationWithFixedNumberOfRuns)
+						simulateAndTestPROBWithFixedNumberOfRuns(false, true);	
+					else
+						simulateAndTestPROB(false, true);	
+					break;
+				case "PROBG":
+					//property check with hypothesis testing	
+					if (simulationWithFixedNumberOfRuns)
+						simulateAndTestPROBWithFixedNumberOfRuns(true, true);	
+					else
+						simulateAndTestPROB(true, true);			
 					break;
 			}
 			
@@ -411,19 +425,26 @@ public class SimulationHandler {
 	}	
 		
 	
-	private void simulateAndTestPROB(Boolean lower) throws ModelNotReadableException, InvalidPropertyException{
+	private void simulateAndTestPROB(Boolean notEqual, Boolean nullHypothesisLowerEqual) throws ModelNotReadableException, InvalidPropertyException{
 		
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
-				
+		
 		if (logger != null){
-			if (lower)
-				logger.info("Simulation started for a 'P<x' property with sequential probability ratio test");
-			else
-				logger.info("Simulation started for a 'P>=x' property with sequential probability ratio test");
+			if (notEqual){
+				if (nullHypothesisLowerEqual)
+					logger.info("Simulation started for a 'P>x' property with sequential probability ratio test");
+				else
+					logger.info("Simulation started for a 'P<x' property with sequential probability ratio test");
+			} else {
+				if (nullHypothesisLowerEqual)
+					logger.info("Simulation started for a 'P<=x' property with sequential probability ratio test");
+				else
+					logger.info("Simulation started for a 'P>=x' property with sequential probability ratio test");
+			}
 		}
 		
-		SequentialProbabilityRatioTester tester = new SequentialProbabilityRatioTester(model, minNumberOfRuns, logger, root, halfWidthOfIndifferenceRegion, type1Error, type2Error, lower);
+		SequentialProbabilityRatioTester tester = new SequentialProbabilityRatioTester(model, minNumberOfRuns, logger, root, halfWidthOfIndifferenceRegion, type1Error, type2Error, notEqual, nullHypothesisLowerEqual);
 		
 		if (!printRunResults)
 			System.out.println("Running simulation...");
@@ -478,19 +499,19 @@ public class SimulationHandler {
 	}
 	
 	
-	private void simulateAndTestPROBWithFixedNumberOfRuns(Boolean lower) throws ModelNotReadableException, InvalidPropertyException{
+	private void simulateAndTestPROBWithFixedNumberOfRuns(Boolean notEqual, Boolean nullHypothesisLowerEqual) throws ModelNotReadableException, InvalidPropertyException{
 
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
 				
 		if (logger != null){
-			if (lower)
+			if (notEqual)
 				logger.info("Simulation started for a 'P<x' property with sequential probability ratio test");
 			else
 				logger.info("Simulation started for a 'P>=x' property with sequential probability ratio test");
 		}
 		
-		SequentialProbabilityRatioTester tester = new SequentialProbabilityRatioTester(model, minNumberOfRuns, logger, root, halfWidthOfIndifferenceRegion, type1Error, type2Error, lower);
+		SequentialProbabilityRatioTester tester = new SequentialProbabilityRatioTester(model, minNumberOfRuns, logger, root, halfWidthOfIndifferenceRegion, type1Error, type2Error, notEqual, nullHypothesisLowerEqual);
 		
 		if (!printRunResults)
 			System.out.println("Running simulation...");
