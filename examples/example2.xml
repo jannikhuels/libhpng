@@ -9,7 +9,7 @@
   </places>
   <transitions> 
   	<continuousTransition id="tf1" rate="1.0"/>
-     <generalTransition cdf="normal" id="tg1" priority="0" weight="2.0E0" policy="resume">
+     <generalTransition cdf="foldednormal" id="tg1" priority="0" weight="2.0E0" policy="resume">
       <parameter name="mu" value="5.0"/>
       <parameter name="sigma" value="5.0"/>
      </generalTransition>

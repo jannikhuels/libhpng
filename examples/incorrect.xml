@@ -3,7 +3,7 @@
     <places>
     <discretePlace id="pd1" marking="1"/>
     <discretePlace id="pd2" marking="1"/>
-    <continuousPlace id="pc1" capacity="10" infiniteCapacity="0" level="0"/>
+    <continuousPlace id="pc1" capacity="10" level="0"/>
   </places>
   <transitions> 
   	<generalTransition id="tg1" cdf="normal" priority="0" weight="1.0E0" policy="resume">

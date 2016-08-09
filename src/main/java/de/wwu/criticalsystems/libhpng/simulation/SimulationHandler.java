@@ -254,6 +254,8 @@ public class SimulationHandler {
 	
 	public void simulateAndCheckProperty(HPnGModel model, SimpleNode root) throws InvalidPropertyException, ModelNotReadableException{
 		
+		final long timeStart = System.currentTimeMillis();
+	     		
 		this.model = model;
 		this.root = root;
 		this.maxTime = PropertyChecker.getMaxTimeForSimulation(root);
@@ -316,6 +318,10 @@ public class SimulationHandler {
 				logger.severe("The simulation could not be executed.");
 			throw new ModelNotReadableException(e.getLocalizedMessage());
 		}
+		
+		final long timeEnd = System.currentTimeMillis(); 
+		System.out.printf("Time needed: " + "%,.2f" + "  ms.%n" ,(double)(timeEnd - timeStart));
+
 	}
 	
 	
@@ -362,6 +368,8 @@ public class SimulationHandler {
 			
 			
 			run++;		
+			if (run%1000 == 0)
+				System.out.println(run);
 		}
 		
 		System.out.println(run + " runs needed. Mean value: " + calc.getMean() + ".");

@@ -199,7 +199,7 @@ public class ModelHandler {
 	    	
 	    } catch (InvalidSimulationParameterException e) {
 	    	if (logger != null) 
-				logger.severe("The " + parameter + " parameter chould not be changed.");
+				logger.severe("The parameter chould not be changed.");
 			System.out.println("An Error occured while changing the parameter. Please see the error log.");
 		
 	    }

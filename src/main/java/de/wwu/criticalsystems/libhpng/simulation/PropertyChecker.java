@@ -308,6 +308,8 @@ public class PropertyChecker {
 				}
 			}
 			previousEventTime = currentEventTime;
+			if (currentEventTime >= t2)
+				return -1.0;
 			currentEventTime = plot.getNextEventTime(currentEventTime);
 			if (currentEventTime > t2)
 				currentEventTime = t2;
