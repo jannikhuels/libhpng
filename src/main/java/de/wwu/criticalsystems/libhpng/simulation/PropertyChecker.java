@@ -219,8 +219,8 @@ public class PropertyChecker {
 		Double t2 = time + Double.parseDouble(((SimpleNode)propertyRoot.jjtGetChild(1)).jjtGetValue().toString());
 		if (t1 > t2){
 			if (logger != null)
-				logger.severe("Property Error: the second border of the  is smaller than or equal to the first border for the Until property node '" + propertyRoot.toString() + "'");
-			throw new InvalidPropertyException("Property Error: the second border of the  is smaller than or equal to the first border for the Until property node '" + propertyRoot.toString() + "'");
+				logger.severe("Property Error: the second border is smaller than the first border for the Until property node '" + propertyRoot.toString() + "'");
+			throw new InvalidPropertyException("Property Error: the second border is smaller than the first border for the Until property node '" + propertyRoot.toString() + "'");
 		}
 		
 		SimpleNode phi1 = (SimpleNode)propertyRoot.jjtGetChild(2);

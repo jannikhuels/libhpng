@@ -368,8 +368,6 @@ public class SimulationHandler {
 			
 			
 			run++;		
-			if (run%1000 == 0)
-				System.out.println(run);
 		}
 		
 		System.out.println(run + " runs needed. Mean value: " + calc.getMean() + ".");

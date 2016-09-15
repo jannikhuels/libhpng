@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HPnG>
+  <places>
+    <discretePlace id="p1" marking="1"/>
+    <continuousPlace capacity="10" id="p2" level="0" infiniteCapacity="0"/>
+    <discretePlace id="p3" marking="1"/>
+  </places>
+  <transitions>
+      <generalTransition id="G1" cdf="exp" priority="0" weight="1.0E0" policy="resume">
+      <parameter name="lambda" value="0.5"/>      
+     </generalTransition>
+    <continuousTransition id="p2_in" rate="2" />
+    <continuousTransition id="p2_out" rate="1" />
+     <generalTransition id="G2" cdf="uniform" priority="0" weight="1.0E0" policy="resume">
+      <parameter name="a" value="0"/>
+      <parameter name="b" value="10"/>
+     </generalTransition>
+  </transitions>
+  <arcs>
+    <discreteArc fromNode="p1" id="0.11"  toNode="G1" weight="1.0E0"/>
+    <guardArc fromNode="p2_in" id="0.26" isInhibitor="0" 
+       toNode="p1" weight="1.0E0"/>
+    <continuousArc fromNode="p2_in" id="0.16" priority="1" share="1.0E0"
+      toNode="p2" weight="1.0E0"/>
+    <continuousArc fromNode="p2" id="0.40" priority="1" share="1.0E0"
+      toNode="p2_out" weight="1.0E0"/>
+    <guardArc fromNode="p2_out" id="0.27" isInhibitor="0" 
+      toNode="p3" weight="1.0E0"/>
+    <discreteArc fromNode="p3" id="0.12" 
+      toNode="G2" weight="1.0E0"/>
+  </arcs>
+</HPnG>
