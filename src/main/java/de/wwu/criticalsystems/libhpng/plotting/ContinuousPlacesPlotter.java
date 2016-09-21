@@ -23,7 +23,7 @@ public class ContinuousPlacesPlotter {
 		
 		System.out.println("Plotting graph...");
 		
-		XYLineGraph graph = new XYLineGraph("Continuous Places Mean", "time", "fluid level");
+		XYLineGraph graph = new XYLineGraph("Fluid level of continuous places", "time", "fluid level");
 			
 		//find t distribution
 		if (plots.size() < 2)
