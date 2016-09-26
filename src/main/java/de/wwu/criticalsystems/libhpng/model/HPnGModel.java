@@ -120,6 +120,7 @@ public class HPnGModel {
 	
 	public void updateFluidRates(){		
 		
+		setDynamicContinuousTransitionsBack();
 		//set supposed fluid rates
 		for(Transition transition: transitions){			
 			if (transition.getClass().equals(ContinuousTransition.class))			
@@ -193,8 +194,8 @@ public class HPnGModel {
 				Double fluid = ((ContinuousPlace)place).getFluidLevel();
 				fluid += ((ContinuousPlace)place).getDrift() * timeDelta;
 				BigDecimal level = new BigDecimal(fluid);
-				level = level.setScale(14,BigDecimal.ROUND_HALF_UP);
-				if (level.doubleValue() == 0.0 ) 
+				level = level.setScale(8,BigDecimal.ROUND_HALF_UP);
+				if (level.doubleValue() <= 0.0 ) 
 					fluid = 0.0;
 				else if (!((ContinuousPlace)place).getUpperBoundaryInfinity() && level.doubleValue() == ((ContinuousPlace)place).getUpperBoundary())
 					fluid = ((ContinuousPlace)place).getUpperBoundary();

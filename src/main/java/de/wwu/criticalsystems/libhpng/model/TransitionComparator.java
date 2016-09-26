@@ -61,7 +61,7 @@ public class TransitionComparator implements Comparator<Transition>{
 		}
 	  
 	  
-		if (t1Type < t2Type || (t1Type == t2Type && t1Prio > t2Prio))
+		if (t1Type < t2Type || (t1Type == t2Type && t1Prio < t2Prio))
 			return -1;
 	
 		if (t1Type > t2Type|| (t1Type == t2Type && t1Prio > t2Prio))

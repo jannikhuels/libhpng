@@ -22,8 +22,9 @@
     <continuousPlace capacity="90000" id="battery" level="0" infiniteCapacity="0"/>
   </places>
   <transitions>
-    <generalTransition cdf="exp" id="client_returned" priority="0" weight="1.0E0" policy="resume">
-<parameter name="lambda" value="1.0"/>    
+    <generalTransition cdf="uniform" id="client_returned" priority="0" weight="1.0E0" policy="resume">
+<parameter name="a" value="52.0"/>
+<parameter name="b" value="56.0"/>    
 </generalTransition>
     <deterministicTransition discTime="0.05" id="T2" priority="1" weight="1.0E0"/>
     <deterministicTransition discTime="0.05" id="T4" priority="1" weight="300.0E0"/>
@@ -36,8 +37,8 @@
     <deterministicTransition discTime="1" id="p7_p8" priority="0" weight="1.0E0"/>
     <!--<deterministicTransition discTime="48" id="tts" priority="0" weight="1.0E0"/>-->
 <generalTransition cdf="uniform" id="tts" priority="0" weight="1.0E0" policy="resume">
-	<parameter name="a" value="0.0"/>
-      <parameter name="b" value="1.0"/>
+	<parameter name="a" value="46.0"/>
+      <parameter name="b" value="50.0"/>
 </generalTransition>
     <deterministicTransition discTime="1" id="p8_p9" priority="0" weight="1.0E0"/>
     <deterministicTransition discTime="4" id="start_drain" priority="0" weight="1.0E0"/>

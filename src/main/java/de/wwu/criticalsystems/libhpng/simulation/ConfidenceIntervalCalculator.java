@@ -81,7 +81,7 @@ public class ConfidenceIntervalCalculator {
 	
 	
 	public Boolean checkBound(){
-		if (ssquare == null || (ssquare == 0.0 && numberOfRuns < minNumberOfRuns)) 
+		if (ssquare == null || ssquare == 0.0 || numberOfRuns < minNumberOfRuns) 
 			return false;
 		Double bound = Math.pow(t, 2.0)*ssquare / Math.pow(halfIntervalWidth, 2.0);
 		return (bound <= numberOfRuns);

@@ -89,14 +89,27 @@ public class Simulator {
 				//guard arc starting from fluid place
 					 
 					ContinuousPlace place = ((ContinuousPlace)arc.getConnectedPlace()); 
-						
-					if (place.getDrift() == 0.0)
+					Double timeDelta=-1.0;
+					
+					if (place.getDrift() == 0.0){
+						if (((GuardArc)arc).getConditionFulfilled().equals(((GuardArc)arc).getInhibitor()) && arc.getWeight().equals(place.getFluidLevel())){
+							timeDelta = 0.0;
+						}						
+					} else 
+						timeDelta = (arc.getWeight() - place.getFluidLevel()) / place.getDrift();
+				
+					if (timeDelta == 0.0 && place.getDrift() < 0.0)
+						((GuardArc)arc).setConditionFulfilled(false);				
+									
+					
+					if (timeDelta == 0.0 && !((GuardArc)arc).getConditionFulfilled().equals(((GuardArc)arc).getInhibitor()))
 						continue;
 					
-					Double timeDelta = (arc.getWeight() - place.getFluidLevel()) / place.getDrift();
+					if (timeDelta == 0.0 && place.getDrift() < 0.0 && ((GuardArc)arc).getInhibitor())
+						continue;
 					
 					if (timeDelta < 0.0 
-							|| ((arc.getWeight() - place.getFluidLevel() == 0.0) && ((place.getDrift() > 0.0 && ((GuardArc)arc).getConditionFulfilled()) || (place.getDrift() < 0.0 && !((GuardArc)arc).getConditionFulfilled())))) 
+							|| (timeDelta == 0.0) && ((place.getDrift() > 0.0 && ((GuardArc)arc).getConditionFulfilled()) || (place.getDrift() < 0.0 && !((GuardArc)arc).getConditionFulfilled()))) 
 						continue;
 					
 					timeOfCurrentEvent = currentTime + timeDelta;
