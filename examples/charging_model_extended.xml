@@ -26,17 +26,21 @@
     <continuousPlace capacity="90000" id="battery" level="0" infiniteCapacity="0"/>
   </places>
   <transitions>
-    <generalTransition cdf="normal" id="cr1" priority="0" weight="1.0E0" policy="repeatdifferent">
-<parameter name="mu" value="6.0"/>
-<parameter name="sigma" value="1.0"/>    
+  <generalTransition cdf="normal" id="tts" priority="0" weight="1.0E0" policy="repeatdifferent">
+	<parameter name="mu" value="40.0"/>
+      <parameter name="sigma" value="6.0"/>
 </generalTransition>
-    <generalTransition cdf="uniform" id="cr2" priority="0" weight="1.0E0" policy="repeatdifferent">
-<parameter name="a" value="3.0"/>
-<parameter name="b" value="9.0"/>    
+    <generalTransition cdf="normal" id="cr1" priority="0" weight="1.0E0" policy="repeatdifferent">
+<parameter name="mu" value="54.0"/>
+<parameter name="sigma" value="6.0"/>    
+</generalTransition>
+    <generalTransition cdf="normal" id="cr2" priority="0" weight="1.0E0" policy="repeatdifferent">
+<parameter name="mu" value="54.0"/>
+<parameter name="sigma" value="12.0"/>    
 </generalTransition>
     <generalTransition cdf="normal" id="cr3" priority="0" weight="1.0E0" policy="repeatdifferent">
-<parameter name="mu" value="10.0"/>
-<parameter name="sigma" value="2.0"/>    
+<parameter name="mu" value="46.0"/>
+<parameter name="sigma" value="6.0"/>    
 </generalTransition>
     <deterministicTransition discTime="0.05" id="T2" priority="1" weight="1.0E0"/>
     <deterministicTransition discTime="0.05" id="T4" priority="1" weight="300.0E0"/>
@@ -47,10 +51,6 @@
     <deterministicTransition discTime="1" id="p5_p6" priority="0" weight="1.0E0"/>
     <deterministicTransition discTime="1" id="p6_p7" priority="0" weight="1.0E0"/>
     <deterministicTransition discTime="1" id="p7_p8" priority="0" weight="1.0E0"/>
-<generalTransition cdf="normal" id="tts" priority="0" weight="1.0E0" policy="repeatdifferent">
-	<parameter name="mu" value="6.0"/>
-      <parameter name="sigma" value="1.0"/>
-</generalTransition>
     <deterministicTransition discTime="1" id="p8_p9" priority="0" weight="1.0E0"/>
     <immediateTransition id="T0" priority="0" weight="1.0E0"/>
     <deterministicTransition discTime="6" id="set_empty" priority="0" weight="1.0E0"/>
