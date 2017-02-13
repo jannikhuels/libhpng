@@ -2,6 +2,8 @@ package de.wwu.criticalsystems.libhpng.model;
 
 import java.util.ArrayList;
 import javax.xml.bind.annotation.*;
+
+import de.wwu.criticalsystems.libhpng.errorhandling.InvalidRandomVariateGeneratorException;
 import umontreal.ssj.randvar.RandomVariateGen;
 
 @XmlRootElement( name = "generalTransition" )
@@ -18,6 +20,23 @@ public class GeneralTransition extends Transition{
 		this.enablingTime = enablingTime;
 	}
 	
+	public GeneralTransition(GeneralTransition transitionToCopy) {
+		super(new String(transitionToCopy.getId()), new Boolean (transitionToCopy.getEnabled()));
+		this.weight = new Double (transitionToCopy.getWeight());
+		this.priority = new Integer (transitionToCopy.getPriority());
+		this.distribution = transitionToCopy.getDistribution();
+		this.policy = transitionToCopy.getPolicy();
+		this.enablingTime = new Double(transitionToCopy.getEnablingTime());
+		if (transitionToCopy.getDiscreteFiringTime() != null)
+			this.discreteFiringTime = new Double(transitionToCopy.getDiscreteFiringTime());
+		this.firings = new Integer(transitionToCopy.getFirings());
+				
+		for(CDFFunctionParameter currentParameterToCopy : transitionToCopy.getParameters()) {
+			this.parameters.add(new CDFFunctionParameter(currentParameterToCopy));
+		}
+					
+	}
+
 	@XmlType
 	@XmlEnum(String.class)
 	public static enum CDFFunction{
@@ -128,13 +147,14 @@ public class GeneralTransition extends Transition{
 	private ArrayList <CDFFunctionParameter> parameters = new ArrayList<CDFFunctionParameter>();
 	
 	
-	public void setNewRandomFiringTime() {
+	public void setNewRandomFiringTime(Boolean reset) throws InvalidRandomVariateGeneratorException {
 		
 		if (randomGenerator != null){
 			discreteFiringTime = randomGenerator.nextDouble();
 			if (discreteFiringTime < 0.0)
 				discreteFiringTime = 0.0;
-		}	
+		} else if (!reset)
+			throw new InvalidRandomVariateGeneratorException("No random variate generator was found for the general transition with ID '" + this.getId() + "'");
 
 	}
 	
@@ -147,11 +167,11 @@ public class GeneralTransition extends Transition{
 		this.firings = 0;
 	}
 
-	public void enableByPolicy(){
+	public void enableByPolicy(Boolean reset) throws InvalidRandomVariateGeneratorException{
 		
 		switch (policy){
 		case repeatdifferent:
-			setNewRandomFiringTime();
+			setNewRandomFiringTime(reset);
 			enablingTime = 0.0;
 			break;
 		case repeatidentical:

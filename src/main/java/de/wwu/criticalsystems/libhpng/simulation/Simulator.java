@@ -2,6 +2,8 @@ package de.wwu.criticalsystems.libhpng.simulation;
 
 import java.util.Random;
 import java.util.logging.Logger;
+
+import de.wwu.criticalsystems.libhpng.errorhandling.InvalidRandomVariateGeneratorException;
 import de.wwu.criticalsystems.libhpng.model.*;
 import de.wwu.criticalsystems.libhpng.plotting.*;
 import de.wwu.criticalsystems.libhpng.simulation.SimulationEvent.SimulationEventType;
@@ -27,7 +29,7 @@ public class Simulator {
 	private Logger logger;
 
 	
-	public Double getAndCompleteNextEvent(Double currentTime, MarkingPlot currentPlot, Boolean printRunResults){
+	public Double getAndCompleteNextEvent(Double currentTime, MarkingPlot currentPlot, Boolean printRunResults) throws InvalidRandomVariateGeneratorException{
 		
 		Double timeOfCurrentEvent;		
 		event = new SimulationEvent(maxTime);
@@ -192,7 +194,7 @@ public class Simulator {
 			if (maxTime- currentTime > 0.0)
 				model.advanceMarking(maxTime- currentTime);
 			
-			model.updateEnabling();
+			model.updateEnabling(false);
 			model.updateFluidRates();
 			currentPlot.saveAll(maxTime);
 			
@@ -211,7 +213,7 @@ public class Simulator {
 	}
 	
 	
-	private void completeEvent(Boolean printRunResults, MarkingPlot currentPlot){
+	private void completeEvent(Boolean printRunResults, MarkingPlot currentPlot) throws InvalidRandomVariateGeneratorException{
 	
 		if (event.getEventType() == SimulationEventType.immediate_transition || event.getEventType() == SimulationEventType.deterministic_transition || event.getEventType() == SimulationEventType.general_transition) {
 			
@@ -262,7 +264,7 @@ public class Simulator {
 		}
 
 		//update model status
-		model.updateEnabling();
+		model.updateEnabling(false);
 		model.updateFluidRates();
 		
 		//plot status

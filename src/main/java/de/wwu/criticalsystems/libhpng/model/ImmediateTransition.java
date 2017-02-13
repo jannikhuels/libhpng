@@ -15,6 +15,12 @@ public class ImmediateTransition extends Transition {
 		this.priority = priority;
 	}
 	
+	public ImmediateTransition(ImmediateTransition transitionToCopy) {
+		super(new String (transitionToCopy.getId()), new Boolean (transitionToCopy.getEnabled()));
+		this.weight = new Double (transitionToCopy.getWeight());
+		this.priority = new Integer (transitionToCopy.getPriority());
+	}
+
 	public Double getWeight() {
 		return weight;
 	}	

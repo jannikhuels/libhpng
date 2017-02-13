@@ -201,14 +201,18 @@ public class SimulationHandler {
 
 	
 	
-	public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNotReadableException{
+	public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNotReadableException, InvalidRandomVariateGeneratorException{
 		
 		this.maxTime = maxTime;
 		this.model = model;
 		
+		
+		
+		//int cores = 1;//Runtime.getRuntime().availableProcessors();
+		
+		
 		simulator = new Simulator(model, maxTime);
 		simulator.setLogger(logger);
-		
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
 		if (logger != null)
@@ -244,15 +248,17 @@ public class SimulationHandler {
 				model.printCurrentMarking(false, true);	
 			}
 			
+			ContinuousPlacesPlotter plotter = new ContinuousPlacesPlotter();
+			plotter.plotContinuousPlaces(model, plots, maxTime, confidenceLevel);
+			if (logger != null)
+				logger.info("Simulation finished after " + fixedNumberOfRuns + " runs");
+			
 		}
-		ContinuousPlacesPlotter plotter = new ContinuousPlacesPlotter();
-		plotter.plotContinuousPlaces(model, plots, maxTime, confidenceLevel);
-		if (logger != null)
-			logger.info("Simulation finished after " + fixedNumberOfRuns + " runs");
+
 	}
 	
 	
-	public void simulateAndCheckProperty(HPnGModel model, SimpleNode root) throws InvalidPropertyException, ModelNotReadableException{
+	public void simulateAndCheckProperty(HPnGModel model, SimpleNode root) throws InvalidPropertyException, ModelNotReadableException, InvalidRandomVariateGeneratorException{
 		
 		final long timeStart = System.currentTimeMillis();
 	     		
@@ -317,6 +323,11 @@ public class SimulationHandler {
 			if (logger != null) 
 				logger.severe("The simulation could not be executed.");
 			throw new ModelNotReadableException(e.getLocalizedMessage());
+			
+		} catch (InvalidRandomVariateGeneratorException e) {
+			if (logger != null) 
+				logger.severe("The simulation could not be executed.");
+			throw new InvalidRandomVariateGeneratorException(e.getLocalizedMessage());
 		}
 		
 		final long timeEnd = System.currentTimeMillis(); 
@@ -325,7 +336,7 @@ public class SimulationHandler {
 	}
 	
 	
-	private void simulateAndCheckPROBQ() throws ModelNotReadableException, InvalidPropertyException{
+	private void simulateAndCheckPROBQ() throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
 			
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
@@ -380,7 +391,7 @@ public class SimulationHandler {
 	}
 	
 	
-	private void simulateAndCheckPROBQWithFixedNumberOfRuns() throws ModelNotReadableException, InvalidPropertyException{
+	private void simulateAndCheckPROBQWithFixedNumberOfRuns() throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
 			
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
@@ -431,7 +442,7 @@ public class SimulationHandler {
 	}	
 		
 	
-	private void simulateAndTestPROB(Boolean notEqual, Boolean nullHypothesisLowerEqual) throws ModelNotReadableException, InvalidPropertyException{
+	private void simulateAndTestPROB(Boolean notEqual, Boolean nullHypothesisLowerEqual) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
 		
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();
@@ -505,7 +516,7 @@ public class SimulationHandler {
 	}
 	
 	
-	private void simulateAndTestPROBWithFixedNumberOfRuns(Boolean notEqual, Boolean nullHypothesisLowerEqual) throws ModelNotReadableException, InvalidPropertyException{
+	private void simulateAndTestPROBWithFixedNumberOfRuns(Boolean notEqual, Boolean nullHypothesisLowerEqual) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
 
 		SampleGenerator generator = new SampleGenerator();
 		generator.initializeRandomStream();

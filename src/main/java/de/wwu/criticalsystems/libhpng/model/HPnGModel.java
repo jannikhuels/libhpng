@@ -2,13 +2,69 @@ package de.wwu.criticalsystems.libhpng.model;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.logging.Logger;
+
 import javax.xml.bind.annotation.*;
+
+import de.wwu.criticalsystems.libhpng.errorhandling.InvalidModelConnectionException;
+import de.wwu.criticalsystems.libhpng.errorhandling.InvalidRandomVariateGeneratorException;
+import de.wwu.criticalsystems.libhpng.errorhandling.ModelCopyingFailedException;
 import de.wwu.criticalsystems.libhpng.model.ContinuousArc.ContinuousArcType;
 import de.wwu.criticalsystems.libhpng.model.DiscreteArc.DiscreteArcType;
 
 
 @XmlRootElement(name = "HPnG")
 public class HPnGModel {
+	
+	public HPnGModel(){}
+	
+	public HPnGModel(HPnGModel modelToCopy, Logger logger) throws ModelCopyingFailedException, InvalidModelConnectionException{
+				
+		for(Place currentPlaceToCopy : modelToCopy.getPlaces()) {
+			
+			if (currentPlaceToCopy.getClass().equals(DiscretePlace.class))
+				places.add(new DiscretePlace((DiscretePlace)currentPlaceToCopy));
+			else if (currentPlaceToCopy.getClass().equals(ContinuousPlace.class))
+				places.add(new ContinuousPlace((ContinuousPlace)currentPlaceToCopy));
+		}
+		
+		
+		for(Transition currentTransitionToCopy : modelToCopy.getTransitions()) {
+			
+			if (currentTransitionToCopy.getClass().equals(DeterministicTransition.class))
+				transitions.add(new DeterministicTransition((DeterministicTransition)currentTransitionToCopy));
+			else if (currentTransitionToCopy.getClass().equals(ImmediateTransition.class))
+				transitions.add(new ImmediateTransition((ImmediateTransition)currentTransitionToCopy));
+			else if (currentTransitionToCopy.getClass().equals(GeneralTransition.class))
+				transitions.add(new GeneralTransition((GeneralTransition)currentTransitionToCopy));
+			else if (currentTransitionToCopy.getClass().equals(ContinuousTransition.class))
+				transitions.add(new ContinuousTransition((ContinuousTransition)currentTransitionToCopy));
+		}
+		
+
+		for(Transition currentTransitionToCopy : modelToCopy.getTransitions()) {
+			
+			if (currentTransitionToCopy.getClass().equals(DynamicContinuousTransition.class))
+				transitions.add(new DynamicContinuousTransition((DynamicContinuousTransition)currentTransitionToCopy, transitions));
+		}
+		
+
+		for(Arc currentArcToCopy : modelToCopy.getArcs()) {
+			
+			if (currentArcToCopy.getClass().equals(DiscreteArc.class))
+				arcs.add(new DiscreteArc((DiscreteArc)currentArcToCopy));
+			else if (currentArcToCopy.getClass().equals(ContinuousArc.class))
+				arcs.add(new ContinuousArc((ContinuousArc)currentArcToCopy));
+			else if (currentArcToCopy.getClass().equals(GuardArc.class))
+				arcs.add(new GuardArc((GuardArc)currentArcToCopy));
+		}
+		
+		//initialize model
+		setConnectedPlacesAndTransitions(logger);
+		sortLists(logger);
+				
+	}
 
 	public ArrayList<Place> getPlaces() {
 		return places;
@@ -54,9 +110,93 @@ public class HPnGModel {
 		setClockValuesToZero();		
 		setOriginalFluidLevelsAndTokens();
 		checkAllGuardArcs();
-		updateEnabling();
+		try {
+			updateEnabling(true);
+		} catch (InvalidRandomVariateGeneratorException e) {}
 		updateFluidRates();
 		setDynamicContinuousTransitionsBack();
+	}
+	
+	
+	public void setConnectedPlacesAndTransitions(Logger logger) throws InvalidModelConnectionException{
+
+		for(Arc arc: arcs){
+			Boolean fromNodeFound = false;
+			Boolean toNodeFound = false;	
+			
+			//search for place id
+		    for(Place place: places){
+		    	
+		        if(!fromNodeFound && place.getId().equals(arc.getFromNode())){
+		        	
+		        	fromNodeFound = true;
+		        	arc.setConnectedPlace(place);		        			        	
+		        	if(arc.getClass().equals(ContinuousArc.class)){
+		        		ContinuousArcType dir = ContinuousArcType.output;
+		        		((ContinuousArc)arc).setDirection(dir);
+		        	} else if (arc.getClass().equals(DiscreteArc.class)){
+		        		DiscreteArcType dir = DiscreteArcType.output;
+		        		((DiscreteArc)arc).setDirection(dir);		        	
+		        	}
+		        	break;
+		        		
+		        } else if (!toNodeFound && place.getId().equals(arc.getToNode())){
+		        	
+		        	toNodeFound = true;
+		        	arc.setConnectedPlace(place);
+		        	if(arc.getClass().equals(ContinuousArc.class)){
+		        		ContinuousArcType dir = ContinuousArcType.input;
+		        		((ContinuousArc)arc).setDirection(dir);
+		        	} else if (arc.getClass().equals(DiscreteArc.class)){
+		        		DiscreteArcType dir = DiscreteArcType.input;
+		        		((DiscreteArc)arc).setDirection(dir);		        	
+		        	}
+		        	break;
+		        }		        
+		    }
+		       
+		    //search for transition id
+	        for(Transition transition: transitions){
+		        if(!fromNodeFound && transition.getId().equals(arc.getFromNode())){
+		        	
+		        	fromNodeFound = true;
+		        	arc.setConnectedTransition(transition);	
+		        	transition.getConnectedArcs().add(arc);
+		        	break;
+		        		
+		        } else if (!toNodeFound && transition.getId().equals(arc.getToNode())){
+		        	
+		        	toNodeFound = true;
+		        	arc.setConnectedTransition(transition);
+		        	transition.getConnectedArcs().add(arc);
+		        	break;
+		        }	        	
+		    }	
+	        
+	        if (!fromNodeFound){
+	          	if (logger != null) logger.severe("Model error: 'fromNode' for arc " + arc.getId() + " could not be matched to any place or transition");
+	        	throw new InvalidModelConnectionException("'fromNode' for arc '" + arc.getId() + "' could not be matched to any place or transition");
+	        }
+	        if (!toNodeFound){
+	        	if (logger != null) logger.severe("Model error: 'toNode' for arc '" + arc.getId() + "' could not be matched to any place or transition");
+	        	throw new InvalidModelConnectionException("'toNode' for arc " + arc.getId() + " could not be matched to any place or transition");
+	        }
+	        
+	      }
+		  if (logger != null) logger.info("Model object connections were set successfully.");
+
+	}
+	
+	public void sortLists(Logger logger){
+		
+		Collections.sort(places, new PlaceComparator());
+		Collections.sort(transitions, new TransitionComparator());
+		Collections.sort(arcs, new ArcComparator());
+		
+		for(Transition transition: transitions)
+			Collections.sort(transition.getConnectedArcs(),new ArcComparatorForTransitions());
+		
+		if (logger != null) logger.info("Model lists sorted successfully.");
 	}
 	
 		
@@ -68,7 +208,7 @@ public class HPnGModel {
 	}
 
 	//updates enabling status for all transitions, but does not include a new check of guard arc conditions 
-	public void updateEnabling(){		
+	public void updateEnabling(Boolean reset) throws InvalidRandomVariateGeneratorException{		
 		
 		for(Transition transition: transitions){			
 			Boolean enabled = true;
@@ -93,7 +233,7 @@ public class HPnGModel {
 			
 			transition.setEnabled(enabled);
 			if (enabled && transition.getClass().equals(GeneralTransition.class))
-				((GeneralTransition)transition).enableByPolicy();
+				((GeneralTransition)transition).enableByPolicy(reset);
 		}
 	}
 	

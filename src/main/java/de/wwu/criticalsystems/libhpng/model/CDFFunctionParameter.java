@@ -12,6 +12,11 @@ public class CDFFunctionParameter {
 		this.value = value;
 	}
 	
+	public CDFFunctionParameter(CDFFunctionParameter parameterToCopy) {
+		this.name = new String (parameterToCopy.getName());
+		this.value = new Double (parameterToCopy.getValue());
+	}
+
 	public String getName() {
 		return name;
 	}

@@ -13,6 +13,7 @@ import java.util.logging.SimpleFormatter;
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidSimulationParameterException;
 import de.wwu.criticalsystems.libhpng.errorhandling.ModelNotReadableException;
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidPropertyException;
+import de.wwu.criticalsystems.libhpng.errorhandling.InvalidRandomVariateGeneratorException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.ParseException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SMCParser;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
@@ -60,8 +61,11 @@ public class ModelHandler {
 		System.out.println("Please enter the model checking formula to check:");			
 		
 		try {
-
+			//InputStreamReader in = new InputStreamReader(System.in);
+		
+			
 			BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
+		
 			String formula = buffer.readLine();
 			formula += "\n";
 			InputStream stream = new ByteArrayInputStream(formula.getBytes(StandardCharsets.UTF_8));
@@ -107,7 +111,7 @@ public class ModelHandler {
 		} catch (ModelNotReadableException e) {		
 			if (logger != null) 
 				logger.severe("The model could not be read in.");
-			System.out.println("An Error occured while reading the model file. Please see the error log and recheck the model.");
+			System.out.println("An error occured while reading the model file. Please see the error log and recheck the model.");
 		}			
 	}
 	
@@ -119,7 +123,9 @@ public class ModelHandler {
 		} catch (InvalidPropertyException e) {
 			System.out.println("The formula to check is invalid. Please see the error log.");
 		} catch (ModelNotReadableException e) {
-			System.out.println("An Error occured while simulating due to an incorrect model file. Please see the error log and recheck the model.");
+			System.out.println("An error occured while simulating due to an incorrect model file. Please see the error log and recheck the model.");
+		} catch (InvalidRandomVariateGeneratorException e) {
+			System.out.println("An internal error occured while simulating. Please see the error log.");
 		}    			
 	}	
 	
@@ -132,7 +138,9 @@ public class ModelHandler {
 		} catch (ModelNotReadableException e) {
 			if (logger != null) 
 				logger.severe("The model could not be read in.");
-			System.out.println("An Error occured while reading the model file. Please see the error log and recheck the model.");
+			System.out.println("An error occured while reading the model file. Please see the error log and recheck the model.");
+		} catch (InvalidRandomVariateGeneratorException e) {
+			System.out.println("An internal error occured while simulating. Please see the error log.");
 		}    			
 	}
 	

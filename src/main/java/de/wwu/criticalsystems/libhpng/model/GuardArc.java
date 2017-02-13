@@ -2,6 +2,8 @@ package de.wwu.criticalsystems.libhpng.model;
 
 import javax.xml.bind.annotation.*;
 
+import de.wwu.criticalsystems.libhpng.errorhandling.ModelCopyingFailedException;
+
 @XmlRootElement (name = "guardArc")
 public class GuardArc extends Arc{
 
@@ -12,6 +14,12 @@ public class GuardArc extends Arc{
 		super(id, weight, connectedPlace, connectedTransition);
 	}
 	
+	public GuardArc(GuardArc arcToCopy) throws ModelCopyingFailedException {
+		super(new String(arcToCopy.getId()), new Double(arcToCopy.getWeight()), new String(arcToCopy.getFromNode()), new String(arcToCopy.getToNode()));
+		this.inhibitor = new Boolean(arcToCopy.getInhibitor());
+		this.conditionFulfilled = new Boolean(arcToCopy.getConditionFulfilled());
+	}
+
 	public Boolean getInhibitor() {
 		return inhibitor;
 	}

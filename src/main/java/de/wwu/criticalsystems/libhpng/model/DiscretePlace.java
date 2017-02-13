@@ -12,6 +12,12 @@ public class DiscretePlace extends Place{
 		this.originalNumberOfTokens = originalNumberOfTokens;
 	}
 
+	public DiscretePlace(DiscretePlace placeToCopy) {
+		super(new String (placeToCopy.getId()));
+		this.originalNumberOfTokens = new Integer (placeToCopy.getOriginalNumberOfTokens());
+		this.currentNumberOfTokens =  new Integer (placeToCopy.getNumberOfTokens());
+	}
+
 	public Integer getOriginalNumberOfTokens() {
 		return originalNumberOfTokens;
 	}

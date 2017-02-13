@@ -16,6 +16,14 @@ public abstract class Arc {
 		this.connectedTransition = connectedTransition;
 	}
 	
+	
+	public Arc(String id, Double weight, String fromNode, String toNode){
+		this.id = id;
+		this.weight = weight;
+		this.fromNode = fromNode;
+		this.toNode = toNode;
+	}
+	
 	public String getId() {
 		return id;
 	}

@@ -2,6 +2,8 @@ package de.wwu.criticalsystems.libhpng.model;
 
 import javax.xml.bind.annotation.*;
 
+import de.wwu.criticalsystems.libhpng.errorhandling.ModelCopyingFailedException;
+
 @XmlRootElement (name = "continuousArc")
 public class ContinuousArc extends Arc{
 
@@ -16,6 +18,13 @@ public class ContinuousArc extends Arc{
 		this.priority = priority;
 	}
 	
+	public ContinuousArc(ContinuousArc arcToCopy) throws ModelCopyingFailedException {
+		super(new String(arcToCopy.getId()), new Double(arcToCopy.getWeight()), new String(arcToCopy.getFromNode()), new String(arcToCopy.getToNode()));
+		this.direction = arcToCopy.getDirection();
+		this.share = new Double(arcToCopy.getShare());
+		this.priority = new Integer(arcToCopy.getPriority());
+	}
+
 	public static enum ContinuousArcType{input, output}
 	
 	public ContinuousArcType getDirection() {

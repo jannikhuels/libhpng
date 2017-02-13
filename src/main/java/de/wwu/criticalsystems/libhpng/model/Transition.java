@@ -2,6 +2,8 @@ package de.wwu.criticalsystems.libhpng.model;
 
 import java.util.ArrayList;
 import javax.xml.bind.annotation.*;
+
+import de.wwu.criticalsystems.libhpng.errorhandling.InvalidRandomVariateGeneratorException;
 import de.wwu.criticalsystems.libhpng.model.DiscreteArc.DiscreteArcType;
 
 @XmlRootElement (name = "transitions")
@@ -41,7 +43,7 @@ public abstract class Transition {
 	private Boolean enabled;
 	private ArrayList<Arc> connectedArcs = new ArrayList<Arc>();
 		
-	public void fireTransition(){
+	public void fireTransition() throws InvalidRandomVariateGeneratorException{
 		
 		DiscretePlace place;		
 		for (Arc arc: connectedArcs){
@@ -62,7 +64,7 @@ public abstract class Transition {
 			((DeterministicTransition)this).setClock(0.0);
 		} else if (this.getClass().equals(GeneralTransition.class)){
 			((GeneralTransition)this).setEnablingTime(0.0);
-			((GeneralTransition)this).setNewRandomFiringTime();
+			((GeneralTransition)this).setNewRandomFiringTime(false);
 			((GeneralTransition)this).increaseFirings();
 		}
 	}

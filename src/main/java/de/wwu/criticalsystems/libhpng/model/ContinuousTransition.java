@@ -13,6 +13,12 @@ public class ContinuousTransition extends Transition{
 		this.fluidRate = fluidRate;
 	}
 
+	public ContinuousTransition(ContinuousTransition currentTransitionToCopy) {
+		super(new String (currentTransitionToCopy.getId()), new Boolean (currentTransitionToCopy.getEnabled()));
+		this.fluidRate = new Double (currentTransitionToCopy.getFluidRate());		
+		this.currentFluid = new Double (currentTransitionToCopy.getCurrentFluid());		
+	}
+
 	public Double getFluidRate() {
 		return fluidRate;
 	}

@@ -18,6 +18,18 @@ public class ContinuousPlace extends Place{
 		this.upperBoundaryInfinity = upperBoundaryInfinity;
 	}	
 	
+
+	public ContinuousPlace(ContinuousPlace placeToCopy) {
+		super(new String(placeToCopy.getId()));
+		this.originalFluidLevel = new Double(placeToCopy.getOriginalFluidLevel());
+		this.currentFluidLevel = new Double (placeToCopy.getFluidLevel());
+		this.upperBoundary = new Double (placeToCopy.getUpperBoundary());
+		this.upperBoundaryInfinity = new Boolean (placeToCopy.getUpperBoundaryInfinity());
+		this.upperBoundaryReached = new Boolean (placeToCopy.getUpperBoundaryReached());
+		this.lowerBoundaryReached = new Boolean (placeToCopy.lowerBoundaryReached);
+		this.drift = new Double (placeToCopy.getDrift());
+		}
+
 	public Double getOriginalFluidLevel() {
 		return originalFluidLevel;
 	}	

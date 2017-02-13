@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import umontreal.ssj.randvar.RandomVariateGen;
 import umontreal.ssj.rng.MRG31k3p;
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidDistributionParameterException;
+import de.wwu.criticalsystems.libhpng.errorhandling.InvalidRandomVariateGeneratorException;
 import de.wwu.criticalsystems.libhpng.model.*;
 
 
@@ -38,7 +39,7 @@ public class SampleGenerator {
 	}
 
 	
-	public void sampleGeneralTransitions(HPnGModel model, Logger logger) throws InvalidDistributionParameterException {
+	public void sampleGeneralTransitions(HPnGModel model, Logger logger) throws InvalidDistributionParameterException, InvalidRandomVariateGeneratorException{
 
     	for (Transition transition : model.getTransitions()){
     		
@@ -47,7 +48,7 @@ public class SampleGenerator {
     			RandomVariateGen randomGenerator = setDistributionParameters((GeneralTransition)transition, stream, logger);
     		    if (randomGenerator != null){
     		    	((GeneralTransition)transition).setRandomGenerator(randomGenerator);
-    		    	((GeneralTransition)transition).setNewRandomFiringTime();    		    
+    		    	((GeneralTransition)transition).setNewRandomFiringTime(false);    		    
     		    }
     		} else if (transition.getClass().equals(ContinuousTransition.class))
     			break;

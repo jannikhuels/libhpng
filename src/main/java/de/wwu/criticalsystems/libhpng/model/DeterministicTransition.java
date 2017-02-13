@@ -16,6 +16,14 @@ public class DeterministicTransition extends Transition{
 		this.clock = clock;
 	}
 	
+	public DeterministicTransition(DeterministicTransition transitionToCopy) {
+		super(new String(transitionToCopy.getId()), new Boolean (transitionToCopy.getEnabled()));
+		this.weight = new Double (transitionToCopy.getWeight());
+		this.priority = new Integer (transitionToCopy.getPriority());
+		this.firingTime = new Double (transitionToCopy.getFiringTime());
+		this.clock = new Double (transitionToCopy.getClock());
+	}
+
 	public Double getWeight() {
 		return weight;
 	}	
