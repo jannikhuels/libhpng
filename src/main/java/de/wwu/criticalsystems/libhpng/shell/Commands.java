@@ -13,7 +13,7 @@ public class Commands implements CommandMarker {
 	
 	private ModelHandler handler = new ModelHandler();
 	
-	@CliAvailabilityIndicator({"read", "parse", "change logfile", "change halfintervalwidth", "change halfwidthindifferenceregion", "change confidencelevel", "change type1error", "change type2error", "change fixedruns", "change minruns", "change maxruns", "set fixedruns", "set optimalruns", "printresults on", "printresults off", "printparameters", "loadparameters", "storeparameters"})
+	@CliAvailabilityIndicator({"read", "parse", "change logfile", "change guess", "change testruns", "set algorithm", "change halfintervalwidth", "change halfwidthindifferenceregion", "change confidencelevel", "change type1error", "change type2error", "change fixedruns", "change minruns", "change maxruns", "set fixedruns", "set optimalruns", "printresults on", "printresults off", "printparameters", "loadparameters", "storeparameters"})
 	public boolean isAvailable() {
 		return true;
 	}
@@ -85,6 +85,33 @@ public class Commands implements CommandMarker {
 	
 	
 	
+	@CliCommand(value = "change guess", help = "Change the value of the guess parameter (|p-p0|)")
+	public void ChangeGuessValue(
+			@CliOption(key = { "n" }, mandatory = true, help = "The new value of the guess parameter") final Double guess){
+		
+		handler.changeParameter((byte)11, guess);
+	}
+	
+	
+	
+	@CliCommand(value = "change testruns", help = "Change the number of runs for hypothesis testing")
+	public void ChangeNumberOfTestRuns(
+			@CliOption(key = { "n" }, mandatory = true, help = "The new number of runs for hypothesis testing") final Integer testRuns){
+		
+		handler.changeParameter((byte)12, testRuns);
+	}
+	
+	
+	
+	@CliCommand(value = "set hypothesis algorithm", help = "Set algorithm used for hypothesis testing (SPR, GCI, CR, Azuma)")
+	public void setAlgorithm(
+			@CliOption(key = { "n" }, mandatory = true, help = "The abbreviation of the used algorithm") final String algorithmName){
+		
+		handler.changeParameter((byte)10, algorithmName);		
+	}
+	
+	
+	
 	@CliCommand(value = "change halfwidthindifferenceregion", help = "Change the half width of the indifference region parameter")
 	public void ChangeHalflWidthOfIndifferenceRegion(
 			@CliOption(key = { "n" }, mandatory = true, help = "The new half width of the indiffrence region") final Double halfWidthOfIndifferenceRegion){
@@ -93,7 +120,7 @@ public class Commands implements CommandMarker {
 	}
 	
 	
-	
+		
 	@CliCommand(value = "change confidencelevel", help = "Change the confidence level parameter")
 	public void ChangeConfidenceLevel(
 			@CliOption(key = { "n" }, mandatory = true, help = "The new confidence level") final Double confidenceLevel){

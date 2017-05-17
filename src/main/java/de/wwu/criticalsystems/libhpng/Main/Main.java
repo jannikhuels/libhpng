@@ -14,7 +14,16 @@ public class Main {
     		PrintWriter writer = new PrintWriter("shellLogFile.log");
     		writer.print("");
     		writer.close();
+    		
+    		
     		Bootstrap.main(args);
+//    		
+//    		ModelHandler handler = new ModelHandler();//    		
+//    		handler.readModel("examples/example.xml");//    		
+//    		SimpleNode root = handler.readFormula();    		
+//    		handler.checkFormula(root);
+    		
+    		
 		} catch (IOException e) {
 			System.out.println("An error occured while loading the shell. libhpng cannot be executed.");
 		}

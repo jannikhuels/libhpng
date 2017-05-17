@@ -202,7 +202,15 @@ public class ModelHandler {
 	    			break;
 	    		case 9:
 	    			simulationHandler.setPrintRunResults((Boolean)value);
-	    			break;					
+	    			break;			
+	    		case 10:
+	    			simulationHandler.setAlgorithmID((String)value);
+	    			break;
+	    		case 11:
+	    			simulationHandler.setGuess((Double)value);
+	    			break;
+	    		case 12:
+	    			simulationHandler.setNumberOfTestRuns((Integer)value);
 	    	}
 	    	
 	    } catch (InvalidSimulationParameterException e) {
@@ -223,6 +231,9 @@ public class ModelHandler {
     	System.out.println("- type 1 error: " + simulationHandler.getType1Error());
     	System.out.println("- type 2 error: " + simulationHandler.getType2Error());
     	System.out.println("- fixed number of runs: " + simulationHandler.getFixedNumberOfRuns());
+    	System.out.println("- used hypothesis testing algorithm: " + simulationHandler.getAlgorithmName());
+    	System.out.println("- guess: " + simulationHandler.getGuess());
+    	System.out.println("- testRuns: " + simulationHandler.getTestRuns());
     	
     	if (simulationHandler.getSimulationWithFixedNumberOfRuns())
     		System.out.println("- property check is set to: fixed number of runs");

@@ -156,7 +156,75 @@ public class SimulationHandler {
 				logger.info("The simulation has been set to simulation with optimal number of runs");
 		}
 	}	
+	
+	
+	//TODO: rework
+	public String getAlgorithmName(){
+		
+		if(algorithmID == 0){
+			return "Sequential Probability Ratio Test";
+		} else if(algorithmID == 1){
+			return "Gauss Confidence Interval Test";
+		} else if(algorithmID == 2){
+			return "Chow Robbins Test";
+		} else if(algorithmID == 3){
+			return "Azuma Test";
+		} else return "";
+	}
+	
+		
+	public void setAlgorithmID(String algorithmName) throws InvalidSimulationParameterException {
+		
+		if(algorithmName.equals("SPR")){
+			this.algorithmID = 0;
+		}else if(algorithmName.equals("GCI")){
+			this.algorithmID = 1;
+		}else if(algorithmName.equals("CR")){
+			this.algorithmID = 2;
+		}else if(algorithmName.equals("Azuma")){
+			this.algorithmID = 3;
+		}else{
+			if (logger != null)
+				logger.severe("Invalid algorithm, type help to see valid abbreviation");
+			throw new InvalidSimulationParameterException("Invalid algorithm");
+		}
+		if (logger != null) logger.info("The algorithm used for hypothesis testing has been changed to : " + algorithmName);			
+	}
+	
+		
+	public void setGuess(Double guess) throws InvalidSimulationParameterException {
+		this.guess = guess;
+		
+		if (guess < 0.0 || guess > 1.0){
+			if (logger != null)
+				logger.severe("The value of the guess parameter must be between 0.0 and 1.0");
+			throw new InvalidSimulationParameterException("The value of the guess parameter must be between 0.0 and 1.0");
+		}
+		if (logger != null) logger.info("The value of guess has been changed to: " + guess);
 
+	}
+	
+	public Double getGuess(){
+		return guess;
+	}
+		
+		
+	public void setNumberOfTestRuns(Integer testRuns) throws InvalidSimulationParameterException {
+		this.testRuns = testRuns;
+		
+		if (testRuns <= 0){
+			if (logger != null)
+				logger.severe("The number of runs for hypothesis testing must be at least 1");
+			throw new InvalidSimulationParameterException("The number of runs for hypothesis testing must be at least 1");
+		}
+		if (logger != null) logger.info("The value of guess has been changed to: " + guess);
+	}
+	
+	
+	public Integer getTestRuns(){
+		return testRuns;		
+	}
+		
 	
 	public Boolean getPrintRunResults() {
 		return printRunResults;
@@ -178,6 +246,7 @@ public class SimulationHandler {
 		this.logger = logger;
 	}
 	
+	
 	//simulation parameters
 	private Double halfIntervalWidth;
 	private Double halfWidthOfIndifferenceRegion;
@@ -189,6 +258,9 @@ public class SimulationHandler {
 	private Integer maxNumberOfRuns;
 	private Boolean simulationWithFixedNumberOfRuns;
 	private Boolean printRunResults;
+	private Integer algorithmID;
+	private Double guess;
+	private Integer testRuns;
 	
 	private Simulator simulator;
 	private Logger logger;
@@ -442,152 +514,169 @@ public class SimulationHandler {
 	}	
 		
 	
+	
 	private void simulateAndTestPROB(Boolean notEqual, Boolean nullHypothesisLowerEqual) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
 		
-		SampleGenerator generator = new SampleGenerator();
-		generator.initializeRandomStream();
-		
-		if (logger != null){
-			if (notEqual){
-				if (nullHypothesisLowerEqual)
-					logger.info("Simulation started for a 'P>x' property with sequential probability ratio test");
-				else
-					logger.info("Simulation started for a 'P<x' property with sequential probability ratio test");
-			} else {
-				if (nullHypothesisLowerEqual)
-					logger.info("Simulation started for a 'P<=x' property with sequential probability ratio test");
-				else
-					logger.info("Simulation started for a 'P>=x' property with sequential probability ratio test");
-			}
-		}
-		
-		SequentialProbabilityRatioTester tester = new SequentialProbabilityRatioTester(model, minNumberOfRuns, logger, root, halfWidthOfIndifferenceRegion, type1Error, type2Error, notEqual, nullHypothesisLowerEqual);
-		
-		if (!printRunResults)
-			System.out.println("Running simulation...");
-		int run = 0;
-		while (!tester.getResultAchieved() && run < maxNumberOfRuns){
-			
-			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
-			
-			currentTime = 0.0;
-			try {
-				model.resetMarking();
-				generator.sampleGeneralTransitions(model, logger);
-			} catch (InvalidDistributionParameterException e) {
-				throw new ModelNotReadableException(e.getLocalizedMessage());				
-			}
-		
-			currentPlot = new MarkingPlot(maxTime);
-			plots.add(currentPlot);
-			currentPlot.initialize(model);
-			
-			//simulation
-			while (currentTime <= maxTime)
-				currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);			
-			
-			tester.doRatioTest(run + 1, currentPlot);
-			
-			if (printRunResults){
-				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
-				model.printCurrentMarking(false, true);	
-			}
-			
-			run++;		
-		}
-		if (tester.getResultAchieved()){
-			if (tester.getPropertyFulfilled())
-				System.out.println(run + " runs needed. The property is fulfilled");
-			else
-				System.out.println(run + " runs needed. The property is NOT fulfilled");
-		} else
-			System.out.println("The maximum number of " + run + " runs has been achieved without a decision on the property result.");
-		
-		if (logger != null){
-			logger.info("Simulation finished after " + run + " runs");
-			if (tester.getResultAchieved()){
-				if (tester.getPropertyFulfilled())
-					logger.info("The property is fulfilled");
-				else
-					logger.info("The property is not fulfilled");
-			} else
-				logger.info("Not enough runs executed to make a decision on the property");
-		}
+		HypothesisTesting tester = new HypothesisTesting(model, minNumberOfRuns, logger, root, halfWidthOfIndifferenceRegion, guess, type1Error, type2Error, notEqual, nullHypothesisLowerEqual, printRunResults, maxNumberOfRuns, currentTime, currentPlot, maxTime, plots, simulator, 0, testRuns);
+		tester.performTesting(algorithmID);
 	}
+	
 	
 	
 	private void simulateAndTestPROBWithFixedNumberOfRuns(Boolean notEqual, Boolean nullHypothesisLowerEqual) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
 
-		SampleGenerator generator = new SampleGenerator();
-		generator.initializeRandomStream();
-				
-		if (logger != null){
-			if (notEqual)
-				logger.info("Simulation started for a 'P<x' property with sequential probability ratio test");
-			else
-				logger.info("Simulation started for a 'P>=x' property with sequential probability ratio test");
-		}
-		
-		SequentialProbabilityRatioTester tester = new SequentialProbabilityRatioTester(model, minNumberOfRuns, logger, root, halfWidthOfIndifferenceRegion, type1Error, type2Error, notEqual, nullHypothesisLowerEqual);
-		
-		if (!printRunResults)
-			System.out.println("Running simulation...");
-		for (int run = 0; run < fixedNumberOfRuns; run++){
-			
-			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
-			
-			currentTime = 0.0;
-			try {
-				model.resetMarking();
-				generator.sampleGeneralTransitions(model, logger);
-			} catch (InvalidDistributionParameterException e) {
-				throw new ModelNotReadableException(e.getLocalizedMessage());				
-			}
-		
-			currentPlot = new MarkingPlot(maxTime);
-			plots.add(currentPlot);
-			currentPlot.initialize(model);
-			
-			//simulation
-			while (currentTime <= maxTime)
-				currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);			
-			
-			tester.doRatioTest(run + 1, currentPlot);
-			
-			if (printRunResults){
-				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
-				model.printCurrentMarking(false, true);	
-			}
-			
-			run++;		
-		}
-		
-		if (tester.getResultAchieved()){
-			if (tester.getPropertyFulfilled())
-				System.out.println(fixedNumberOfRuns + " runs simulated. The property is fulfilled");
-			else
-				System.out.println(fixedNumberOfRuns + " runs simulated. The property is NOT fulfilled");
-		} else
-			System.out.println(fixedNumberOfRuns + " runs simulated. Not enough runs to make a decision on the property result.");
-		
-		if (logger != null){
-			logger.info("Simulation finished after " + fixedNumberOfRuns + " runs");
-			if (tester.getResultAchieved()){
-				if (tester.getPropertyFulfilled())
-					logger.info("The property is fulfilled");
-				else
-					logger.info("The property is not fulfilled");
-			} else
-				logger.info("Not enough runs executed to make a decision on the property");
-		}
-		
+		HypothesisTesting tester = new HypothesisTesting(model, minNumberOfRuns, logger, root, halfWidthOfIndifferenceRegion, guess, type1Error, type2Error, notEqual, nullHypothesisLowerEqual, printRunResults, 0, currentTime, currentPlot, maxTime, plots, simulator, fixedNumberOfRuns, testRuns);
+		tester.performTesting(algorithmID);		
 	}
 	
+
+	
+//	private void simulateAndTestPROB(Boolean notEqual, Boolean nullHypothesisLowerEqual) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
+//		
+//		SampleGenerator generator = new SampleGenerator();
+//		generator.initializeRandomStream();
+//		
+//		if (logger != null){
+//			if (notEqual){
+//				if (nullHypothesisLowerEqual)
+//					logger.info("Simulation started for a 'P>x' property with sequential probability ratio test");
+//				else
+//					logger.info("Simulation started for a 'P<x' property with sequential probability ratio test");
+//			} else {
+//				if (nullHypothesisLowerEqual)
+//					logger.info("Simulation started for a 'P<=x' property with sequential probability ratio test");
+//				else
+//					logger.info("Simulation started for a 'P>=x' property with sequential probability ratio test");
+//			}
+//		}
+//		
+//		SequentialProbabilityRatioTester tester = new SequentialProbabilityRatioTester(model, minNumberOfRuns, logger, root, halfWidthOfIndifferenceRegion, type1Error, type2Error, notEqual, nullHypothesisLowerEqual);
+//		
+//		if (!printRunResults)
+//			System.out.println("Running simulation...");
+//		int run = 0;
+//		while (!tester.getResultAchieved() && run < maxNumberOfRuns){
+//			
+//			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
+//			
+//			currentTime = 0.0;
+//			try {
+//				model.resetMarking();
+//				generator.sampleGeneralTransitions(model, logger);
+//			} catch (InvalidDistributionParameterException e) {
+//				throw new ModelNotReadableException(e.getLocalizedMessage());				
+//			}
+//		
+//			currentPlot = new MarkingPlot(maxTime);
+//			plots.add(currentPlot);
+//			currentPlot.initialize(model);
+//			
+//			//simulation
+//			while (currentTime <= maxTime)
+//				currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);			
+//			
+//			tester.doRatioTest(run + 1, currentPlot);
+//			
+//			if (printRunResults){
+//				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
+//				model.printCurrentMarking(false, true);	
+//			}
+//			
+//			run++;		
+//		}
+//		if (tester.getResultAchieved()){
+//			if (tester.getPropertyFulfilled())
+//				System.out.println(run + " runs needed. The property is fulfilled");
+//			else
+//				System.out.println(run + " runs needed. The property is NOT fulfilled");
+//		} else
+//			System.out.println("The maximum number of " + run + " runs has been achieved without a decision on the property result.");
+//		
+//		if (logger != null){
+//			logger.info("Simulation finished after " + run + " runs");
+//			if (tester.getResultAchieved()){
+//				if (tester.getPropertyFulfilled())
+//					logger.info("The property is fulfilled");
+//				else
+//					logger.info("The property is not fulfilled");
+//			} else
+//				logger.info("Not enough runs executed to make a decision on the property");
+//		}
+//	}
+//	
+//	
+//	private void simulateAndTestPROBWithFixedNumberOfRuns(Boolean notEqual, Boolean nullHypothesisLowerEqual) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
+//
+//		SampleGenerator generator = new SampleGenerator();
+//		generator.initializeRandomStream();
+//				
+//		if (logger != null){
+//			if (notEqual)
+//				logger.info("Simulation started for a 'P<x' property with sequential probability ratio test");
+//			else
+//				logger.info("Simulation started for a 'P>=x' property with sequential probability ratio test");
+//		}
+//		
+//		SequentialProbabilityRatioTester tester = new SequentialProbabilityRatioTester(model, minNumberOfRuns, logger, root, halfWidthOfIndifferenceRegion, type1Error, type2Error, notEqual, nullHypothesisLowerEqual);
+//		
+//		if (!printRunResults)
+//			System.out.println("Running simulation...");
+//		for (int run = 0; run < fixedNumberOfRuns; run++){
+//			
+//			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
+//			
+//			currentTime = 0.0;
+//			try {
+//				model.resetMarking();
+//				generator.sampleGeneralTransitions(model, logger);
+//			} catch (InvalidDistributionParameterException e) {
+//				throw new ModelNotReadableException(e.getLocalizedMessage());				
+//			}
+//		
+//			currentPlot = new MarkingPlot(maxTime);
+//			plots.add(currentPlot);
+//			currentPlot.initialize(model);
+//			
+//			//simulation
+//			while (currentTime <= maxTime)
+//				currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);			
+//			
+//			tester.doRatioTest(run + 1, currentPlot);
+//			
+//			if (printRunResults){
+//				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
+//				model.printCurrentMarking(false, true);	
+//			}
+//			
+//			run++;		
+//		}
+//		
+//		if (tester.getResultAchieved()){
+//			if (tester.getPropertyFulfilled())
+//				System.out.println(fixedNumberOfRuns + " runs simulated. The property is fulfilled");
+//			else
+//				System.out.println(fixedNumberOfRuns + " runs simulated. The property is NOT fulfilled");
+//		} else
+//			System.out.println(fixedNumberOfRuns + " runs simulated. Not enough runs to make a decision on the property result.");
+//		
+//		if (logger != null){
+//			logger.info("Simulation finished after " + fixedNumberOfRuns + " runs");
+//			if (tester.getResultAchieved()){
+//				if (tester.getPropertyFulfilled())
+//					logger.info("The property is fulfilled");
+//				else
+//					logger.info("The property is not fulfilled");
+//			} else
+//				logger.info("Not enough runs executed to make a decision on the property");
+//		}
+//		
+//	}
+//	
 	
 	public void loadParameters(){		
 		
-		try {
-			
+
+		try {	
 			Properties parameters = new Properties();
 			parameters.load(new FileInputStream("libhpng_parameters.cfg"));
 			
@@ -601,7 +690,10 @@ public class SimulationHandler {
 			maxNumberOfRuns = Integer.parseInt(parameters.getProperty("maxNumberOfRuns"));
 			simulationWithFixedNumberOfRuns = Boolean.parseBoolean(parameters.getProperty("simulationWithFixedNumberOfRuns"));
 			printRunResults = Boolean.parseBoolean(parameters.getProperty("printRunResults"));
-						
+			algorithmID = Integer.parseInt(parameters.getProperty("algorithmID"));
+			guess = Double.parseDouble(parameters.getProperty("guess"));
+			testRuns = Integer.parseInt(parameters.getProperty("testRuns"));
+			
 		} catch (Exception e) {
 			
 			if (logger != null)
@@ -618,6 +710,9 @@ public class SimulationHandler {
 			maxNumberOfRuns = 100000;
 			simulationWithFixedNumberOfRuns = false;
 			printRunResults = false;
+			algorithmID = 0;
+			guess = 0.1;
+			testRuns = 1;
 			
 		}
 	}
@@ -639,7 +734,10 @@ public class SimulationHandler {
 			parameters.setProperty("maxNumberOfRuns", maxNumberOfRuns.toString());
 			parameters.setProperty("simulationWithFixedNumberOfRuns", simulationWithFixedNumberOfRuns.toString());
 			parameters.setProperty("printRunResults", printRunResults.toString());
-
+			parameters.setProperty("algorithmID", algorithmID.toString());
+			parameters.setProperty("guess", guess.toString());
+			parameters.setProperty("testRuns", testRuns.toString());
+			
 			parameters.store(new FileOutputStream("libhpng_parameters.cfg"),"");
 						
 		} catch (Exception e) {
