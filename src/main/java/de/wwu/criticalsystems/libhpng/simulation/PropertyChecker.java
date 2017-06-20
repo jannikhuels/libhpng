@@ -182,28 +182,45 @@ public class PropertyChecker {
 			case "ATOMIC_UBOUND":
 			case "ATOMIC_LBOUND":
 			case "ATOMIC_ARC":
-				value = ((ContinuousPlaceEntry)currentEntry).getFluidLevel();
-				if (currentEntry.getTime() < time)
-					value = Math.max(0.0, value + ((ContinuousPlaceEntry)currentEntry).getDrift()*(time - currentEntry.getTime()));				
-				return (compareValues(value, boundary, compare));
+				if (currentEntry.getClass().equals(ContinuousPlaceEntry.class)) {
+					value = ((ContinuousPlaceEntry)currentEntry).getFluidLevel();
+					if (currentEntry.getTime() < time)
+						value = Math.max(0.0, value + ((ContinuousPlaceEntry)currentEntry).getDrift()*(time - currentEntry.getTime()));				
+					return (compareValues(value, boundary, compare));
+				}
+				break;
 			case "ATOMIC_TOKENS":
-				value = ((DiscretePlaceEntry)currentEntry).getNumberOfTokens().doubleValue();
-				return (compareValues(value, boundary, compare));
+				if (currentEntry.getClass().equals(DiscretePlaceEntry.class)){ 
+					value = ((DiscretePlaceEntry)currentEntry).getNumberOfTokens().doubleValue();
+					return (compareValues(value, boundary, compare));
+				}
+				break;
 			case "ATOMIC_DRIFT":
-				value = ((ContinuousPlaceEntry)currentEntry).getDrift();
-				return (compareValues(value, boundary, compare));
+				if (currentEntry.getClass().equals(ContinuousPlaceEntry.class)) {
+					value = ((ContinuousPlaceEntry)currentEntry).getDrift();
+					return (compareValues(value, boundary, compare));
+				}
+				break;
 			case "ATOMIC_ENABLED":
-				return ((TransitionEntry)currentEntry).getEnabled();
+				if (currentEntry.getClass().equals(TransitionEntry.class)) 
+					return ((TransitionEntry)currentEntry).getEnabled();
+				break;
 			case "ATOMIC_CLOCK":
-				value = ((DeterministicTransitionEntry)currentEntry).getClock();
-				if (currentEntry.getTime() < time)
-					value = value + (time - currentEntry.getTime());			
-				return (compareValues(value, boundary, compare));
+				if (currentEntry.getClass().equals(DeterministicTransitionEntry.class)) {
+					value = ((DeterministicTransitionEntry)currentEntry).getClock();
+					if (currentEntry.getTime() < time)
+						value = value + (time - currentEntry.getTime());			
+					return (compareValues(value, boundary, compare));
+				}
+				break;
 			case "ATOMIC_ENABLINGTIME":
-				value = ((GeneralTransitionEntry)currentEntry).getEnablingTime();
-				if (currentEntry.getTime() < time)
-					value = value + (time - currentEntry.getTime());
-				return (compareValues(value, boundary, compare));
+				if (currentEntry.getClass().equals(GeneralTransitionEntry.class)) {
+					value = ((GeneralTransitionEntry)currentEntry).getEnablingTime();
+					if (currentEntry.getTime() < time)
+						value = value + (time - currentEntry.getTime());
+					return (compareValues(value, boundary, compare));
+				}
+				break;
 		}
 		
 		if (logger != null)

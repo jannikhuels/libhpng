@@ -13,7 +13,7 @@ public class Commands implements CommandMarker {
 	
 	private ModelHandler handler = new ModelHandler();
 	
-	@CliAvailabilityIndicator({"read", "parse", "change logfile", "change guess", "change testruns", "set algorithm", "change halfintervalwidth", "change halfwidthindifferenceregion", "change confidencelevel", "change type1error", "change type2error", "change fixedruns", "change minruns", "change maxruns", "set fixedruns", "set optimalruns", "printresults on", "printresults off", "printparameters", "loadparameters", "storeparameters"})
+	@CliAvailabilityIndicator({"read", "parse", "change logfile", "change guess", "change testruns", "set hypothesis algorithm" , "set interval type", "change halfintervalwidth", "change halfwidthindifferenceregion", "change confidencelevel", "change type1error", "change type2error", "change fixedruns", "change minruns", "change maxruns", "set fixedruns", "set optimalruns", "printresults on", "printresults off", "printparameters", "loadparameters", "storeparameters"})
 	public boolean isAvailable() {
 		return true;
 	}
@@ -101,8 +101,7 @@ public class Commands implements CommandMarker {
 		handler.changeParameter((byte)12, testRuns);
 	}
 	
-	
-	
+		
 	@CliCommand(value = "set hypothesis algorithm", help = "Set algorithm used for hypothesis testing (SPR, GCI, CR, Azuma)")
 	public void setAlgorithm(
 			@CliOption(key = { "n" }, mandatory = true, help = "The abbreviation of the used algorithm") final String algorithmName){
@@ -110,6 +109,13 @@ public class Commands implements CommandMarker {
 		handler.changeParameter((byte)10, algorithmName);		
 	}
 	
+	
+	@CliCommand(value = "set interval type", help = "Set confidence interval calculation approach  (Standard, Wald, CP")
+	public void setIntervalType(
+			@CliOption(key = { "n" }, mandatory = true, help = "The abbreviation of the used approach") final String intervalName){
+		
+		handler.changeParameter((byte)13, intervalName);		
+	}
 	
 	
 	@CliCommand(value = "change halfwidthindifferenceregion", help = "Change the half width of the indifference region parameter")

@@ -211,6 +211,8 @@ public class ModelHandler {
 	    			break;
 	    		case 12:
 	    			simulationHandler.setNumberOfTestRuns((Integer)value);
+	    		case 13:
+	    			simulationHandler.setIntervalID((String)value);
 	    	}
 	    	
 	    } catch (InvalidSimulationParameterException e) {
@@ -234,6 +236,7 @@ public class ModelHandler {
     	System.out.println("- used hypothesis testing algorithm: " + simulationHandler.getAlgorithmName());
     	System.out.println("- guess: " + simulationHandler.getGuess());
     	System.out.println("- testRuns: " + simulationHandler.getTestRuns());
+    	System.out.println("- used confidence interval calculation approach: " + simulationHandler.getIntervalName() + " Confidence Interval");
     	
     	if (simulationHandler.getSimulationWithFixedNumberOfRuns())
     		System.out.println("- property check is set to: fixed number of runs");

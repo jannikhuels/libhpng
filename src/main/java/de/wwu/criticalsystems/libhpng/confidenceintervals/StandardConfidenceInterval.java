@@ -1,20 +1,17 @@
-package de.wwu.criticalsystems.libhpng.simulation;
+package de.wwu.criticalsystems.libhpng.confidenceintervals;
 
-import java.util.logging.Logger;
 import umontreal.ssj.probdist.StudentDist;
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidPropertyException;
-import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
-import de.wwu.criticalsystems.libhpng.model.*;
 import de.wwu.criticalsystems.libhpng.plotting.*;
+import de.wwu.criticalsystems.libhpng.simulation.PropertyChecker;
 
-public class ConfidenceIntervalCalculator {
+public class StandardConfidenceInterval extends ConfidenceInterval {
 	
-	public ConfidenceIntervalCalculator(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double confidenceLevel, Double halfIntervalWidth) throws InvalidPropertyException {
+	public StandardConfidenceInterval(Integer minNumberOfRuns, Double confidenceLevel, Double halfIntervalWidth) throws InvalidPropertyException {
 		
-		this.minNumberOfRuns = minNumberOfRuns;
-		checker = new PropertyChecker(root, model);
-		checker.setLogger(logger);
+		super(); 
 		
+		this.minNumberOfRuns = minNumberOfRuns;		
 		this.confidenceLevel = confidenceLevel;
 		this.halfIntervalWidth = halfIntervalWidth;
 	}
@@ -23,33 +20,28 @@ public class ConfidenceIntervalCalculator {
 		return numberOfRuns;
 	}
 	
-	public Integer getMinNumberOfRuns() {
-		return minNumberOfRuns;
-	}
-	
-	public Double getSsquare() {
-		return ssquare;
-	}
-
 	public Double getMean() {
 		return mean;
 	}	
-
-	public Double getT() {
-		return t;
+	
+	public Double getCurrentHalfIntervalWidth() {
+		return currentHalfIntervalWidth;
 	}
 
 	private Integer numberOfRuns;
 	private Integer minNumberOfRuns;
 	private Integer fulfilled;
-	private Double ssquare;
 	private Double mean;
+	private Double ssquare;
 	private Double t;
-	private PropertyChecker checker; 
 	private Double confidenceLevel;
 	private Double halfIntervalWidth;
+	private Double currentHalfIntervalWidth;
 	
-	public void calculateSSquareForProperty(Integer currentRun, MarkingPlot plot) throws InvalidPropertyException {
+	
+
+	public Integer calculateMeanAndHalfIntervalWidthForProperty(PropertyChecker checker, Integer currentRun, MarkingPlot plot) throws InvalidPropertyException {
+		
 		
 		if (currentRun == 1){
 			numberOfRuns = 0;
@@ -65,20 +57,22 @@ public class ConfidenceIntervalCalculator {
 		if (numberOfRuns == 1)
 			ssquare = 0.0;
 		else
-			ssquare = (fulfilled.doubleValue()*(numberOfRuns.doubleValue() - fulfilled.doubleValue()))/(numberOfRuns.doubleValue()*(numberOfRuns.doubleValue() - 1.0));		
-	}
-	
-
-	public void findTDistribution(){
+			ssquare = (fulfilled.doubleValue()*(numberOfRuns.doubleValue() - fulfilled.doubleValue()))/(numberOfRuns.doubleValue()*(numberOfRuns.doubleValue() - 1.0));
 		
+
 		if (numberOfRuns < 2)
 			t = 0.0;
 		else {				
 			Double alphaHalf = (1.0 - confidenceLevel)/2.0;
 			t = StudentDist.inverseF(numberOfRuns - 1, 1.0 - alphaHalf);
 		}
+		
+		currentHalfIntervalWidth = t * Math.sqrt(ssquare/numberOfRuns);
+		
+		return numberOfRuns;
 	}
 	
+
 	
 	public Boolean checkBound(){
 		if (ssquare == null || (ssquare == 0.0 && numberOfRuns < minNumberOfRuns) || numberOfRuns < minNumberOfRuns) 
@@ -86,14 +80,6 @@ public class ConfidenceIntervalCalculator {
 		Double bound = Math.pow(t, 2.0)*ssquare / Math.pow(halfIntervalWidth, 2.0);
 		return (bound <= numberOfRuns);
 	}
+
 	
-	
-	public Double getLowerBorder(){
-		return Math.max(0.0,(mean - t * Math.sqrt(ssquare/numberOfRuns)));
-	}
-	
-	
-	public Double getUpperBorder(){
-		return Math.min(1.0,(mean + t * Math.sqrt(ssquare/numberOfRuns)));
-	}
 }

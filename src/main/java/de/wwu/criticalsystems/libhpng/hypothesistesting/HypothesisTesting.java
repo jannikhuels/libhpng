@@ -1,4 +1,4 @@
-package de.wwu.criticalsystems.libhpng.simulation;
+package de.wwu.criticalsystems.libhpng.hypothesistesting;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -10,6 +10,8 @@ import de.wwu.criticalsystems.libhpng.errorhandling.ModelNotReadableException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.model.HPnGModel;
 import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
+import de.wwu.criticalsystems.libhpng.simulation.SampleGenerator;
+import de.wwu.criticalsystems.libhpng.simulation.Simulator;
 
 public class HypothesisTesting {
 	
@@ -65,7 +67,7 @@ public class HypothesisTesting {
 	
 	}
 	
-	public void performTesting(Integer algorithmID) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
+	public void performTesting(Byte algorithmID) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
 		fulfilled = 0;
 		notFulfilled = 0;
 		maxRun = 0;

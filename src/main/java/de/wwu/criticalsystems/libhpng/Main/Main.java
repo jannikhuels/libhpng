@@ -2,8 +2,8 @@ package de.wwu.criticalsystems.libhpng.Main;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-
 import org.springframework.shell.Bootstrap;
+//import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 
 public class Main {	
 	
@@ -16,12 +16,12 @@ public class Main {
     		writer.close();
     		
     		
-    		Bootstrap.main(args);
-//    		
-//    		ModelHandler handler = new ModelHandler();//    		
-//    		handler.readModel("examples/example.xml");//    		
-//    		SimpleNode root = handler.readFormula();    		
-//    		handler.checkFormula(root);
+    	Bootstrap.main(args);
+    		
+    	/*	ModelHandler handler = new ModelHandler();//    		
+    		handler.readModel("examples/example.xml");//    		
+    		SimpleNode root = handler.readFormula();    		
+    		handler.checkFormula(root);*/
     		
     		
 		} catch (IOException e) {

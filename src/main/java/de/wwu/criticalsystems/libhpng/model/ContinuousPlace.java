@@ -81,6 +81,14 @@ public class ContinuousPlace extends Place{
 	public void setLowerBoundaryReached(Boolean lowerBoundaryReached) {
 		this.lowerBoundaryReached = lowerBoundaryReached;
 	}
+	
+	public Double getDeltaQ() {
+		return deltaQ;
+	}
+
+	public void setDeltaQ(Double deltaQ) {
+		this.deltaQ = deltaQ;
+	}
 
 	private Double currentFluidLevel;
 	private Double originalFluidLevel;
@@ -89,6 +97,11 @@ public class ContinuousPlace extends Place{
 	private Boolean upperBoundaryInfinity;
 	private Boolean upperBoundaryReached;
 	private Boolean lowerBoundaryReached;	
+	private Double deltaQ;
+	private Double lastTimePoint = 0.0;
+	private Double q;
+	private Double timeDelta;
+	private Double u;
 
 	public void resetFluidLevel() {
 		this.currentFluidLevel = this.originalFluidLevel;
@@ -117,4 +130,71 @@ public class ContinuousPlace extends Place{
 			lowerBoundaryReached = false;
 		return lowerBoundaryReached;
 	}
+	
+	public Double calculateNewFluidLevelAndDrift(Double timePoint){ //timeDelta seit letzter Berechnung
+		
+		
+		
+		if (timePoint == 0.0){
+			if (deltaQ == null)
+				System.out.println("DELTA Q!");
+			
+			q = originalFluidLevel;
+			
+			//TODO: allgemein
+			drift = -1 * q;
+		}
+		
+		timeDelta = timePoint - lastTimePoint;
+				
+		u = currentFluidLevel + drift*timeDelta;
+
+
+		//q(t) = u + drift * (t-timepoint);
+		
+		//TODO: allgemein
+		//drift (t) = - q(t) = - u - drift * (t-timepoint);
+
+		//TODO: allgemein
+		//x (t) = u - u * (t-timepoint) - 1/2 * drift * (t-timepoint)^2;
+		
+		currentFluidLevel = u;
+		
+		lastTimePoint = timePoint;
+		return currentFluidLevel;
+	}
+	
+//	
+//	public Double getNextTimePoint(){
+//		
+//		Double next;
+//		Double tempq;
+//		Double tempx;
+//		
+//		
+//		//assume q>=x
+//		Double deltaT1 = - (drift + u)/ drift + Math.sqrt(Math.pow(drift+u,2.0)/Math.pow(drift,2.0) + 2*deltaQ / drift);	
+//		
+////		tempq = u + drift * deltaT1;
+////		//TODO: allgemein
+////		tempx = u - u * deltaT1 - 1/2 * drift * Math.pow(deltaT1,2.0);
+////		if (!(tempq >= tempx && tempq - tempx == deltaQ))
+////			deltaT1 = 0.0;
+//				
+//		Double deltaT2 = - (drift + u)/ drift - Math.sqrt(Math.pow(drift+u,2.0)/Math.pow(drift,2.0) + 2*deltaQ / drift);
+//
+//		
+//		//assume x>=q
+//		Double deltaT3 = - (drift + u)/ drift + Math.sqrt(Math.pow(drift+u,2.0)/Math.pow(drift,2.0) - 2*deltaQ / drift);
+//
+//		
+//		
+//		Double deltaT4 = - (drift + u)/ drift - Math.sqrt(Math.pow(drift+u,2.0)/Math.pow(drift,2.0) - 2*deltaQ / drift);
+//		
+//		
+//		return next;
+//	}
+
+	
+	
 }

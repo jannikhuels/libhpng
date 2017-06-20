@@ -5,8 +5,11 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.logging.Logger;
+
+import de.wwu.criticalsystems.libhpng.confidenceintervals.ConfidenceIntervalCalculator;
 import de.wwu.criticalsystems.libhpng.errorhandling.*;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
+import de.wwu.criticalsystems.libhpng.hypothesistesting.HypothesisTesting;
 import de.wwu.criticalsystems.libhpng.model.HPnGModel;
 import de.wwu.criticalsystems.libhpng.plotting.ContinuousPlacesPlotter;
 import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
@@ -158,36 +161,46 @@ public class SimulationHandler {
 	}	
 	
 	
-	//TODO: rework
+
 	public String getAlgorithmName(){
 		
-		if(algorithmID == 0){
-			return "Sequential Probability Ratio Test";
-		} else if(algorithmID == 1){
-			return "Gauss Confidence Interval Test";
-		} else if(algorithmID == 2){
-			return "Chow Robbins Test";
-		} else if(algorithmID == 3){
-			return "Azuma Test";
-		} else return "";
+		switch(algorithmID){		
+			case 0:
+				return "Sequential Probability Ratio Test";
+			case 1:
+				return "Gauss Confidence Interval Test";
+			case 2:
+				return "Chow Robbins Test";
+			case 3:
+				return "Azuma Test";
+		}
+		return "";
 	}
 	
 		
 	public void setAlgorithmID(String algorithmName) throws InvalidSimulationParameterException {
 		
-		if(algorithmName.equals("SPR")){
-			this.algorithmID = 0;
-		}else if(algorithmName.equals("GCI")){
-			this.algorithmID = 1;
-		}else if(algorithmName.equals("CR")){
-			this.algorithmID = 2;
-		}else if(algorithmName.equals("Azuma")){
-			this.algorithmID = 3;
-		}else{
-			if (logger != null)
-				logger.severe("Invalid algorithm, type help to see valid abbreviation");
-			throw new InvalidSimulationParameterException("Invalid algorithm");
+		
+		switch (algorithmName){
+			case "SPR":
+				this.algorithmID = 0;
+				break;
+			case "GCI":
+				this.algorithmID = 1;
+				break;
+			case "CR":
+				this.algorithmID = 2;
+				break;
+			case "Azuma":
+				this.algorithmID = 3;
+				break;
+				
+			default:	
+				if (logger != null)
+					logger.severe("Invalid algorithm, type help to see valid abbreviation");
+				throw new InvalidSimulationParameterException("Invalid algorithm");
 		}
+		
 		if (logger != null) logger.info("The algorithm used for hypothesis testing has been changed to : " + algorithmName);			
 	}
 	
@@ -239,6 +252,46 @@ public class SimulationHandler {
 		}
 	}
 	
+	
+	public String getIntervalName(){
+		
+		switch(intervalID){		
+			case 0:
+				return "Standard";
+			case 1:
+				return "Wald";
+			case 2:
+				return "Clopper Pearson";
+
+		}
+		return "";
+	}
+	
+		
+	public void setIntervalID(String intervalName) throws InvalidSimulationParameterException {
+		
+		
+		switch (intervalName){
+			case "Standard":
+				this.intervalID = 0;
+				break;
+			case "Wald":
+				this.intervalID = 1;
+				break;
+			case "CP":
+				this.intervalID = 2;
+				break;
+			
+				
+			default:	
+				if (logger != null)
+					logger.severe("Invalid confidence interval caclulation approach, type help to see valid abbreviation");
+				throw new InvalidSimulationParameterException("Invalid interval type");
+		}
+		
+		if (logger != null) logger.info("The approach for the calculation of confidence intervals has been changed to : " + intervalName);			
+	}
+	
 	public Logger getLogger() {
 		return logger;
 	}
@@ -248,7 +301,7 @@ public class SimulationHandler {
 	
 	
 	//simulation parameters
-	private Double halfIntervalWidth;
+	private Double halfIntervalWidth = 0.0;
 	private Double halfWidthOfIndifferenceRegion;
 	private Double confidenceLevel;
 	private Double type1Error;
@@ -258,9 +311,10 @@ public class SimulationHandler {
 	private Integer maxNumberOfRuns;
 	private Boolean simulationWithFixedNumberOfRuns;
 	private Boolean printRunResults;
-	private Integer algorithmID;
+	private Byte algorithmID;
 	private Double guess;
 	private Integer testRuns;
+	private Byte intervalID;
 	
 	private Simulator simulator;
 	private Logger logger;
@@ -408,60 +462,167 @@ public class SimulationHandler {
 	}
 	
 	
-	private void simulateAndCheckPROBQ() throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
-			
-		SampleGenerator generator = new SampleGenerator();
-		generator.initializeRandomStream();
-				
-		if (logger != null)
-			logger.info("Simulation started for a 'P=?' property with fixed interval width");
+//	private void simulateAndCheckPROBQ() throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
+//			
+//		SampleGenerator generator = new SampleGenerator();
+//		generator.initializeRandomStream();
+//				
+//		if (logger != null)
+//			logger.info("Simulation started for a 'P=?' property with fixed interval width");
+//	
+//		StandardConfidenceInterval calc = new StandardConfidenceInterval(model, minNumberOfRuns, logger, root, confidenceLevel, halfIntervalWidth);
+//		
+//		if (!printRunResults)
+//			System.out.println("Running simulation...");
+//		int run = 0;
+//		while (!calc.checkBound() && run < maxNumberOfRuns){
+//			
+//			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
+//			
+//			currentTime = 0.0;
+//			try {
+//				model.resetMarking();
+//				generator.sampleGeneralTransitions(model, logger);
+//			} catch (InvalidDistributionParameterException e) {
+//				throw new ModelNotReadableException(e.getLocalizedMessage());				
+//			}
+//		
+//			currentPlot = new MarkingPlot(maxTime);
+//			plots.add(currentPlot);
+//			currentPlot.initialize(model);
+//			
+//			//simulation
+//			while (currentTime <= maxTime)
+//				currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);			
+//			
+//			calc.calculateSSquareForProperty(run+1, currentPlot);
+//			calc.findTDistribution();
+//			
+//			if (printRunResults){
+//				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
+//				model.printCurrentMarking(false, true);	
+//			}
+//			
+//			
+//			run++;		
+//		}
+//		
+//		System.out.println(run + " runs needed. Mean value: " + calc.getMean() + ".");
+//		System.out.println("Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
+//		
+//		if (logger != null){
+//			logger.info("Simulation finished after " + run + " runs");
+//			logger.info("Simulation results: Mean value: " + calc.getMean() + ". Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
+//		}
+//	}
+//	
 	
-		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(model, minNumberOfRuns, logger, root, confidenceLevel, halfIntervalWidth);
+	
+	
+	private void simulateAndCheckPROBQ() throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
 		
-		if (!printRunResults)
-			System.out.println("Running simulation...");
-		int run = 0;
-		while (!calc.checkBound() && run < maxNumberOfRuns){
+	SampleGenerator generator = new SampleGenerator();
+	generator.initializeRandomStream();
 			
-			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
-			
-			currentTime = 0.0;
-			try {
-				model.resetMarking();
-				generator.sampleGeneralTransitions(model, logger);
-			} catch (InvalidDistributionParameterException e) {
-				throw new ModelNotReadableException(e.getLocalizedMessage());				
-			}
+	if (logger != null)
+		logger.info("Simulation started for a 'P=?' property with fixed interval width");
+
+	ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(intervalID, model, minNumberOfRuns, logger, root, confidenceLevel, halfIntervalWidth);
+	
+	if (!printRunResults)
+		System.out.println("Running simulation...");
+	int run = 0;
+	while (!calc.checkBound() && run < maxNumberOfRuns){
 		
-			currentPlot = new MarkingPlot(maxTime);
-			plots.add(currentPlot);
-			currentPlot.initialize(model);
-			
-			//simulation
-			while (currentTime <= maxTime)
-				currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);			
-			
-			calc.calculateSSquareForProperty(run+1, currentPlot);
-			calc.findTDistribution();
-			
-			if (printRunResults){
-				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
-				model.printCurrentMarking(false, true);	
-			}
-			
-			
-			run++;		
+		if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
+		
+		currentTime = 0.0;
+		try {
+			model.resetMarking();
+			generator.sampleGeneralTransitions(model, logger);
+		} catch (InvalidDistributionParameterException e) {
+			throw new ModelNotReadableException(e.getLocalizedMessage());				
+		}
+	
+		currentPlot = new MarkingPlot(maxTime);
+		plots.add(currentPlot);
+		currentPlot.initialize(model);
+		
+		//simulation
+		while (currentTime <= maxTime)
+			currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);			
+		
+		calc.calculateConfidenceInterval(run+1, currentPlot);
+				
+		if (printRunResults){
+			System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
+			model.printCurrentMarking(false, true);	
 		}
 		
-		System.out.println(run + " runs needed. Mean value: " + calc.getMean() + ".");
-		System.out.println("Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
 		
-		if (logger != null){
-			logger.info("Simulation finished after " + run + " runs");
-			logger.info("Simulation results: Mean value: " + calc.getMean() + ". Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
-		}
+		run++;		
 	}
 	
+	System.out.println(run + " runs needed. Mean value: " + calc.getMean() + ".");
+	System.out.println("Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
+	
+	if (logger != null){
+		logger.info("Simulation finished after " + run + " runs");
+		logger.info("Simulation results: Mean value: " + calc.getMean() + ". Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
+	}
+}
+
+//	
+//	private void simulateAndCheckPROBQWithFixedNumberOfRuns() throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
+//		
+//		SampleGenerator generator = new SampleGenerator();
+//		generator.initializeRandomStream();
+//		
+//		if (logger != null)
+//			logger.info("Simulation started for a 'P=?' property with fixed number of runs");
+//		
+//		
+//		StandardConfidenceInterval calc = new StandardConfidenceInterval(model, fixedNumberOfRuns, logger, root, confidenceLevel, halfIntervalWidth);
+//		
+//		if (!printRunResults)
+//			System.out.println("Running simulation...");
+//		for (int run = 0; run < fixedNumberOfRuns; run++){
+//			
+//			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
+//
+//			currentTime = 0.0;
+//			try {
+//				model.resetMarking();
+//				generator.sampleGeneralTransitions(model, logger);
+//			} catch (InvalidDistributionParameterException e) {
+//				throw new ModelNotReadableException(e.getLocalizedMessage());				
+//			}
+//			currentPlot = new MarkingPlot(maxTime);
+//			plots.add(currentPlot);
+//			currentPlot.initialize(model);
+//			
+//			//simulation
+//			while (currentTime <= maxTime)
+//				currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);			
+//			
+//			calc.calculateSSquareForProperty(run+1, currentPlot);
+//			calc.findTDistribution();
+//			
+//			if (printRunResults){
+//				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
+//				model.printCurrentMarking(false, true);	
+//			}
+//				
+//		}
+//		System.out.println(fixedNumberOfRuns + " runs simulated. Mean value: " + calc.getMean() + ".");
+//		System.out.println("Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
+//		
+//		if (logger != null){
+//			logger.info("Simulation finished after " + fixedNumberOfRuns + " runs");
+//			logger.info("Simulation results: Mean value: " + calc.getMean() + ". Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
+//		}
+//	}	
+		
 	
 	private void simulateAndCheckPROBQWithFixedNumberOfRuns() throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
 			
@@ -472,7 +633,7 @@ public class SimulationHandler {
 			logger.info("Simulation started for a 'P=?' property with fixed number of runs");
 		
 		
-		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(model, fixedNumberOfRuns, logger, root, confidenceLevel, halfIntervalWidth);
+		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(intervalID, model, fixedNumberOfRuns, logger, root, confidenceLevel, halfIntervalWidth);
 		
 		if (!printRunResults)
 			System.out.println("Running simulation...");
@@ -495,9 +656,8 @@ public class SimulationHandler {
 			while (currentTime <= maxTime)
 				currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);			
 			
-			calc.calculateSSquareForProperty(run+1, currentPlot);
-			calc.findTDistribution();
-			
+			calc.calculateConfidenceInterval(run+1, currentPlot);
+						
 			if (printRunResults){
 				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
 				model.printCurrentMarking(false, true);	
@@ -690,9 +850,11 @@ public class SimulationHandler {
 			maxNumberOfRuns = Integer.parseInt(parameters.getProperty("maxNumberOfRuns"));
 			simulationWithFixedNumberOfRuns = Boolean.parseBoolean(parameters.getProperty("simulationWithFixedNumberOfRuns"));
 			printRunResults = Boolean.parseBoolean(parameters.getProperty("printRunResults"));
-			algorithmID = Integer.parseInt(parameters.getProperty("algorithmID"));
+			algorithmID = Byte.parseByte(parameters.getProperty("algorithmID"));
 			guess = Double.parseDouble(parameters.getProperty("guess"));
 			testRuns = Integer.parseInt(parameters.getProperty("testRuns"));
+			intervalID = Byte.parseByte(parameters.getProperty("intervalID"));
+					
 			
 		} catch (Exception e) {
 			
@@ -713,6 +875,7 @@ public class SimulationHandler {
 			algorithmID = 0;
 			guess = 0.1;
 			testRuns = 1;
+			intervalID = 0;
 			
 		}
 	}
@@ -737,6 +900,7 @@ public class SimulationHandler {
 			parameters.setProperty("algorithmID", algorithmID.toString());
 			parameters.setProperty("guess", guess.toString());
 			parameters.setProperty("testRuns", testRuns.toString());
+			parameters.setProperty("intervalID", intervalID.toString());
 			
 			parameters.store(new FileOutputStream("libhpng_parameters.cfg"),"");
 						
@@ -748,4 +912,5 @@ public class SimulationHandler {
 			
 		}
 	}
+
 }

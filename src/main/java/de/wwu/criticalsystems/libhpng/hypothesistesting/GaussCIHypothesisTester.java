@@ -1,10 +1,11 @@
-package de.wwu.criticalsystems.libhpng.simulation;
+package de.wwu.criticalsystems.libhpng.hypothesistesting;
 
 import java.util.logging.Logger;
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidPropertyException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.model.HPnGModel;
 import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
+import de.wwu.criticalsystems.libhpng.simulation.PropertyChecker;
 import umontreal.ssj.probdist.NormalDist;
 
 public class GaussCIHypothesisTester {
@@ -15,7 +16,7 @@ public class GaussCIHypothesisTester {
 	private Boolean greaterThanHypothesis;
 	private Double boundary;
 	private Integer numberOfRuns;
-	private Integer minNumberOfRuns;
+	//private Integer minNumberOfRuns;
 	private Integer fulfilled;
 	
 	private Double Zn;
@@ -33,7 +34,7 @@ public class GaussCIHypothesisTester {
 		checker.setLogger(logger);	
 
 		this.greaterThanHypothesis = greaterThanHypothesis;
-		this.minNumberOfRuns = minNumberOfRuns;
+		//this.minNumberOfRuns = minNumberOfRuns;
 		
 		normalDist = new NormalDist();
 		

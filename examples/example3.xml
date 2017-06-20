@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HPnG>
+    <places>
+        <continuousPlace capacity="0" infiniteCapacity="1" id="ptemp" level="0"/>
+    <continuousPlace capacity="0" infiniteCapacity="1" id="pc1" level="10.0"/>
+    <continuousPlace capacity="0" infiniteCapacity="1" id="pc2" level="10.0"/>
+  </places>
+  <transitions> 
+  	<continuousTransition id="tf1" rate="1.0"/>
+  	</transitions> 
+  <arcs>
+    <continuousArc fromNode="tf1" id="ca1" priority="1"
+      share="1.0E0" toNode="ptemp" weight="1.0E0"/>
+   </arcs>
+</HPnG>

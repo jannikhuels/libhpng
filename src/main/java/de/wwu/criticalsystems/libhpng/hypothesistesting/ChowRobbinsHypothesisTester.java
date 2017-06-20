@@ -1,10 +1,11 @@
-package de.wwu.criticalsystems.libhpng.simulation;
+package de.wwu.criticalsystems.libhpng.hypothesistesting;
 
 import java.util.logging.Logger;
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidPropertyException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.model.HPnGModel;
 import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
+import de.wwu.criticalsystems.libhpng.simulation.PropertyChecker;
 import umontreal.ssj.probdist.NormalDist;
 
 public class ChowRobbinsHypothesisTester {
@@ -25,7 +26,7 @@ public class ChowRobbinsHypothesisTester {
 	private Double currCIwidth;
 	private Double fulfilledPercentage;
 	private Double CIhalfWidth;
-	private Double guess;
+	//private Double guess;
 	private NormalDist normalDist;
 	private Double phiType1Error;
 	private Double phiType2Error;
@@ -38,7 +39,7 @@ public class ChowRobbinsHypothesisTester {
 
 		this.greaterThanHypothesis = greaterThanHypothesis;
 		this.minNumberOfRuns = minNumberOfRuns;
-		this.guess = guess;
+	//	this.guess = guess;
 		
 		normalDist = new NormalDist();
 		phiType1Error = normalDist.inverseF(type1Error);

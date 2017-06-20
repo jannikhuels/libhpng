@@ -1,10 +1,11 @@
-package de.wwu.criticalsystems.libhpng.simulation;
+package de.wwu.criticalsystems.libhpng.hypothesistesting;
 
 import java.util.logging.Logger;
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidPropertyException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.model.HPnGModel;
 import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
+import de.wwu.criticalsystems.libhpng.simulation.PropertyChecker;
 
 public class AzumaHypothesisTester {
 	
