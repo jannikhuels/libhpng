@@ -262,6 +262,10 @@ public class SimulationHandler {
 				return "Wald";
 			case 2:
 				return "Clopper Pearson";
+			case 3:
+				return "Score";
+			case 4:
+				return "adjWald";
 
 		}
 		return "";
@@ -280,6 +284,12 @@ public class SimulationHandler {
 				break;
 			case "CP":
 				this.intervalID = 2;
+				break;
+			case "Score":
+				this.intervalID = 3;
+				break;
+			case "adjWald":
+				this.intervalID = 4;
 				break;
 			
 				
@@ -507,12 +517,12 @@ public class SimulationHandler {
 //			run++;		
 //		}
 //		
-//		System.out.println(run + " runs needed. Mean value: " + calc.getMean() + ".");
+//		System.out.println(run + " runs needed. Midpoint: value: " + calc.getMidpoint() + ".");
 //		System.out.println("Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
 //		
 //		if (logger != null){
 //			logger.info("Simulation finished after " + run + " runs");
-//			logger.info("Simulation results: Mean value: " + calc.getMean() + ". Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
+//			logger.info("Simulation results: Midpoint: " + calc.getMidpoint() + ". Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
 //		}
 //	}
 //	
@@ -563,12 +573,12 @@ public class SimulationHandler {
 		run++;		
 	}
 	
-	System.out.println(run + " runs needed. Mean value: " + calc.getMean() + ".");
+	System.out.println(run + " runs needed. Midpoint: " + calc.getMidpoint() + ".");
 	System.out.println("Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
 	
 	if (logger != null){
 		logger.info("Simulation finished after " + run + " runs");
-		logger.info("Simulation results: Mean value: " + calc.getMean() + ". Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
+		logger.info("Simulation results: Midpoint: " + calc.getMidpoint() + ". Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
 	}
 }
 
@@ -614,12 +624,12 @@ public class SimulationHandler {
 //			}
 //				
 //		}
-//		System.out.println(fixedNumberOfRuns + " runs simulated. Mean value: " + calc.getMean() + ".");
+//		System.out.println(fixedNumberOfRuns + " runs simulated. Midpoint: " + calc.getMidpoint() + ".");
 //		System.out.println("Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
 //		
 //		if (logger != null){
 //			logger.info("Simulation finished after " + fixedNumberOfRuns + " runs");
-//			logger.info("Simulation results: Mean value: " + calc.getMean() + ". Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
+//			logger.info("Simulation results: Midpoint: " + calc.getMidpoint() + ". Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
 //		}
 //	}	
 		
@@ -664,12 +674,12 @@ public class SimulationHandler {
 			}
 				
 		}
-		System.out.println(fixedNumberOfRuns + " runs simulated. Mean value: " + calc.getMean() + ".");
+		System.out.println(fixedNumberOfRuns + " runs simulated. Midpoint: " + calc.getMidpoint() + ".");
 		System.out.println("Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
 		
 		if (logger != null){
 			logger.info("Simulation finished after " + fixedNumberOfRuns + " runs");
-			logger.info("Simulation results: Mean value: " + calc.getMean() + ". Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
+			logger.info("Simulation results: Midpoint: " + calc.getMidpoint() + ". Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
 		}
 	}	
 		

@@ -31,7 +31,15 @@ public class ConfidenceIntervalCalculator {
 				break;
 
 			case 2:
-				interval = new ClopperPearsonConfidenceInterval (confidenceLevel);
+				interval = new ClopperPearsonConfidenceInterval(confidenceLevel);
+				break;
+				
+			case 3:
+				interval = new ScoreConfidenceInterval(confidenceLevel);
+				break;
+				
+			case 4:
+				interval = new AdjustedWaldConfidenceInterval();
 				break;
 		}
 		
@@ -40,13 +48,13 @@ public class ConfidenceIntervalCalculator {
 	
 	
 	
-	public Double getMean() {
-		return mean;
+	public Double getMidpoint() {
+		return midpoint;
 	}
 
 	private Integer numberOfRuns=0;
 	private Integer minNumberOfRuns;
-	private Double mean;
+	private Double midpoint;
 	private PropertyChecker checker;
 	private Double halfIntervalWidth;
 	private Double currentHalfIntervalWidth;
@@ -56,8 +64,8 @@ public class ConfidenceIntervalCalculator {
 	
 	public void calculateConfidenceInterval(Integer currentRun, MarkingPlot plot) throws InvalidPropertyException{
 		
-		numberOfRuns = interval.calculateMeanAndHalfIntervalWidthForProperty(checker, currentRun, plot);
-		mean = interval.getMean();
+		numberOfRuns = interval.calculateMidpointAndHalfIntervalWidthForProperty(checker, currentRun, plot);
+		midpoint = interval.getMidpoint();
 		currentHalfIntervalWidth = interval.getCurrentHalfIntervalWidth();
 
 		
@@ -79,12 +87,12 @@ public class ConfidenceIntervalCalculator {
 	
 	
 	public Double getLowerBorder(){
-		return Math.max(0.0,(mean - currentHalfIntervalWidth));
+		return Math.max(0.0,(midpoint - currentHalfIntervalWidth));
 	}
 	
 	
 	public Double getUpperBorder(){
-		return Math.min(1.0,(mean + currentHalfIntervalWidth));
+		return Math.min(1.0,(midpoint + currentHalfIntervalWidth));
 	}
 	
 }

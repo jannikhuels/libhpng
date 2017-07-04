@@ -1,24 +1,20 @@
 package de.wwu.criticalsystems.libhpng.confidenceintervals;
 
-import umontreal.ssj.probdist.BetaDist;
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidPropertyException;
 import de.wwu.criticalsystems.libhpng.plotting.*;
 import de.wwu.criticalsystems.libhpng.simulation.PropertyChecker;
 
-public class ClopperPearsonConfidenceInterval extends ConfidenceInterval{
+public class AdjustedWaldConfidenceInterval extends ConfidenceInterval{
 	
-	public ClopperPearsonConfidenceInterval(Double confidenceLevel) throws InvalidPropertyException {
+	public AdjustedWaldConfidenceInterval() throws InvalidPropertyException {
 		
 		super();
-	
-		alphaHalf = (1.0 - confidenceLevel)/2.0;
 	}
 
 
 	private Integer fulfilled;
-	private Double beta_low;
-	private Double beta_upp;
-	private Double alphaHalf;
+	private Double lower;
+	private Double upper;
 	
 	
 	public Integer calculateMidpointAndHalfIntervalWidthForProperty(PropertyChecker checker, Integer currentRun, MarkingPlot plot) throws InvalidPropertyException {
@@ -34,20 +30,24 @@ public class ClopperPearsonConfidenceInterval extends ConfidenceInterval{
 		numberOfRuns++;	
 		
 		
+		Double X = fulfilled.doubleValue();
+		Double n = numberOfRuns.doubleValue();
+		
+		Double mean = X / n;
+		
 		if (fulfilled == 0)
-			beta_low = 0.0;
+			lower = 0.0;
 		else
-			beta_low = BetaDist.inverseF(fulfilled, numberOfRuns.doubleValue() - fulfilled.doubleValue() + 1.0, alphaHalf);
+			lower = (X + 4.0/(2.0*n) - 2.0*Math.sqrt((mean*(1.0-mean) + 4.0/(4*n))/n))/(1.0 + 4.0/n); 
 		
 		if (fulfilled == numberOfRuns)
-			beta_upp = 1.0;
+			upper = 1.0;
 		else
-			beta_upp  = BetaDist.inverseF(fulfilled + 1, numberOfRuns.doubleValue() - fulfilled.doubleValue(), 1.0 - alphaHalf);
+			upper  = (X+ 4.0/(2.0*n) + 2.0*Math.sqrt((mean*(1.0-mean) + 4.0/(4*n))/n))/(1.0 + 4.0/n); 
 		
-		
-		currentHalfIntervalWidth = 0.5* (beta_upp - beta_low);
-		midpoint = beta_low + currentHalfIntervalWidth;
-			
+		currentHalfIntervalWidth = 0.5* (upper - lower);
+		midpoint = (X + 2.0) / (n + 4.0);
+				
 		return numberOfRuns;
 	
 		}

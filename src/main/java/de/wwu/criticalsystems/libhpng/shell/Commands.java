@@ -110,11 +110,14 @@ public class Commands implements CommandMarker {
 	}
 	
 	
-	@CliCommand(value = "set interval type", help = "Set confidence interval calculation approach  (Standard, Wald, CP")
+	@CliCommand(value = "set interval type", help = "Set confidence interval calculation approach  (Standard, Wald, CP, Score, adjustedWald)")
 	public void setIntervalType(
 			@CliOption(key = { "n" }, mandatory = true, help = "The abbreviation of the used approach") final String intervalName){
 		
-		handler.changeParameter((byte)13, intervalName);		
+		handler.changeParameter((byte)13, intervalName);
+		
+		if (intervalName.equals("adjustedWald"))
+			System.out.println("Please note that the adjusted Wald confidence interval only supports a confidence level of 0.95");
 	}
 	
 	

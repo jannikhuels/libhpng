@@ -20,8 +20,8 @@ public class StandardConfidenceInterval extends ConfidenceInterval {
 		return numberOfRuns;
 	}
 	
-	public Double getMean() {
-		return mean;
+	public Double getMidpoint() {
+		return midpoint;
 	}	
 	
 	public Double getCurrentHalfIntervalWidth() {
@@ -31,7 +31,7 @@ public class StandardConfidenceInterval extends ConfidenceInterval {
 	private Integer numberOfRuns;
 	private Integer minNumberOfRuns;
 	private Integer fulfilled;
-	private Double mean;
+	private Double midpoint;
 	private Double ssquare;
 	private Double t;
 	private Double confidenceLevel;
@@ -40,7 +40,7 @@ public class StandardConfidenceInterval extends ConfidenceInterval {
 	
 	
 
-	public Integer calculateMeanAndHalfIntervalWidthForProperty(PropertyChecker checker, Integer currentRun, MarkingPlot plot) throws InvalidPropertyException {
+	public Integer calculateMidpointAndHalfIntervalWidthForProperty(PropertyChecker checker, Integer currentRun, MarkingPlot plot) throws InvalidPropertyException {
 		
 		
 		if (currentRun == 1){
@@ -52,12 +52,15 @@ public class StandardConfidenceInterval extends ConfidenceInterval {
 			fulfilled++;
 				
 		numberOfRuns++;	
-		mean = fulfilled.doubleValue() / numberOfRuns.doubleValue();
+		
+		Double X = fulfilled.doubleValue();
+		Double n = numberOfRuns.doubleValue();
+		Double mean = X / n;
 		
 		if (numberOfRuns == 1)
 			ssquare = 0.0;
 		else
-			ssquare = (fulfilled.doubleValue()*(numberOfRuns.doubleValue() - fulfilled.doubleValue()))/(numberOfRuns.doubleValue()*(numberOfRuns.doubleValue() - 1.0));
+			ssquare = (X*(n - X))/(n*(n - 1.0));
 		
 
 		if (numberOfRuns < 2)
@@ -68,6 +71,7 @@ public class StandardConfidenceInterval extends ConfidenceInterval {
 		}
 		
 		currentHalfIntervalWidth = t * Math.sqrt(ssquare/numberOfRuns);
+		midpoint = mean;
 		
 		return numberOfRuns;
 	}

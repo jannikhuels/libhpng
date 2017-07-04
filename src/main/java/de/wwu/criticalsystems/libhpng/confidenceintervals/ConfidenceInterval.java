@@ -12,8 +12,8 @@ public abstract class ConfidenceInterval {
 		return numberOfRuns;
 	}
 	
-	public Double getMean() {
-		return mean;
+	public Double getMidpoint() {
+		return midpoint;
 	}	
 
 	public Double getCurrentHalfIntervalWidth() {
@@ -21,9 +21,9 @@ public abstract class ConfidenceInterval {
 	}
 
 	protected Integer numberOfRuns;
-	protected Double mean;
+	protected Double midpoint;
 	protected Double currentHalfIntervalWidth;
 	
 	
-	public abstract Integer calculateMeanAndHalfIntervalWidthForProperty(PropertyChecker checker, Integer currentRun, MarkingPlot plot) throws InvalidPropertyException;
+	public abstract Integer calculateMidpointAndHalfIntervalWidthForProperty(PropertyChecker checker, Integer currentRun, MarkingPlot plot) throws InvalidPropertyException;
 }
