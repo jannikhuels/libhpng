@@ -17,43 +17,38 @@ public class ScoreConfidenceInterval extends ConfidenceInterval{
 	}
 
 
-	private Integer fulfilled;
+	private Double lowerBoundary;
+	private Double upperBoundary;
+	private Double x;
+	private Double n;
+	private Double mean;
 	private Double z;
-	private Double lower;
-	private Double upper;
 	
 	
 	public Integer calculateMidpointAndHalfIntervalWidthForProperty(PropertyChecker checker, Integer currentRun, MarkingPlot plot) throws InvalidPropertyException {
 		
-		if (currentRun == 1){
-			numberOfRuns = 0;
-			fulfilled = 0;
-		}
-					
-		if (checker.checkProperty(plot))						
-			fulfilled++;
-				
-		numberOfRuns++;	
+		checkPropertyForCurrentRun(checker, currentRun, plot);
 		
-		Double X = fulfilled.doubleValue();
-		Double n = numberOfRuns.doubleValue();
-		Double mean = X / n;
+		
+		x = fulfilled.doubleValue();
+		n = numberOfRuns.doubleValue();
+		mean = x / n;
 		
 		if (fulfilled == 0)
-			lower = 0.0;
+			lowerBoundary = 0.0;
 		else
-			lower = (X + (z*z)/(2.0*n) - z*Math.sqrt((mean*(1.0-mean) + (z*z)/(4.0*n))/n))/(1.0 + (z*z)/n); 
+			lowerBoundary = (x + (z*z)/(2.0*n) - z*Math.sqrt((mean*(1.0-mean) + (z*z)/(4.0*n))/n))/(1.0 + (z*z)/n); 
 		
 		if (fulfilled == numberOfRuns)
-			upper = 1.0;
+			upperBoundary = 1.0;
 		else
-			upper  = (X + (z*z)/(2.0*n) + z*Math.sqrt((mean*(1.0-mean) + (z*z)/(4.0*n))/n))/(1.0 + (z*z)/n); 
+			upperBoundary  = (x + (z*z)/(2.0*n) + z*Math.sqrt((mean*(1.0-mean) + (z*z)/(4.0*n))/n))/(1.0 + (z*z)/n); 
 		
-		currentHalfIntervalWidth = 0.5* (upper - lower);
+		currentHalfIntervalWidth = 0.5* (upperBoundary - lowerBoundary);
 		midpoint =  mean*(n / (n + (z*z))) + 0.5*((z*z)/(n + (z*z)));
 			
 		return numberOfRuns;
 	
-		}
+	}
 	
 }

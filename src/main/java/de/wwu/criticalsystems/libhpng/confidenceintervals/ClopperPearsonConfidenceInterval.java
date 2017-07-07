@@ -15,34 +15,28 @@ public class ClopperPearsonConfidenceInterval extends ConfidenceInterval{
 	}
 
 
-	private Integer fulfilled;
 	private Double beta_low;
 	private Double beta_upp;
 	private Double alphaHalf;
-	
+	private Double x;
+	private Double n;
 	
 	public Integer calculateMidpointAndHalfIntervalWidthForProperty(PropertyChecker checker, Integer currentRun, MarkingPlot plot) throws InvalidPropertyException {
 		
-		if (currentRun == 1){
-			numberOfRuns = 0;
-			fulfilled = 0;
-		}
-					
-		if (checker.checkProperty(plot))						
-			fulfilled++;
-				
-		numberOfRuns++;	
+		checkPropertyForCurrentRun(checker, currentRun, plot);
 		
+		x = fulfilled.doubleValue();
+		n = numberOfRuns.doubleValue();
 		
 		if (fulfilled == 0)
 			beta_low = 0.0;
 		else
-			beta_low = BetaDist.inverseF(fulfilled, numberOfRuns.doubleValue() - fulfilled.doubleValue() + 1.0, alphaHalf);
+			beta_low = BetaDist.inverseF(x, n - x+ 1.0, alphaHalf);
 		
 		if (fulfilled == numberOfRuns)
 			beta_upp = 1.0;
 		else
-			beta_upp  = BetaDist.inverseF(fulfilled + 1, numberOfRuns.doubleValue() - fulfilled.doubleValue(), 1.0 - alphaHalf);
+			beta_upp  = BetaDist.inverseF(x + 1, n - x, 1.0 - alphaHalf);
 		
 		
 		currentHalfIntervalWidth = 0.5* (beta_upp - beta_low);

@@ -177,7 +177,7 @@ public class ModelHandler {
 					simulationHandler.setHalfIntervalWidth((Double)value);
 					break;
 	    		case 1:
-	    			simulationHandler.setHalfWidthOfIndifferenceRegion((Double)value);
+	    			simulationHandler.setCorrectnessIndifferenceLevel((Double)value);
 	    			break;
 	    		case 2:
 	    			simulationHandler.setConfidenceLevel((Double)value);
@@ -211,8 +211,13 @@ public class ModelHandler {
 	    			break;
 	    		case 12:
 	    			simulationHandler.setNumberOfTestRuns((Integer)value);
+	    			break;
 	    		case 13:
 	    			simulationHandler.setIntervalID((String)value);
+	    			break;
+	    		case 14:
+	    			simulationHandler.setPowerIndifferenceLevel((Double)value);
+	    			break;
 	    	}
 	    	
 	    } catch (InvalidSimulationParameterException e) {
@@ -227,29 +232,32 @@ public class ModelHandler {
    
     public void printParameters(){    	
 
-    	System.out.println("- half interval width of the confidence interval: " + simulationHandler.getHalfIntervalWidth());
-    	System.out.println("- half width of the indifference region: " + simulationHandler.getHalfWidthOfIndifferenceRegion());
-    	System.out.println("- confidence level: " + simulationHandler.getConfidenceLevel());
-    	System.out.println("- type 1 error: " + simulationHandler.getType1Error());
-    	System.out.println("- type 2 error: " + simulationHandler.getType2Error());
-    	System.out.println("- fixed number of runs: " + simulationHandler.getFixedNumberOfRuns());
-    	System.out.println("- used hypothesis testing algorithm: " + simulationHandler.getAlgorithmName());
-    	System.out.println("- guess: " + simulationHandler.getGuess());
-    	System.out.println("- testRuns: " + simulationHandler.getTestRuns());
-    	System.out.println("- used confidence interval calculation approach: " + simulationHandler.getIntervalName() + " Confidence Interval");
+    	System.out.println("- Used confidence interval calculation approach: " + simulationHandler.getIntervalName() + " Confidence Interval");    	
+    	System.out.println("- Half interval width of the confidence interval: " + simulationHandler.getHalfIntervalWidth());
+    	System.out.println("- Confidence level: " + simulationHandler.getConfidenceLevel() + "\n");
+    	
+    	System.out.println("- Used hypothesis testing algorithm: " + simulationHandler.getAlgorithmName());
+    	System.out.println("- Correctness indifference level: " + simulationHandler.getCorrectnessIndifferenceLevel());
+    	System.out.println("- Power indifference level: " + simulationHandler.getPowerIndifferenceLevel());    	
+    	System.out.println("- Guess: " + simulationHandler.getGuess());
+    	System.out.println("- TestRuns: " + simulationHandler.getTestRuns());
+    	System.out.println("- Type 1 error: " + simulationHandler.getType1Error());
+    	System.out.println("- Type 2 error: " + simulationHandler.getType2Error() + "\n");
+    	
+    	System.out.println("- Fixed number of runs: " + simulationHandler.getFixedNumberOfRuns());
+    	System.out.println("- Minimum number of runs: " + simulationHandler.getMinNumberOfRuns());
+    	System.out.println("- Maximum number of runs: " + simulationHandler.getMaxNumberOfRuns());    	
     	
     	if (simulationHandler.getSimulationWithFixedNumberOfRuns())
-    		System.out.println("- property check is set to: fixed number of runs");
+    		System.out.println("- Property check is set to: fixed number of runs");
     	else
-    		System.out.println("- property check is set to: optimal number or runs");
-    	
-    	System.out.println("- minimum number of runs: " + simulationHandler.getMinNumberOfRuns());
-    	System.out.println("- maximum number of runs: " + simulationHandler.getMaxNumberOfRuns());
+    		System.out.println("- Property check is set to: optimal number or runs");    	
+
 
     	if (simulationHandler.getPrintRunResults())
-    		System.out.println("- printing the results of the single simulation runs: enabled");
+    		System.out.println("- Printing the results of the single simulation runs: enabled");
     	else
-    		System.out.println("- printing the results of the single simulation runs: disabled");
+    		System.out.println("- Printing the results of the single simulation runs: disabled");
     
     }
 

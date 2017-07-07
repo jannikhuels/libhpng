@@ -6,28 +6,27 @@ import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.model.HPnGModel;
 import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
 
-public class AzumaHypothesisTester extends HypothesisTester{
+public class DarlingHypothesisTester extends HypothesisTester{
 	
 	
-	public AzumaHypothesisTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double guess, Double type1Error, Double type2Error, Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws InvalidPropertyException{
+	public DarlingHypothesisTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double guess, Double type1Error, Double type2Error, Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws InvalidPropertyException{
 		
 		super(model, minNumberOfRuns, logger, root, checkLowerThan, invertPropertyAndThreshold);
 		
-		a = (0.25 - 0.144* Math.pow(type1Error, 0.15)) * Math.sqrt((guess / 0.0243) ); 
-		b = 0.75;
-		k = Math.pow((Math.log(type1Error) / (8.0 * (Math.pow(a, 2.0)) * (2.0 - 3.0 * b))), (1.0 / (2.0 * b - 1.0)));
+		Double x = Math.log(type1Error);
+		Double y = Math.log(guess);
 		
+		a = Math.exp(0.4913 - 0.0715 * x + 0.0988 * y - 0.00089 * Math.pow(x, 2.0) + 0.00639 * Math.pow(y, 2.0) - 0.00361 * x * y);
+		k = Math.pow((type1Error * (a - 1.0))/Math.sqrt(2.0), (-1.0 / (a - 1.0))) -1.0;
+
 	}
 	
-
 	private Double zN;
 	private Double a;
-	private Double b;
 	private Double k;
 	private Double n;
 	private Double upperBoundary;
 	private Double lowerBoundary;
-	
 	
 	@Override
 	public Boolean doTesting(Integer currentRun, MarkingPlot plot) throws InvalidPropertyException{
@@ -37,11 +36,10 @@ public class AzumaHypothesisTester extends HypothesisTester{
 
 		if(numberOfRuns >= minNumberOfRuns){
 			
-			
 			n = numberOfRuns.doubleValue();
 			zN = fulfilled.doubleValue() - n * boundary;
 			
-			upperBoundary = a * (Math.pow((k + n), b));
+			upperBoundary = Math.sqrt(a * (n + 1.0) * Math.log(n + k));
 			lowerBoundary = -upperBoundary;
 
 			

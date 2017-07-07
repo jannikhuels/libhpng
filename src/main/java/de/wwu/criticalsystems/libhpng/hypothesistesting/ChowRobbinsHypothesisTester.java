@@ -5,132 +5,73 @@ import de.wwu.criticalsystems.libhpng.errorhandling.InvalidPropertyException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.model.HPnGModel;
 import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
-import de.wwu.criticalsystems.libhpng.simulation.PropertyChecker;
 import umontreal.ssj.probdist.NormalDist;
 
-public class ChowRobbinsHypothesisTester {
+public class ChowRobbinsHypothesisTester extends HypothesisTester {
 	
-	private Boolean resultAchieved = false;
-	private Boolean propertyFulfilled;
-	private PropertyChecker checker;
-	private Boolean greaterThanHypothesis;
-	private Double boundary;
-	private Integer numberOfRuns;
-	private Integer minNumberOfRuns;
-	private Integer fulfilled;
+
+	public ChowRobbinsHypothesisTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double powerIndifferenceLevel, Double type1Error, Double type2Error, Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws InvalidPropertyException{
+
+		super(model, minNumberOfRuns, logger, root, checkLowerThan, invertPropertyAndThreshold);
+		
+		
+		NormalDist normalDist = new NormalDist();		
+		inverseType1Error = normalDist.inverseF(type1Error);
+		Double inverseType2Error = normalDist.inverseF(type2Error);
 	
-	//TODO: Naming Variable
+		epsilon = powerIndifferenceLevel / (1.0 + (inverseType2Error / inverseType1Error));	
+		requiredWidth = 2.0 * epsilon;
+	}
+	
+	
 	private Double lowerBoundary;
 	private Double upperBoundary;
-	private Double neededCIwidth;
-	private Double currCIwidth;
-	private Double fulfilledPercentage;
-	private Double CIhalfWidth;
-	//private Double guess;
-	private NormalDist normalDist;
-	private Double phiType1Error;
-	private Double phiType2Error;
-	private Boolean terminate;
+	private Double currentWidth;
+	private Double mean;
+	private Double n;
+	private Double epsilon;
+	private Double requiredWidth;
+	private Double inverseType1Error;
 	
-	public ChowRobbinsHypothesisTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double halfWidthOfIndifferenceRegion, Double guess, Double type1Error, Double type2Error, Boolean notEqual, Boolean greaterThanHypothesis) throws InvalidPropertyException{
 
-		checker = new PropertyChecker(root, model);
-		checker.setLogger(logger);
-
-		this.greaterThanHypothesis = greaterThanHypothesis;
-		this.minNumberOfRuns = minNumberOfRuns;
-	//	this.guess = guess;
-		
-		normalDist = new NormalDist();
-		phiType1Error = normalDist.inverseF(type1Error);
-		phiType2Error = normalDist.inverseF(type2Error);
-		
-		boundary = checker.getProbBoundary(root);		
-		if (boundary < 0.0 || boundary > 1.0){
-			if (logger != null)
-				logger.severe("Property Error: the boundary node of the property root must be between 0.0 and 1.0");
-			throw new InvalidPropertyException("Property Error: the boundary node of the property root must be between 0.0 and 1.0");
-		}
-		
-		neededCIwidth = 2 * ( (guess) / (1 + (phiType2Error / phiType1Error)));
-		terminate = false;
-		CIhalfWidth = (guess) / (1 + (phiType2Error / phiType1Error));
-		
-		if (!notEqual){
-			if (logger != null)
-				logger.severe("Property Error: Gauss_CI hypothesis testing doesn't allow  tests for '>=' or '<='");
-			throw new InvalidPropertyException("Property Error: Gauss-CI hypothesis testing doesn`t allow  tests for '>=' or '<='");
-		}
-		
-	}
 	
-	public Boolean CRTesting(Integer currentRun, MarkingPlot plot) throws InvalidPropertyException{
+	
+	@Override
+	public Boolean doTesting(Integer currentRun, MarkingPlot plot) throws InvalidPropertyException{
+	
+		checkPropertyForCurrentRun(currentRun,plot);
 		
-		if (currentRun == 1){			
-			numberOfRuns = 0;
-			fulfilled = 0;
-		}
-					
-		if (checker.checkProperty(plot)){						
-			fulfilled++;
-		}numberOfRuns++;
 		
 		if(numberOfRuns >= minNumberOfRuns){
-			
-			fulfilledPercentage = ((double) fulfilled) / numberOfRuns;
+					
+			n = numberOfRuns.doubleValue();
+			mean = fulfilled.doubleValue() / n;
 			 
-			currCIwidth = 2 * phiType1Error * Math.sqrt((fulfilledPercentage * (1-fulfilledPercentage)) / (numberOfRuns));
+			currentWidth = 2.0 * inverseType1Error * Math.sqrt((mean * (1.0 - mean)) / (n));
+			requiredWidth = 2.0 * epsilon;
 			
-			if(neededCIwidth >= Math.abs(currCIwidth) ){
-
-			lowerBoundary = fulfilledPercentage - CIhalfWidth;
-			upperBoundary = fulfilledPercentage + CIhalfWidth;
-			
-			//accept H+1 hypothesis
-			if (lowerBoundary > boundary){
-				resultAchieved = true;
-				if(!greaterThanHypothesis){
-					propertyFulfilled = false;
-					}else propertyFulfilled = true;
-			
-			//accept H-1 Hypothesis	
-			}else if (upperBoundary < boundary){
-				resultAchieved = true;
-				if (greaterThanHypothesis){
-					propertyFulfilled = false;
-					}else propertyFulfilled = true;
-				}else if (lowerBoundary < boundary && boundary <upperBoundary){
-					terminate = true;
-				}
-			}
+			if (requiredWidth >= Math.abs(currentWidth) ){
+	
+				lowerBoundary = mean - epsilon;
+				upperBoundary = mean + epsilon;
+				
+				//accept H+1 hypothesis
+				if (lowerBoundary > boundary){
+					
+					resultAchieved = true;				
+					propertyFulfilled = !checkLowerThan;
+				
+				//accept H-1 Hypothesis	
+				}else if (upperBoundary < boundary){
+					
+					resultAchieved = true;
+					propertyFulfilled = checkLowerThan;
+				}				
+			}			
 		}
-		return resultAchieved;
+		
+		return resultAchieved;		
+		
 	}
 	
-	public Boolean getResultAchieved() {
-		return resultAchieved;
-	}
-	
-	
-	public Boolean getPropertyFulfilled() {
-		return propertyFulfilled;
-	}
-	
-	
-	public Integer getNumberOfRuns() {
-		return numberOfRuns;
-	}
-
-
-	public Integer getMinNumberOfRuns() {
-		return minNumberOfRuns;
-	}
-	
-	//TODO: remove
-	public Boolean getTerminate(){
-		return terminate;
-	}
-	
-
-
 }

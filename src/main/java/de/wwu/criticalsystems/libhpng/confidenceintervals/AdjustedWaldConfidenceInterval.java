@@ -12,41 +12,33 @@ public class AdjustedWaldConfidenceInterval extends ConfidenceInterval{
 	}
 
 
-	private Integer fulfilled;
-	private Double lower;
-	private Double upper;
+	private Double lowerBoundary;
+	private Double upperBoundary;
+	private Double x;
+	private Double n;
 	
 	
 	public Integer calculateMidpointAndHalfIntervalWidthForProperty(PropertyChecker checker, Integer currentRun, MarkingPlot plot) throws InvalidPropertyException {
 		
-		if (currentRun == 1){
-			numberOfRuns = 0;
-			fulfilled = 0;
-		}
-					
-		if (checker.checkProperty(plot))						
-			fulfilled++;
-				
-		numberOfRuns++;	
+		checkPropertyForCurrentRun(checker, currentRun, plot);
 		
+		x = fulfilled.doubleValue();
+		n = numberOfRuns.doubleValue();
 		
-		Double X = fulfilled.doubleValue();
-		Double n = numberOfRuns.doubleValue();
-		
-		Double mean = X / n;
+		Double mean = x / n;
 		
 		if (fulfilled == 0)
-			lower = 0.0;
+			lowerBoundary = 0.0;
 		else
-			lower = (X + 4.0/(2.0*n) - 2.0*Math.sqrt((mean*(1.0-mean) + 4.0/(4*n))/n))/(1.0 + 4.0/n); 
+			lowerBoundary = (x + 4.0/(2.0*n) - 2.0*Math.sqrt((mean*(1.0-mean) + 4.0/(4*n))/n))/(1.0 + 4.0/n); 
 		
 		if (fulfilled == numberOfRuns)
-			upper = 1.0;
+			upperBoundary = 1.0;
 		else
-			upper  = (X+ 4.0/(2.0*n) + 2.0*Math.sqrt((mean*(1.0-mean) + 4.0/(4*n))/n))/(1.0 + 4.0/n); 
+			upperBoundary  = (x+ 4.0/(2.0*n) + 2.0*Math.sqrt((mean*(1.0-mean) + 4.0/(4*n))/n))/(1.0 + 4.0/n); 
 		
-		currentHalfIntervalWidth = 0.5* (upper - lower);
-		midpoint = (X + 2.0) / (n + 4.0);
+		currentHalfIntervalWidth = 0.5* (upperBoundary - lowerBoundary);
+		midpoint = (x + 2.0) / (n + 4.0);
 				
 		return numberOfRuns;
 	

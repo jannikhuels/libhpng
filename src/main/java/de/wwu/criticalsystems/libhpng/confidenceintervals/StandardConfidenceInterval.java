@@ -28,39 +28,30 @@ public class StandardConfidenceInterval extends ConfidenceInterval {
 		return currentHalfIntervalWidth;
 	}
 
-	private Integer numberOfRuns;
 	private Integer minNumberOfRuns;
-	private Integer fulfilled;
-	private Double midpoint;
 	private Double ssquare;
 	private Double t;
 	private Double confidenceLevel;
 	private Double halfIntervalWidth;
-	private Double currentHalfIntervalWidth;
-	
+	private Double x;
+	private Double n;
+	private Double mean;
 	
 
 	public Integer calculateMidpointAndHalfIntervalWidthForProperty(PropertyChecker checker, Integer currentRun, MarkingPlot plot) throws InvalidPropertyException {
 		
+
+		checkPropertyForCurrentRun(checker, currentRun, plot);
 		
-		if (currentRun == 1){
-			numberOfRuns = 0;
-			fulfilled = 0;
-		}
-					
-		if (checker.checkProperty(plot))						
-			fulfilled++;
-				
-		numberOfRuns++;	
 		
-		Double X = fulfilled.doubleValue();
-		Double n = numberOfRuns.doubleValue();
-		Double mean = X / n;
+		x = fulfilled.doubleValue();
+		n = numberOfRuns.doubleValue();
+		mean = fulfilled.doubleValue() / n;
 		
 		if (numberOfRuns == 1)
 			ssquare = 0.0;
 		else
-			ssquare = (X*(n - X))/(n*(n - 1.0));
+			ssquare = (x*(n - x))/(n*(n - 1.0));
 		
 
 		if (numberOfRuns < 2)
@@ -70,7 +61,7 @@ public class StandardConfidenceInterval extends ConfidenceInterval {
 			t = StudentDist.inverseF(numberOfRuns - 1, 1.0 - alphaHalf);
 		}
 		
-		currentHalfIntervalWidth = t * Math.sqrt(ssquare/numberOfRuns);
+		currentHalfIntervalWidth = t * Math.sqrt(ssquare / n);
 		midpoint = mean;
 		
 		return numberOfRuns;

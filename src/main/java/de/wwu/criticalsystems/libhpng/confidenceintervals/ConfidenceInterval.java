@@ -23,7 +23,21 @@ public abstract class ConfidenceInterval {
 	protected Integer numberOfRuns;
 	protected Double midpoint;
 	protected Double currentHalfIntervalWidth;
-	
+	protected Integer fulfilled;
 	
 	public abstract Integer calculateMidpointAndHalfIntervalWidthForProperty(PropertyChecker checker, Integer currentRun, MarkingPlot plot) throws InvalidPropertyException;
+	
+	
+	protected void checkPropertyForCurrentRun(PropertyChecker checker, Integer currentRun, MarkingPlot plot) throws InvalidPropertyException{
+			
+		if (currentRun == 1){
+			numberOfRuns = 0;
+			fulfilled = 0;
+		}
+					
+		if (checker.checkProperty(plot))						
+			fulfilled++;
+				
+		numberOfRuns++;	
+	}
 }

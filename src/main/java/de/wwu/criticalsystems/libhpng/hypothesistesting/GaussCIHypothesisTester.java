@@ -5,91 +5,57 @@ import de.wwu.criticalsystems.libhpng.errorhandling.InvalidPropertyException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.model.HPnGModel;
 import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
-import de.wwu.criticalsystems.libhpng.simulation.PropertyChecker;
 import umontreal.ssj.probdist.NormalDist;
 
-public class GaussCIHypothesisTester {
-	
-	private Boolean resultAchieved = false;
-	private Boolean propertyFulfilled;
-	private PropertyChecker checker;
-	private Boolean greaterThanHypothesis;
-	private Double boundary;
-	private Integer numberOfRuns;
-	//private Integer minNumberOfRuns;
-	private Integer fulfilled;
-	
-	private Double Zn;
-	private Integer fixedNumberOfRuns;
-	private Integer calcNumberOfRuns1;
-	private Integer calcNumberOfRuns2;
-	private Double lowerBoundary;
-	private Double upperBoundary;
-	private NormalDist normalDist;
-	private Boolean terminate;
-	
-	public GaussCIHypothesisTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double halfWidthOfIndifferenceRegion, Double guess, Double type1Error, Double type2Error, Boolean notEqual, Boolean greaterThanHypothesis) throws InvalidPropertyException{
+public class GaussCIHypothesisTester extends HypothesisTester{
 
-		checker = new PropertyChecker(root, model);
-		checker.setLogger(logger);	
+	
+	public GaussCIHypothesisTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double powerIndifferenceLevel, Double type1Error, Double type2Error, Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws InvalidPropertyException{
 
-		this.greaterThanHypothesis = greaterThanHypothesis;
-		//this.minNumberOfRuns = minNumberOfRuns;
+		super(model, minNumberOfRuns, logger, root, checkLowerThan, invertPropertyAndThreshold);
 		
-		normalDist = new NormalDist();
+		NormalDist normalDist = new NormalDist();		
+		Double inverseOneMinusType1Error = normalDist.inverseF(1 - type1Error);
+		Double inverseType2Error = normalDist.inverseF(type2Error);
 		
-		boundary = checker.getProbBoundary(root);		
-		if (boundary < 0.0 || boundary > 1.0){
-			if (logger != null)
-				logger.severe("Property Error: the boundary node of the property root must be between 0.0 and 1.0");
-			throw new InvalidPropertyException("Property Error: the boundary node of the property root must be between 0.0 and 1.0");
-		}
+		Integer calcNumberOfRuns1 = (int) Math.ceil((Math.pow(( (inverseOneMinusType1Error * Math.sqrt (boundary * (1.0 - boundary)) - inverseType2Error * Math.sqrt( (boundary + powerIndifferenceLevel) * (1.0 - boundary - powerIndifferenceLevel)) ) / powerIndifferenceLevel ), 2.0)));
+		Integer calcNumberOfRuns2 = (int) Math.ceil((Math.pow(( (inverseOneMinusType1Error * Math.sqrt (boundary * (1.0 - boundary)) - inverseType2Error * Math.sqrt( (boundary - powerIndifferenceLevel) * (1.0 - boundary + powerIndifferenceLevel)) ) / powerIndifferenceLevel ), 2.0)));			
+		calcNumberOfRuns =  Math.max(calcNumberOfRuns1, calcNumberOfRuns2);
 		
-		calcNumberOfRuns1 = (int) (Math.pow(( (normalDist.inverseF(1 - type1Error) * Math.sqrt (boundary * (1 - boundary)) - normalDist.inverseF(type2Error) * Math.sqrt( (boundary + guess) * (1 - boundary - guess)) ) / guess ), 2));
-		calcNumberOfRuns2 = (int) (Math.pow(( (normalDist.inverseF(1 - type1Error) * Math.sqrt (boundary * (1 - boundary)) - normalDist.inverseF(type2Error) * Math.sqrt( (boundary - guess) * (1 - boundary - guess)) ) / guess ), 2));
-		
-		fixedNumberOfRuns =  Math.max(calcNumberOfRuns1, calcNumberOfRuns2);
-		terminate = false;
-		
-		lowerBoundary = normalDist.inverseF(type1Error) * Math.sqrt(fixedNumberOfRuns * boundary * (1 - boundary));
+		lowerBoundary = normalDist.inverseF(type1Error) * Math.sqrt(calcNumberOfRuns * boundary * (1.0 - boundary));
 		upperBoundary = -lowerBoundary;
-
-		if (!notEqual){
-			if (logger != null)
-				logger.severe("Property Error: Gauss_CI hypothesis testing doesn't allow  tests for '>=' or '<='");
-			throw new InvalidPropertyException("Property Error: Gauss-CI hypothesis testing doesn`t allow  tests for '>=' or '<='");
-		}
 		
 	}
 	
-	public Boolean GCITesting(Integer currentRun, MarkingPlot plot) throws InvalidPropertyException{
+
+	private Double lowerBoundary;
+	private Double upperBoundary;
+	private Integer calcNumberOfRuns;
+	
+	
+	@Override
+	public Boolean doTesting(Integer currentRun, MarkingPlot plot) throws InvalidPropertyException{
 		
-		if (currentRun == 1){			
-			numberOfRuns = 0;
-			fulfilled = 0;
-		}
-					
-		if (checker.checkProperty(plot)){						
-			fulfilled++;
-		}numberOfRuns++;
+		checkPropertyForCurrentRun(currentRun,plot);	
 		
-		
-		if(numberOfRuns.equals(fixedNumberOfRuns)){
-			Zn = fulfilled - fixedNumberOfRuns * boundary;
+			
+		if(numberOfRuns >= calcNumberOfRuns && numberOfRuns < (calcNumberOfRuns + 1)){
+			
+			Double zN = fulfilled.doubleValue() - calcNumberOfRuns.doubleValue() * boundary;
 			
 			//accept H+1 hypothesis
-			if (Zn > upperBoundary){
-				resultAchieved = true;
-				if(!greaterThanHypothesis){
-					propertyFulfilled = false;
-				}else propertyFulfilled = true;
+			if (zN > upperBoundary){
+				
+				resultAchieved = true;				
+				propertyFulfilled = !checkLowerThan;
+				
 			//accept H-1 hypothesis	
-			}else if (Zn < lowerBoundary){
+			}else if (zN < lowerBoundary){
+				
 				resultAchieved = true;
-				if (greaterThanHypothesis){
-					propertyFulfilled = false;
-				}else propertyFulfilled = true;
-			}else if (lowerBoundary < Zn && upperBoundary > Zn){
+				propertyFulfilled = checkLowerThan;
+				
+			}else {
 				terminate = true;
 			}
 		}
@@ -97,26 +63,5 @@ public class GaussCIHypothesisTester {
 		return resultAchieved;
 	}
 	
-	public Boolean getResultAchieved() {
-		return resultAchieved;
-	}
-	
-	
-	public Boolean getPropertyFulfilled() {
-		return propertyFulfilled;
-	}
-	
-	
-	public Integer getNumberOfRuns() {
-		return numberOfRuns;
-	}
 
-
-	public Integer getFixedNumberOfRuns() {
-		return fixedNumberOfRuns;
-	}
-	
-	public Boolean getTerminate(){
-		return terminate;
-	}
 }

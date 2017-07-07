@@ -1,106 +1,64 @@
 package de.wwu.criticalsystems.libhpng.hypothesistesting;
 
 import java.util.logging.Logger;
+
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidPropertyException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.model.HPnGModel;
 import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
-import de.wwu.criticalsystems.libhpng.simulation.PropertyChecker;
 
-public class SequentialProbabilityRatioTester {
+public class SequentialProbabilityRatioTester extends HypothesisTester{
 	
-	public SequentialProbabilityRatioTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double halfWidthOfIndifferenceRegion, Double type1Error, Double type2Error, Boolean notEqual, Boolean nullHypothesisLowerEqual) throws InvalidPropertyException{
+	public SequentialProbabilityRatioTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double correctnessIndifferenceLevel, Double type1Error, Double type2Error, Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws InvalidPropertyException{
 		
-		checker = new PropertyChecker(root, model);
-		checker.setLogger(logger);	
-		this.notEqual = notEqual;
-		this.minNumberOfRuns = minNumberOfRuns;
-		
-		boundary = checker.getProbBoundary(root);		
-		if (boundary < 0.0 || boundary > 1.0){
-			if (logger != null)
-				logger.severe("Property Error: the boundary node of the property root must be between 0.0 and 1.0");
-			throw new InvalidPropertyException("Property Error: the boundary node of the property root must be between 0.0 and 1.0");
-		}
-		
+		super(model, minNumberOfRuns, logger, root, checkLowerThan, invertPropertyAndThreshold);
+				
 		A = (1.0 - type2Error) / type1Error;
 		B = type2Error / (1.0 - type1Error);
 		
-		if (nullHypothesisLowerEqual){
-			p0 = Math.max(0.0, boundary - halfWidthOfIndifferenceRegion);
-			p1 = Math.min(1.0, boundary + halfWidthOfIndifferenceRegion);			
-		} else {
-			p0 = Math.min(1.0, boundary + halfWidthOfIndifferenceRegion);
-			p1 = Math.max(0.0, boundary - halfWidthOfIndifferenceRegion);
-		}	
-	}
-	
-	
-	public Boolean getResultAchieved() {
-		return resultAchieved;
-	}
-	
-	
-	public Boolean getPropertyFulfilled() {
-		return propertyFulfilled;
-	}
-	
-	
-	public Integer getNumberOfRuns() {
-		return numberOfRuns;
-	}
+		pminus1 = Math.max(0.0, boundary - correctnessIndifferenceLevel);
+		pplus1= Math.min(1.0, boundary + correctnessIndifferenceLevel);		
 
-
-	public Integer getMinNumberOfRuns() {
-		return minNumberOfRuns;
 	}
+		
 
-
-
-	private Boolean resultAchieved = false;
-	private Boolean propertyFulfilled;
-	private Double p0;
-	private Double p1;
+	private Double pplus1;
+	private Double pminus1;
 	private Double A;
 	private Double B;
-	private PropertyChecker checker;
-	private Boolean notEqual;
-	private Double boundary;
-	private Integer numberOfRuns;
-	private Integer minNumberOfRuns;
-	private Integer fulfilled;
+	private Double ratio;
+	private Double x;
+	private Double n;
 	
 	
-	public Boolean doRatioTest(Integer currentRun, MarkingPlot plot) throws InvalidPropertyException{
+	@Override
+	public Boolean doTesting(Integer currentRun, MarkingPlot plot) throws InvalidPropertyException{
 		
-		if (currentRun == 1){
-			numberOfRuns = 0;
-			fulfilled = 0;
-		}
-					
-		if (checker.checkProperty(plot))						
-			fulfilled++;
-		numberOfRuns++;
+		checkPropertyForCurrentRun(currentRun, plot);		
 		
 		if (numberOfRuns >= minNumberOfRuns){
 			
-			Double ratio = (Math.pow(p1, fulfilled)*Math.pow(1.0 - p1, numberOfRuns - fulfilled)) / (Math.pow(p0, fulfilled)*Math.pow(1.0 - p0, numberOfRuns - fulfilled));
-			
-						
+			x = fulfilled.doubleValue();
+			n = numberOfRuns.doubleValue();
+			ratio = (Math.pow(pminus1, x)*Math.pow(1.0 - pminus1, n - x)) / (Math.pow(pplus1, x)*Math.pow(1.0 - pplus1, n - x));			
+				
+			//accept H+1 hypothesis
 			if (ratio < B){
-				resultAchieved = true;
-				propertyFulfilled = true;
+				resultAchieved = true;				
+				propertyFulfilled = !checkLowerThan;
+			
+				
+			//accept H-1 hypothesis
 			} else if (ratio > A){
 				resultAchieved = true;
-				propertyFulfilled = false;
+				propertyFulfilled = checkLowerThan;
 			}	
-			
-			if (resultAchieved && notEqual)
-				propertyFulfilled = !propertyFulfilled;
-			
+					
 		}				
 		
 		return resultAchieved;
 	}
+
+
 
 }
