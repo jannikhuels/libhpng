@@ -2,6 +2,7 @@ package de.wwu.criticalsystems.libhpng.model;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.logging.Logger;
 
@@ -200,13 +201,6 @@ public class HPnGModel {
 	}
 	
 		
-	private void setDynamicContinuousTransitionsBack() {
-		for(Transition transition: transitions){
-			if(transition.getClass().equals(DynamicContinuousTransition.class))
-				((DynamicContinuousTransition)transition).setAdapted(false);
-		}		
-	}
-
 	//updates enabling status for all transitions, but does not include a new check of guard arc conditions 
 	public void updateEnabling(Boolean reset) throws InvalidRandomVariateGeneratorException{		
 		
@@ -374,7 +368,82 @@ public class HPnGModel {
 		System.out.println();
 		System.out.println();
 	}
+	
+		
+	public int[][] getArrayOfNumberOfComponents(){
+		
+		int[][] numbers = new int[3][5];
+		Arrays.fill(numbers[0], 0);
+		Arrays.fill(numbers[1], 0);
+		Arrays.fill(numbers[2], 0);
+		
+		int counter1 = 0;
+		int counter2 = 0;
+		int counter3 = 0;
+		int counter4 = 0;
+		int counter5 = 0;
+		
+		
+		for (Place place: places){				
+			if (place.getClass().equals(DiscretePlace.class))
+				counter1++;
+			else if (place.getClass().equals(ContinuousPlace.class))
+				counter2++;			
+		}
+		numbers[0][0] = counter1;
+		numbers[0][1] = counter2;	
+		
+		counter1 = 0;
+		counter2 = 0;
+		
+		
+		for (Transition transition: transitions){
+			if (transition.getClass().equals(GeneralTransition.class))
+				counter1++;
+			else if (transition.getClass().equals(ImmediateTransition.class))
+				counter2++;
+			else if (transition.getClass().equals(DeterministicTransition.class))
+				counter3++;
+			else if (transition.getClass().equals(ContinuousTransition.class))
+				counter4++;
+			else if (transition.getClass().equals(DynamicContinuousTransition.class))
+				counter5++;		
+		}
+		numbers[1][0] = counter1;
+		numbers[1][1] = counter2;
+		numbers[1][2] = counter3;
+		numbers[1][3] = counter4;
+		numbers[1][4] = counter5;
+		
+		counter1 = 0;
+		counter2 = 0;
+		counter3 = 0;
 
+				
+		for (Arc arc: arcs){
+			if (arc.getClass().equals(DiscreteArc.class))
+				counter1++;
+			else if (arc.getClass().equals(ContinuousArc.class))
+				counter2++;
+			else if (arc.getClass().equals(GuardArc.class))
+				counter3++;
+		}
+		numbers[2][0] = counter1;
+		numbers[2][1] = counter2;
+		numbers[2][2] = counter3;		
+		
+		return numbers;		
+	}
+
+	
+	
+	private void setDynamicContinuousTransitionsBack() {
+		for(Transition transition: transitions){
+			if(transition.getClass().equals(DynamicContinuousTransition.class))
+				((DynamicContinuousTransition)transition).setAdapted(false);
+		}		
+	}
+	
 	
 	private void rateAdaption(ContinuousPlace place, double flux, ContinuousArcType direction){
 		

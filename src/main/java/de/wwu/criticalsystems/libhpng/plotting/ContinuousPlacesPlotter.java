@@ -1,9 +1,13 @@
 package de.wwu.criticalsystems.libhpng.plotting;
 
 import java.awt.Color;
+import java.awt.Shape;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
+
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.ui.RefineryUtilities;
 import umontreal.ssj.probdist.StudentDist;
 
@@ -127,29 +131,46 @@ public class ContinuousPlacesPlotter {
 	}
 	
 	
-	private XYLineGraph addSeriesToGraph(XYLineGraph oldGraph, String id, Integer series) {
+private XYLineGraph addSeriesToGraph(XYLineGraph oldGraph, String id, Integer series) {
 		
 		XYLineGraph graph = oldGraph;		
 		Color color = defineColor(series);
 		
-		graph.addSeries(id);
-		graph.getPlot().getRenderer().setSeriesPaint(series, color);			
+		
+		XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) graph.getPlot().getRenderer();
+		Shape bar = new Rectangle2D.Double(-0.5, -0.1, 1.0, 0.2);
+		
+		graph.addSeries(id);		
+		renderer.setSeriesPaint(series, color);			
+		renderer.setSeriesShapesVisible((int)series, false);
+		
+		
 		graph.addSeries(id + "_up");
-		graph.getPlot().getRenderer().setSeriesPaint(series + 1, color);
-		graph.getPlot().getRenderer().setSeriesVisibleInLegend(series + 1, false);
-		graph.addSeries(id+ "_low");
-		graph.getPlot().getRenderer().setSeriesPaint(series + 2, color);
-		graph.getPlot().getRenderer().setSeriesVisibleInLegend(series + 2, false);
+		renderer.setSeriesPaint(series + 1, color);			
+		renderer.setSeriesVisibleInLegend(series + 1, false);
+		renderer.setSeriesLinesVisible(series + 1, false);	
+		renderer.setSeriesShapesVisible(series + 1, true);
+		renderer.setSeriesShape(series + 1, bar);
+
+	
+		graph.addSeries(id+ "_low");	
+		renderer.setSeriesPaint(series + 2, color);			
+		renderer.setSeriesVisibleInLegend(series + 2, false);
+		renderer.setSeriesLinesVisible(series + 2, false);	
+		renderer.setSeriesShapesVisible(series + 2, true);
+		renderer.setSeriesShape(series + 2, bar);
 
 		return graph;
 	}
 
 	
+	
+	
 	private Color defineColor(Integer i){
 		
 		while (i>5)
 			i-=5;		
-		int rgb = Color.HSBtoRGB(i.floatValue()/5f,0.9f,0.9f);		
+		int rgb = Color.HSBtoRGB(i.floatValue()/5f,0.5f,0.9f);		
 		return new Color(rgb);		
 	}
 }

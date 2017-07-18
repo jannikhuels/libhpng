@@ -107,6 +107,15 @@ public class ModelHandler {
 			if (logger != null) 
 				logger.info("Model '" + xmlPath + "' has been read successfully.");	
 			System.out.println("Model '" + xmlPath + "' has been read successfully.");
+			
+			
+			int[][] numbers = model.getArrayOfNumberOfComponents();
+			
+			System.out.println("Discrete Places: " + numbers[0][0] + ", Continuous Places: " + numbers[0][1]);
+			System.out.println("General Transitions: " + numbers[1][0] + ", Immediate Transitions: " + numbers[1][1]+ ", Deterministic Transitions: " + numbers[1][2]+ ", Static Continuous Transitions: " + numbers[1][3]+ ", Dynamic Continuous Transitions: " + numbers[1][4]);
+			System.out.println("Discrete Arcs: " + numbers[2][0] + ", Continuous Arcs: " + numbers[2][1] + ", Guards Arcs: " + numbers[2][2]);
+			
+			
 		
 		} catch (ModelNotReadableException e) {		
 			if (logger != null) 
