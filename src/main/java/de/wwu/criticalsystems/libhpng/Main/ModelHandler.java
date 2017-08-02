@@ -227,6 +227,12 @@ public class ModelHandler {
 	    		case 14:
 	    			simulationHandler.setPowerIndifferenceLevel((Double)value);
 	    			break;
+	    		case 15:
+	    			simulationHandler.setRealProbability((Double)value);
+	    			break;
+	    		case 16:
+	    			simulationHandler.setCalculations((Integer)value);
+	    			break;
 	    	}
 	    	
 	    } catch (InvalidSimulationParameterException e) {
@@ -243,7 +249,9 @@ public class ModelHandler {
 
     	System.out.println("- Used confidence interval calculation approach: " + simulationHandler.getIntervalName() + " Confidence Interval");    	
     	System.out.println("- Half interval width of the confidence interval: " + simulationHandler.getHalfIntervalWidth());
-    	System.out.println("- Confidence level: " + simulationHandler.getConfidenceLevel() + "\n");
+    	System.out.println("- Confidence level: " + simulationHandler.getConfidenceLevel());
+    	System.out.println("- Real Probability: " + simulationHandler.getRealProbability());
+    	System.out.println("- Calculations: " + simulationHandler.getCalculations() + "\n");
     	
     	System.out.println("- Used hypothesis testing algorithm: " + simulationHandler.getAlgorithmName());
     	System.out.println("- Correctness indifference level: " + simulationHandler.getCorrectnessIndifferenceLevel());

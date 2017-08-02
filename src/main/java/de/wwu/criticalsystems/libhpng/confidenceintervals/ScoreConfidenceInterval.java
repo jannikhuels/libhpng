@@ -37,12 +37,12 @@ public class ScoreConfidenceInterval extends ConfidenceInterval{
 		if (fulfilled == 0)
 			lowerBoundary = 0.0;
 		else
-			lowerBoundary = (x + (z*z)/(2.0*n) - z*Math.sqrt((mean*(1.0-mean) + (z*z)/(4.0*n))/n))/(1.0 + (z*z)/n); 
+			lowerBoundary = (mean + (z*z)/(2.0*n) - z*Math.sqrt((mean*(1.0-mean) + (z*z)/(4.0*n))/n))/(1.0 + (z*z)/n); 
 		
 		if (fulfilled == numberOfRuns)
 			upperBoundary = 1.0;
 		else
-			upperBoundary  = (x + (z*z)/(2.0*n) + z*Math.sqrt((mean*(1.0-mean) + (z*z)/(4.0*n))/n))/(1.0 + (z*z)/n); 
+			upperBoundary  = (mean + (z*z)/(2.0*n) + z*Math.sqrt((mean*(1.0-mean) + (z*z)/(4.0*n))/n))/(1.0 + (z*z)/n); 
 		
 		currentHalfIntervalWidth = 0.5* (upperBoundary - lowerBoundary);
 		midpoint =  mean*(n / (n + (z*z))) + 0.5*((z*z)/(n + (z*z)));

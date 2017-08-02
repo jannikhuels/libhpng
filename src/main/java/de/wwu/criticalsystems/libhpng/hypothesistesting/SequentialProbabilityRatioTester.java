@@ -13,8 +13,8 @@ public class SequentialProbabilityRatioTester extends HypothesisTester{
 		
 		super(model, minNumberOfRuns, logger, root, checkLowerThan, invertPropertyAndThreshold);
 				
-		A = (1.0 - type2Error) / type1Error;
-		B = type2Error / (1.0 - type1Error);
+		A = (1.0 - type1Error) / type1Error;
+		B = type1Error / (1.0 - type1Error);
 		
 		pminus1 = Math.max(0.0, boundary - correctnessIndifferenceLevel);
 		pplus1= Math.min(1.0, boundary + correctnessIndifferenceLevel);		

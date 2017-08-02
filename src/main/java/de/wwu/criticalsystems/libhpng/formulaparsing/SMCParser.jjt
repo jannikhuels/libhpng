@@ -29,7 +29,7 @@ TOKEN :
 | <COMPARE: "<" | ">" | "=" | "<=" | ">=">
 | <DIGITS: (["0"-"9"])+>
 | <NUMBER: <DIGITS> "." <DIGITS>>
-| <ID: "'"(((["a"-"z","A"-"Z"])+) | (<DIGITS>))+ "'">
+| <ID: "'"((["a"-"z","A"-"Z"]) | ("_") | ("-") | (<DIGITS>))+ "'">
 | <SEP: ",">
 | <COLON: ":">
 | <PROBG: "P>">

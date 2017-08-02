@@ -90,6 +90,12 @@ public class Testing {
 		SampleGenerator generator;
 		
 		
+		Double fulfilledPercentage;
+		Double notFulfilledPercentage;
+		Double noResultPercentage;
+		Integer averageRuns;
+		
+		
 		switch (algorithmID){
 		
 			case 0:
@@ -181,14 +187,14 @@ public class Testing {
 					if (tester.getPropertyFulfilled()){
 						System.out.println(fixedNumberOfRuns + " runs simulated. The property is fulfilled");
 						fulfilled ++;
-						maxRun(run);
-						minRun(run);
+						calcMaxRun(run);
+						calcMinRun(run);
 						totalRuns += run;
 					} else {
 						System.out.println(fixedNumberOfRuns + " runs simulated. The property is NOT fulfilled");
 						notFulfilled ++;
-						maxRun(run);
-						minRun(run);
+						calcMaxRun(run);
+						calcMinRun(run);
 						totalRuns += run;
 					}
 					
@@ -249,15 +255,15 @@ public class Testing {
 					if (tester.getPropertyFulfilled()){
 						System.out.println(run + " runs needed. The property is fulfilled");
 						fulfilled ++;
-						maxRun(run);
-						minRun(run);
+						calcMaxRun(run);
+						calcMinRun(run);
 						totalRuns += run;
 
 					}else{
 						System.out.println(run + " runs needed. The property is NOT fulfilled");
 						notFulfilled ++;
-						maxRun(run);
-						minRun(run);
+						calcMaxRun(run);
+						calcMinRun(run);
 						totalRuns += run;
 
 						}
@@ -283,694 +289,46 @@ public class Testing {
 			tester.resetResults();
 			n++;
 		}
-		System.out.println("\n" + "Property is fulfilled in: " + calcPercentage(fulfilled) + "% (" + fulfilled + ") of " + testRuns +" tests"  );
-		System.out.println("Property is not fulfilled in: " + calcPercentage(notFulfilled) + "% (" + notFulfilled + ") of " + testRuns +" tests"  );
-		System.out.println("No result could be calculated in: " + calcPercentage(noResult) + "% (" + noResult + ") of " + testRuns +" tests" + "\n");
+		fulfilledPercentage = calcPercentage(fulfilled);
+		notFulfilledPercentage = calcPercentage(notFulfilled);
+		noResultPercentage = calcPercentage(noResult);
+		averageRuns = totalRuns/(fulfilled+notFulfilled + noResult);
+		
+		System.out.println("\n" + "Property is fulfilled in: " + fulfilledPercentage + "% (" + fulfilled + ") of " + testRuns +" tests"  );
+		System.out.println("Property is not fulfilled in: " + notFulfilledPercentage + "% (" + notFulfilled + ") of " + testRuns +" tests"  );
+		System.out.println("No result could be calculated in: " + noResultPercentage + "% (" + noResult + ") of " + testRuns +" tests" + "\n");
 		System.out.println("Minimal number of simulation runs needed: " + minRun) ;
 		System.out.println("Maximal number of simulation runs needed: " + maxRun);
-		if(fulfilled > 0 || notFulfilled > 0){
-			System.out.println("Average number of simulation runs needed: " + totalRuns/(fulfilled+notFulfilled) + "\n");
-			}else {System.out.println("There where no successfull runs" + "\n");}
+		if(fulfilled > 0 || notFulfilled > 0)
+			System.out.println("Average number of simulation runs needed: " + averageRuns + "\n");
+		else 
+			System.out.println("There where no successfull runs" + "\n");		
+		
+	}	
 		
 		
-
-	/*		if (algorithmID == 0){
-				int n = 0;
-				while(n < testRuns){
-					if (fixedNumber)
-						simulateAndTestSPRWithFixedNumberOfRuns( checkLowerThan, invertPropertyAndThreshold); 	
-					else
-						simulateAndTestSPR( checkLowerThan, invertPropertyAndThreshold); 
-					n++;
-				}
-				System.out.println("\n" + "property is fulfilled in: " + calcPercentage(fulfilled) + "% (" + fulfilled + ") of " + testRuns +" runs" + "\n");
-				System.out.println("property is not fulfilled in: " + calcPercentage(notFulfilled) + "% (" + notFulfilled + ") of " + testRuns +" runs" + "\n");
-				System.out.println("no result could be calculated in: " + calcPercentage(noResult) + "% (" + noResult + ") of " + testRuns +" runs" + "\n");
-				System.out.println("minimal number of runs needed: " + minRun + "\n");
-				System.out.println("maximal number of runs needed: " + maxRun + "\n");
-				if(fulfilled > 0 || notFulfilled > 0){
-					System.out.println("average number of runs needed: " + totalRuns/(fulfilled+notFulfilled) + "\n");
-					}else {System.out.println("there where no successfull runs" + "\n");}
-				
-			}else if (algorithmID == 1){
-				int n = 0;
-				while(n < testRuns){
-					simulateAndTestGaussCI(notEqual, nullHypothesisLowerEqual, checkLowerThan, invertPropertyAndThreshold); 
-					n++;
-				}
-				System.out.println("\n" + "property is fulfilled in: " + calcPercentage(fulfilled) + "% (" + fulfilled + ") of " + testRuns +" runs" + "\n");
-				System.out.println("property is not fulfilled in: " + calcPercentage(notFulfilled) + "% (" + notFulfilled + ") of " + testRuns +" runs" + "\n");
-				System.out.println("no result could be calculated in: " + calcPercentage(noResult) + "% (" + noResult + ") of " + testRuns +" runs" + "\n");
-				System.out.println("minimal number of runs needed: " + minRun + "\n");
-				System.out.println("maximal number of runs needed: " + maxRun + "\n");
-				if(fulfilled > 0 || notFulfilled > 0){
-					System.out.println("average number of runs needed: " + totalRuns/(fulfilled+notFulfilled) + "\n");
-					}else {System.out.println("there where no successfull runs" + "\n");}
-				
-			}else if (algorithmID == 2){
-				int n = 0;
-				while(n < testRuns){
-					simulateAndTestCR(notEqual, nullHypothesisLowerEqual, checkLowerThan, invertPropertyAndThreshold); 
-					n++;
-				}
-				System.out.println("\n" + "property is fulfilled in: " + calcPercentage(fulfilled) + "% (" + fulfilled + ") of " + testRuns +" runs" + "\n");
-				System.out.println("property is not fulfilled in: " + calcPercentage(notFulfilled) + "% (" + notFulfilled + ") of " + testRuns +" runs" + "\n");
-				System.out.println("no result could be calculated in: " + calcPercentage(noResult) + "% (" + noResult + ") of " + testRuns +" runs" + "\n");
-				System.out.println("minimal number of runs needed: " + minRun + "\n");
-				System.out.println("maximal number of runs needed: " + maxRun + "\n");
-				
-				if(fulfilled > 0 || notFulfilled > 0){
-					System.out.println("average number of runs needed: " + totalRuns/(fulfilled+notFulfilled) + "\n");
-					}else {System.out.println("there where no successfull runs" + "\n");}
-				
-			}else if (algorithmID == 3){
-				int n = 0;
-				while(n < testRuns){
-					simulateAndTestAzuma(notEqual, nullHypothesisLowerEqual, checkLowerThan, invertPropertyAndThreshold); 
-					n++;
-				}
-				System.out.println("\n" + "property is fulfilled in: " + calcPercentage(fulfilled) + "% (" + fulfilled + ") of " + testRuns +" runs" + "\n");
-				System.out.println("property is not fulfilled in: " + calcPercentage(notFulfilled) + "% (" + notFulfilled + ") of " + testRuns +" runs" + "\n");
-				System.out.println("no result could be calculated in: " + calcPercentage(noResult) + "% (" + noResult + ") of " + testRuns +" runs" + "\n");
-				System.out.println("minimal number of runs needed: " + minRun + "\n");
-				System.out.println("maximal number of runs needed: " + maxRun + "\n");
-				
-				if(fulfilled > 0 || notFulfilled > 0){
-					System.out.println("average number of runs needed: " + totalRuns/(fulfilled+notFulfilled) + "\n");
-					}else {System.out.println("there where no successfull runs" + "\n");}
-			
-			
-		}*/
+	
+	private void calcMinRun(int currRun){
 		
+		if(minRun == 0)
+			minRun = currRun;
 		
+		if(minRun > currRun)
+			minRun = currRun;
+	}
+	
+	private void calcMaxRun(int currRun){
+		
+		if(maxRun < currRun)
+			{maxRun = currRun;}
 	}
 	
 	
-	
-	/*
-	private void simulateAndTestGaussCI (Boolean notEqual, Boolean nullHypothesisLowerEqual, checkLowerThan, invertPropertyAndThreshold) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
-		SampleGenerator generator = new SampleGenerator();
-		generator.initializeRandomStream();
-		if (logger != null){
-				if (nullHypothesisLowerEqual){
-					logger.info("Simulation started for a 'P>x' property with Gauss Confidence Interval test");
-				}else {
-					logger.info("Simulation started for a 'P<x' property with Gauss Confidence Interval test");}		
-		}
+	private Double calcPercentage(Integer calc){
 		
-		GaussCIHypothesisTester tester = new GaussCIHypothesisTester(model, minNumberOfRuns, logger, root, halfWidthOfIndifferenceRegion, guess, type1Error, type2Error, notEqual, nullHypothesisLowerEqual, checkLowerThan, invertPropertyAndThreshold);
+		Double percentage = calc.doubleValue() / testRuns.doubleValue();
+		percentage = percentage*100;
+		return percentage;
 		
-		if (!printRunResults)
-			System.out.println("Running simulation...");
-		int run = 0;
-		while (!tester.getResultAchieved() && run < maxNumberOfRuns && !tester.getTerminate()){
-			
-			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
-			
-			currentTime = 0.0;
-			try {
-				model.resetMarking();
-				generator.sampleGeneralTransitions(model, logger);
-			} catch (InvalidDistributionParameterException e) {
-				throw new ModelNotReadableException(e.getLocalizedMessage());				
-			}
-			 
-			currentPlot = new MarkingPlot(maxTime);
-			plots.add(currentPlot);
-			currentPlot.initialize(model);
-			
-			//simulation
-			while (currentTime <= maxTime)
-				currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);		
-			
-			tester.GCITesting(run + 1, currentPlot);
-			
-			if (printRunResults){
-				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
-				model.printCurrentMarking(false, true);	
-			}
-			
-			run++;		
-		}
-		if (tester.getResultAchieved()){
-			
-			if (tester.getPropertyFulfilled()){
-				System.out.println(run + " runs needed. The property is fulfilled");
-				fulfilled ++;
-				maxRun(run);
-				minRun(run);
-				totalRuns += run;
-
-			}else{
-				System.out.println(run + " runs needed. The property is NOT fulfilled");
-				notFulfilled++;
-				maxRun(run);
-				minRun(run);
-				totalRuns += run;
-
-				}
-		}else{
-			System.out.println("The maximum number of " + run + " runs has been achieved without a decision on the property result.");
-			noResult++;
-		}
-		
-		if (logger != null){
-			logger.info("Simulation finished after " + run + " runs");
-			if (tester.getResultAchieved()){
-				if (tester.getPropertyFulfilled())
-					logger.info("The property is fulfilled");
-				else
-					logger.info("The property is not fulfilled");
-			} else
-				logger.info("Not enough runs executed to make a decision on the property");
-		}
-	}
-	
-	private void simulateAndTestCR (Boolean notEqual, Boolean nullHypothesisLowerEqual, checkLowerThan, invertPropertyAndThreshold) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
-		SampleGenerator generator = new SampleGenerator();
-		generator.initializeRandomStream();
-		if (logger != null){
-				if (nullHypothesisLowerEqual){
-					logger.info("Simulation started for a 'P>x' property with Chow-Robbins test");
-				}else {
-					logger.info("Simulation started for a 'P<x' property with Chow-Robbins test");}		
-		}
-		
-		ChowRobbinsHypothesisTester tester = new ChowRobbinsHypothesisTester(model, minNumberOfRuns, logger, root, halfWidthOfIndifferenceRegion, guess, type1Error, type2Error, notEqual, nullHypothesisLowerEqual, checkLowerThan, invertPropertyAndThreshold);
-		
-		if (!printRunResults)
-			System.out.println("Running simulation...");
-		int run = 0;
-		while (!tester.getResultAchieved() && run < maxNumberOfRuns && !tester.getTerminate()){
-			
-			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
-			
-			currentTime = 0.0;
-			try {
-				model.resetMarking();
-				generator.sampleGeneralTransitions(model, logger);
-			} catch (InvalidDistributionParameterException e) {
-				throw new ModelNotReadableException(e.getLocalizedMessage());				
-			}
-		
-			currentPlot = new MarkingPlot(maxTime);
-			plots.add(currentPlot);
-			currentPlot.initialize(model);
-			
-			//simulation
-			while (currentTime <= maxTime)
-				currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);		
-			
-			tester.CRTesting(run + 1, currentPlot);
-			
-			if (printRunResults){
-				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
-				model.printCurrentMarking(false, true);	
-			}
-			
-			run++;		
-		}
-		if (tester.getResultAchieved()){
-			
-			if (tester.getPropertyFulfilled()){
-				System.out.println(run + " runs needed. The property is fulfilled");
-				fulfilled ++;
-				maxRun(run);
-				minRun(run);
-				totalRuns += run;
-
-			}else{
-				System.out.println(run + " runs needed. The property is NOT fulfilled");
-				notFulfilled ++;
-				maxRun(run);
-				minRun(run);
-				totalRuns += run;
-				}
-		} else{
-			System.out.println("The maximum number of " + run + " runs has been achieved without a decision on the property result.");
-			noResult++;
-		}			
-		
-		if (logger != null){
-			logger.info("Simulation finished after " + run + " runs");
-			if (tester.getResultAchieved()){
-				if (tester.getPropertyFulfilled())
-					logger.info("The property is fulfilled");
-				else
-					logger.info("The property is not fulfilled");
-			} else
-				logger.info("Not enough runs executed to make a decision on the property");
-		}
-	}
-	
-	private void simulateAndTestAzuma (Boolean notEqual, Boolean nullHypothesisLowerEqual, checkLowerThan, invertPropertyAndThreshold) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
-		SampleGenerator generator = new SampleGenerator();
-		generator.initializeRandomStream();
-		if (logger != null){
-			if (nullHypothesisLowerEqual){
-				logger.info("Simulation started for a 'P>x' property with Azuma test");
-			}else {
-				logger.info("Simulation started for a 'P<x' property with Azuma test");}		
-	}		
-		
-		AzumaHypothesisTester tester = new AzumaHypothesisTester (model, minNumberOfRuns, logger, root, halfWidthOfIndifferenceRegion, guess, type1Error, type2Error, notEqual, nullHypothesisLowerEqual, checkLowerThan, invertPropertyAndThreshold);
-		
-		if (!printRunResults)
-			System.out.println("Running simulation...");
-		int run = 0;
-		while (!tester.getResultAchieved() && run < maxNumberOfRuns){
-			
-			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
-			
-			currentTime = 0.0;
-			try {
-				model.resetMarking();
-				generator.sampleGeneralTransitions(model, logger);
-			} catch (InvalidDistributionParameterException e) {
-				throw new ModelNotReadableException(e.getLocalizedMessage());				
-			}
-		
-			currentPlot = new MarkingPlot(maxTime);
-			plots.add(currentPlot);
-			currentPlot.initialize(model);
-			
-			//simulation
-			while (currentTime <= maxTime)
-				currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);		
-			
-			tester.azumaTesting(run + 1, currentPlot);
-			
-			if (printRunResults){
-				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
-				model.printCurrentMarking(false, true);	
-			}
-			
-			run++;		
-		}
-		if (tester.getResultAchieved()){
-			
-			System.out.print("Azuma funktion: " + tester.getAzuma_function());
-			
-			if (tester.getPropertyFulfilled()){
-				System.out.println(run + " runs needed. The property is fulfilled");
-				fulfilled ++;
-				maxRun(run);
-				minRun(run);
-				totalRuns += run;
-
-			}else{
-				System.out.println(run + " runs needed. The property is NOT fulfilled");
-				notFulfilled ++;
-				maxRun(run);
-				minRun(run);
-				totalRuns += run;
-
-			}
-		}else{
-			System.out.println("The maximum number of " + run + " runs has been achieved without a decision on the property result.");
-			noResult++;
-		}
-		
-		if (logger != null){
-			logger.info("Simulation finished after " + run + " runs");
-			if (tester.getResultAchieved()){
-				if (tester.getPropertyFulfilled())
-					logger.info("The property is fulfilled");
-				else
-					logger.info("The property is not fulfilled");
-			} else
-				logger.info("Not enough runs executed to make a decision on the property");
-		}
-	}
-	
-	private void simulateAndTestSPR (Boolean notEqual, Boolean nullHypothesisLowerEqual, Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
-		SampleGenerator generator = new SampleGenerator();
-		generator.initializeRandomStream();
-		if (logger != null){
-			if (!invertPropertyAndThreshold){
-				if (!checkLowerThan)
-					logger.info("Simulation started for a 'P>x' property with Sequential Probability Ratio Test");
-				else
-					logger.info("Simulation started for a 'P<x' property with Sequential Probability Ratio Test");
-			} else {
-				if (!checkLowerThan)
-					logger.info("Simulation started for a 'P<=x' property with Sequential Probability Ratio Test");
-				else
-					logger.info("Simulation started for a 'P>=x' property with Sequential Probability Ratio Test");
-			}
-		}
-		
-		SequentialProbabilityRatioTester tester = new SequentialProbabilityRatioTester(model, minNumberOfRuns, logger, root, halfWidthOfIndifferenceRegion, type1Error, type2Error, notEqual, nullHypothesisLowerEqual, checkLowerThan, invertPropertyAndThreshold);
-		
-		if (!printRunResults)
-			System.out.println("Running simulation...");
-		int run = 0;
-		while (!tester.getResultAchieved() && run < maxNumberOfRuns){
-			
-			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
-			
-			currentTime = 0.0;
-			try {
-				model.resetMarking();
-				generator.sampleGeneralTransitions(model, logger);
-			} catch (InvalidDistributionParameterException e) {
-				throw new ModelNotReadableException(e.getLocalizedMessage());				
-			}
-		
-			currentPlot = new MarkingPlot(maxTime);
-			plots.add(currentPlot);
-			currentPlot.initialize(model);
-			
-			//simulation
-			while (currentTime <= maxTime)
-				currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);		
-			
-			tester.doTesting(run + 1, currentPlot);
-			
-			if (printRunResults){
-				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
-				model.printCurrentMarking(false, true);	
-			}
-			
-			run++;		
-		}
-		if (tester.getResultAchieved()){
-			
-			if (tester.getPropertyFulfilled()){
-				System.out.println(run + " runs needed. The property is fulfilled");
-				fulfilled ++;
-				maxRun(run);
-				minRun(run);
-				totalRuns += run;
-
-			}else{
-				System.out.println(run + " runs needed. The property is NOT fulfilled");
-				notFulfilled ++;
-				maxRun(run);
-				minRun(run);
-				totalRuns += run;
-
-				}
-		}else{
-			System.out.println("The maximum number of " + run + " runs has been achieved without a decision on the property result.");
-			noResult++;
-		}
-		
-		if (logger != null){
-			logger.info("Simulation finished after " + run + " runs");
-			if (tester.getResultAchieved()){
-				if (tester.getPropertyFulfilled())
-					logger.info("The property is fulfilled");
-				else
-					logger.info("The property is not fulfilled");
-			} else
-				logger.info("Not enough runs executed to make a decision on the property");
-		}
-	}
-
-	private void simulateAndTestGaussCIWithFixedNumberOfRuns (Boolean notEqual, Boolean nullHypothesisLowerEqual, checkLowerThan, invertPropertyAndThreshold) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
-		
-		SampleGenerator generator = new SampleGenerator();
-		generator.initializeRandomStream();
-				
-		if (logger != null){
-			if (notEqual)
-				logger.info("Simulation started for a 'P>x' property with Gauss Confidence Cnterval test");
-			else
-				logger.info("Simulation started for a 'P<x' property with Gauss Confidence Interval test");
-		}
-		
-		GaussCIHypothesisTester tester = new GaussCIHypothesisTester(model, minNumberOfRuns, logger, root, halfWidthOfIndifferenceRegion, guess, type1Error, type2Error, notEqual, nullHypothesisLowerEqual, checkLowerThan, invertPropertyAndThreshold);
-		
-		if (!printRunResults)
-			System.out.println("Running simulation...");
-		for (int run = 0; run < fixedNumberOfRuns; run++){
-			
-			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
-			
-			currentTime = 0.0;
-			try {
-				model.resetMarking();
-				generator.sampleGeneralTransitions(model, logger);
-			} catch (InvalidDistributionParameterException e) {
-				throw new ModelNotReadableException(e.getLocalizedMessage());				
-			}
-		
-			currentPlot = new MarkingPlot(maxTime);
-			plots.add(currentPlot);
-			currentPlot.initialize(model);
-			
-			//simulation
-			while (currentTime <= maxTime)
-				currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);			
-			
-			tester.GCITesting(run + 1, currentPlot);
-			
-			if (printRunResults){
-				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
-				model.printCurrentMarking(false, true);	
-			}
-			
-			run++;		
-		}
-		
-		if (tester.getResultAchieved()){
-			if (tester.getPropertyFulfilled())
-				System.out.println(fixedNumberOfRuns + " runs simulated. The property is fulfilled");
-			else
-				System.out.println(fixedNumberOfRuns + " runs simulated. The property is NOT fulfilled");
-		} else
-			System.out.println(fixedNumberOfRuns + " runs simulated. Not enough runs to make a decision on the property result.");
-		
-		if (logger != null){
-			logger.info("Simulation finished after " + fixedNumberOfRuns + " runs");
-			if (tester.getResultAchieved()){
-				if (tester.getPropertyFulfilled())
-					logger.info("The property is fulfilled");
-				else
-					logger.info("The property is not fulfilled");
-			} else
-				logger.info("Not enough runs executed to make a decision on the property");
-		}
-	}
-	
-	private void simulateAndTestCRWithFixedNumberOfRuns (Boolean notEqual, Boolean nullHypothesisLowerEqual, checkLowerThan, invertPropertyAndThreshold) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
-		
-		SampleGenerator generator = new SampleGenerator();
-		generator.initializeRandomStream();
-				
-		if (logger != null){
-			if (notEqual)
-				logger.info("Simulation started for a 'P>x' property with Chow-Robbins test");
-			else
-				logger.info("Simulation started for a 'P<x' property with Chow-Robbins test");
-		}
-		
-		ChowRobbinsHypothesisTester tester = new ChowRobbinsHypothesisTester(model, minNumberOfRuns, logger, root, halfWidthOfIndifferenceRegion, guess, type1Error, type2Error, notEqual, nullHypothesisLowerEqual, checkLowerThan, invertPropertyAndThreshold);
-		
-		if (!printRunResults)
-			System.out.println("Running simulation...");
-		for (int run = 0; run < fixedNumberOfRuns; run++){
-			
-			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
-			
-			currentTime = 0.0;
-			try {
-				model.resetMarking();
-				generator.sampleGeneralTransitions(model, logger);
-			} catch (InvalidDistributionParameterException e) {
-				throw new ModelNotReadableException(e.getLocalizedMessage());				
-			}
-		
-			currentPlot = new MarkingPlot(maxTime);
-			plots.add(currentPlot);
-			currentPlot.initialize(model);
-			
-			//simulation
-			while (currentTime <= maxTime)
-				currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);			
-			
-			tester.CRTesting(run + 1, currentPlot);
-			
-			if (printRunResults){
-				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
-				model.printCurrentMarking(false, true);	
-			}
-			
-			run++;		
-		}
-		
-		if (tester.getResultAchieved()){
-			if (tester.getPropertyFulfilled())
-				System.out.println(fixedNumberOfRuns + " runs simulated. The property is fulfilled");
-			else
-				System.out.println(fixedNumberOfRuns + " runs simulated. The property is NOT fulfilled");
-		} else
-			System.out.println(fixedNumberOfRuns + " runs simulated. Not enough runs to make a decision on the property result.");
-		
-		if (logger != null){
-			logger.info("Simulation finished after " + fixedNumberOfRuns + " runs");
-			if (tester.getResultAchieved()){
-				if (tester.getPropertyFulfilled())
-					logger.info("The property is fulfilled");
-				else
-					logger.info("The property is not fulfilled");
-			} else
-				logger.info("Not enough runs executed to make a decision on the property");
-		}
-	}
-
-	private void simulateAndTestAzumaWithFixedNumberOfRuns (Boolean notEqual, Boolean nullHypothesisLowerEqual, checkLowerThan, invertPropertyAndThreshold) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
-		
-		SampleGenerator generator = new SampleGenerator();
-		generator.initializeRandomStream();
-				
-		if (logger != null){
-			if (notEqual)
-				logger.info("Simulation started for a 'P>x' property with Azuma test");
-			else
-				logger.info("Simulation started for a 'P<x' property with Azuma test");
-		}
-		
-		AzumaHypothesisTester tester = new AzumaHypothesisTester(model, minNumberOfRuns, logger, root, halfWidthOfIndifferenceRegion, guess, type1Error, type2Error, notEqual, nullHypothesisLowerEqual, checkLowerThan, invertPropertyAndThreshold);
-		
-		if (!printRunResults)
-			System.out.println("Running simulation...");
-		for (int run = 0; run < fixedNumberOfRuns; run++){
-			
-			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
-			
-			currentTime = 0.0;
-			try {
-				model.resetMarking();
-				generator.sampleGeneralTransitions(model, logger);
-			} catch (InvalidDistributionParameterException e) {
-				throw new ModelNotReadableException(e.getLocalizedMessage());				
-			}
-		
-			currentPlot = new MarkingPlot(maxTime);
-			plots.add(currentPlot);
-			currentPlot.initialize(model);
-			
-			//simulation
-			while (currentTime <= maxTime)
-				currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);			
-			
-			tester.azumaTesting(run + 1, currentPlot);
-			
-			if (printRunResults){
-				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
-				model.printCurrentMarking(false, true);	
-			}
-			
-			run++;		
-		}
-		
-		if (tester.getResultAchieved()){
-			if (tester.getPropertyFulfilled())
-				System.out.println(fixedNumberOfRuns + " runs simulated. The property is fulfilled");
-			else
-				System.out.println(fixedNumberOfRuns + " runs simulated. The property is NOT fulfilled");
-		} else
-			System.out.println(fixedNumberOfRuns + " runs simulated. Not enough runs to make a decision on the property result.");
-		
-		if (logger != null){
-			logger.info("Simulation finished after " + fixedNumberOfRuns + " runs");
-			if (tester.getResultAchieved()){
-				if (tester.getPropertyFulfilled())
-					logger.info("The property is fulfilled");
-				else
-					logger.info("The property is not fulfilled");
-			} else
-				logger.info("Not enough runs executed to make a decision on the property");
-		}
-	}
-
-	private void simulateAndTestSPRWithFixedNumberOfRuns (Boolean notEqual, Boolean nullHypothesisLowerEqual, checkLowerThan, invertPropertyAndThreshold) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
-		
-		SampleGenerator generator = new SampleGenerator();
-		generator.initializeRandomStream();
-		
-		if (logger != null){
-			if (notEqual){
-				if (nullHypothesisLowerEqual)
-					logger.info("Simulation started for a 'P>x' property with sequential probability ratio test");
-				else
-					logger.info("Simulation started for a 'P<x' property with sequential probability ratio test");
-			} else {
-				if (nullHypothesisLowerEqual)
-					logger.info("Simulation started for a 'P<=x' property with sequential probability ratio test");
-				else
-					logger.info("Simulation started for a 'P>=x' property with sequential probability ratio test");
-			}
-		}
-		
-		SequentialProbabilityRatioTester tester = new SequentialProbabilityRatioTester(model, minNumberOfRuns, logger, root, halfWidthOfIndifferenceRegion, type1Error, type2Error, notEqual, nullHypothesisLowerEqual, checkLowerThan, invertPropertyAndThreshold);
-		
-		if (!printRunResults)
-			System.out.println("Running simulation...");
-		for (int run = 0; run < fixedNumberOfRuns; run++){
-			
-			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
-			
-			currentTime = 0.0;
-			try {
-				model.resetMarking();
-				generator.sampleGeneralTransitions(model, logger);
-			} catch (InvalidDistributionParameterException e) {
-				throw new ModelNotReadableException(e.getLocalizedMessage());				
-			}
-		
-			currentPlot = new MarkingPlot(maxTime);
-			plots.add(currentPlot);
-			currentPlot.initialize(model);
-			
-			//simulation
-			while (currentTime <= maxTime)
-				currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);			
-			
-			tester.doRatioTest(run + 1, currentPlot);
-			
-			if (printRunResults){
-				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
-				model.printCurrentMarking(false, true);	
-			}
-			
-			run++;		
-		}
-		
-		if (tester.getResultAchieved()){
-			if (tester.getPropertyFulfilled())
-				System.out.println(fixedNumberOfRuns + " runs simulated. The property is fulfilled");
-			else
-				System.out.println(fixedNumberOfRuns + " runs simulated. The property is NOT fulfilled");
-		} else
-			System.out.println(fixedNumberOfRuns + " runs simulated. Not enough runs to make a decision on the property result.");
-		
-		if (logger != null){
-			logger.info("Simulation finished after " + fixedNumberOfRuns + " runs");
-			if (tester.getResultAchieved()){
-				if (tester.getPropertyFulfilled())
-					logger.info("The property is fulfilled");
-				else
-					logger.info("The property is not fulfilled");
-			} else
-				logger.info("Not enough runs executed to make a decision on the property");
-		}
-	}*/
-	
-	public void minRun(int currRun){
-		if(minRun == 0){minRun = currRun;}
-		if(minRun > currRun){minRun = currRun;}
-	}
-	
-	public void maxRun(int currRun){
-		if(maxRun < currRun){maxRun = currRun;}
-	}
-	
-	public double calcPercentage(int calc){
-		double curr =((double) calc) / testRuns;
-		curr = curr*100;
-		return curr;
 	}
 }

@@ -19,8 +19,8 @@ public class ChowRobbinsHypothesisTester extends HypothesisTester {
 		inverseType1Error = normalDist.inverseF(type1Error);
 		Double inverseType2Error = normalDist.inverseF(type2Error);
 	
-		epsilon = powerIndifferenceLevel / (1.0 + (inverseType2Error / inverseType1Error));	
-		requiredWidth = 2.0 * epsilon;
+		requiredHalfWidth = powerIndifferenceLevel / (1.0 + (inverseType2Error / inverseType1Error));	
+		requiredWidth = 2.0 * requiredHalfWidth;
 	}
 	
 	
@@ -29,7 +29,7 @@ public class ChowRobbinsHypothesisTester extends HypothesisTester {
 	private Double currentWidth;
 	private Double mean;
 	private Double n;
-	private Double epsilon;
+	private Double requiredHalfWidth;
 	private Double requiredWidth;
 	private Double inverseType1Error;
 	
@@ -48,12 +48,12 @@ public class ChowRobbinsHypothesisTester extends HypothesisTester {
 			mean = fulfilled.doubleValue() / n;
 			 
 			currentWidth = 2.0 * inverseType1Error * Math.sqrt((mean * (1.0 - mean)) / (n));
-			requiredWidth = 2.0 * epsilon;
+			requiredWidth = 2.0 * requiredHalfWidth;
 			
 			if (requiredWidth >= Math.abs(currentWidth) ){
 	
-				lowerBoundary = mean - epsilon;
-				upperBoundary = mean + epsilon;
+				lowerBoundary = mean - requiredHalfWidth;
+				upperBoundary = mean + requiredHalfWidth;
 				
 				//accept H+1 hypothesis
 				if (lowerBoundary > boundary){

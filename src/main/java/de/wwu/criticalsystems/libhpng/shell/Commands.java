@@ -13,7 +13,7 @@ public class Commands implements CommandMarker {
 	
 	private ModelHandler handler = new ModelHandler();
 	
-	@CliAvailabilityIndicator({"read", "parse", "change logfile" , "set interval type", "change halfintervalwidth", "change confidencelevel", "set hypothesis algorithm", "change correctness indifference level", "change power indifference level", "change guess", "change testruns", "change type1error", "change type2error", "change fixedruns", "change minruns", "change maxruns", "set fixedruns", "set optimalruns", "printresults on", "printresults off", "printparameters", "loadparameters", "storeparameters"})
+	@CliAvailabilityIndicator({"read", "parse", "change logfile" , "set interval type", "change halfintervalwidth", "change confidencelevel", "change realprobability", "change numberofcalculations", "set hypothesis algorithm", "change correctness indifference level", "change power indifference level", "change guess", "change testruns", "change type1error", "change type2error", "change fixedruns", "change minruns", "change maxruns", "set fixedruns", "set optimalruns", "printresults on", "printresults off", "printparameters", "loadparameters", "storeparameters"})
 	public boolean isAvailable() {
 		return true;
 	}
@@ -100,6 +100,20 @@ public class Commands implements CommandMarker {
 			@CliOption(key = { "n" }, mandatory = true, help = "The new confidence level") final Double confidenceLevel){
 		
 		handler.changeParameter((byte)2, confidenceLevel);
+	}
+	
+	@CliCommand(value = "change realprobability", help = "Change the real probability parameter to determine the coverage")
+	public void ChangeRealProbability(
+			@CliOption(key = { "n" }, mandatory = true, help = "The new real probability") final Double realProbability){
+		
+		handler.changeParameter((byte)15, realProbability);
+	}
+	
+	@CliCommand(value = "change numberofcalculations", help = "Change the number of calculations of confidence intervalsr")
+	public void ChangeNumberOfCalculations(
+			@CliOption(key = { "n" }, mandatory = true, help = "The new number of calculations") final Integer calculations){
+		
+		handler.changeParameter((byte)16, calculations);
 	}
 	
 	

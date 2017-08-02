@@ -46,7 +46,7 @@ public class GuardArc extends Arc{
 			if (((DiscretePlace)p).getNumberOfTokens() < this.getWeight())
 				conditionFulfilled = false;						
 		} else {			
-			if (((ContinuousPlace)p).getFluidLevel() < this.getWeight())
+			if ((((ContinuousPlace)p).getFluidLevel() < this.getWeight())  ||  ((((ContinuousPlace)p).getFluidLevel().equals(this.getWeight())) && (((ContinuousPlace)p).getDrift() < 0.0)))
 				conditionFulfilled = false;		
 		}		
 		return conditionFulfilled;

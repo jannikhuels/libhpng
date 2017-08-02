@@ -94,5 +94,13 @@ public class ConfidenceIntervalCalculator {
 	public Double getUpperBorder(){
 		return Math.min(1.0,(midpoint + currentHalfIntervalWidth));
 	}
+
+
+
+	public void resetResults() {
+		numberOfRuns  = 0;
+		currentHalfIntervalWidth  = 0.0;
+		midpoint = 0.0;
+	}
 	
 }

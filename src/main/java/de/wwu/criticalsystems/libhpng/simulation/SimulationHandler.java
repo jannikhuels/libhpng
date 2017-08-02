@@ -14,6 +14,8 @@ import de.wwu.criticalsystems.libhpng.model.HPnGModel;
 import de.wwu.criticalsystems.libhpng.plotting.ContinuousPlacesPlotter;
 import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
 
+
+
 public class SimulationHandler {
 
 	public SimulationHandler(){
@@ -39,6 +41,7 @@ public class SimulationHandler {
 		}
 		return "";
 	}		
+	
 	
 	public void setIntervalID(String intervalName) throws InvalidSimulationParameterException {		
 		
@@ -105,6 +108,28 @@ public class SimulationHandler {
 	}
 	
 	
+	
+	public Double getRealProbability() {
+		return realProbability;
+	}
+
+
+	public void setRealProbability(Double realProbability) {
+		this.realProbability = realProbability;
+	}
+	
+	
+	
+	public Integer getCalculations() {
+		return calculations;
+	}
+
+
+	public void setCalculations(Integer calculations) {
+		this.calculations = calculations;
+	}
+		
+
 	
 	
 	public String getAlgorithmName(){
@@ -369,6 +394,8 @@ public class SimulationHandler {
 	private Byte intervalID;
 	private Double halfIntervalWidth = 0.0;
 	private Double confidenceLevel;
+	private Double realProbability;
+	private Integer calculations;
 	
 	private Byte algorithmID;
 	private Double correctnessIndifferenceLevel;
@@ -479,38 +506,23 @@ public class SimulationHandler {
 			switch (prob){
 				case "PROBQ":
 					//property check with confidence interval calculation
-					if (simulationWithFixedNumberOfRuns)
-						simulateAndCheckPROBQWithFixedNumberOfRuns();
-					else
-						simulateAndCheckPROBQ();
+					simulateAndCheckPROBQ(calculations, realProbability, simulationWithFixedNumberOfRuns);
 					break;
 				case "PROBGE":
 					//property check with hypothesis testing	
-					if (simulationWithFixedNumberOfRuns)
-						simulateAndTestPROBWithFixedNumberOfRuns( true, true);	
-					else
-						simulateAndTestPROB( true, true);	
+					simulateAndTestPROB( true, true, simulationWithFixedNumberOfRuns);	
 					break;
 				case "PROBL":
 					//property check with hypothesis testing	
-					if (simulationWithFixedNumberOfRuns)
-						simulateAndTestPROBWithFixedNumberOfRuns(true, false);	
-					else
-						simulateAndTestPROB(true,false);			
+					simulateAndTestPROB(true,false, simulationWithFixedNumberOfRuns);			
 					break;
 				case "PROBLE":
 					//property check with hypothesis testing	
-					if (simulationWithFixedNumberOfRuns)
-						simulateAndTestPROBWithFixedNumberOfRuns( false, true);	
-					else
-						simulateAndTestPROB(false,true);	
+					simulateAndTestPROB(false,true, simulationWithFixedNumberOfRuns);	
 					break;
 				case "PROBG":
 					//property check with hypothesis testing	
-					if (simulationWithFixedNumberOfRuns)
-						simulateAndTestPROBWithFixedNumberOfRuns(false, false);	
-					else
-						simulateAndTestPROB( false, false);			
+					simulateAndTestPROB( false, false, simulationWithFixedNumberOfRuns);			
 					break;
 			}
 			
@@ -536,127 +548,255 @@ public class SimulationHandler {
 		
 	
 	
-	private void simulateAndCheckPROBQ() throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
+	
+	private void simulateAndCheckPROBQ(Integer intervalCalcs, Double realProbability, Boolean fixedNumber) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
 		
-	SampleGenerator generator = new SampleGenerator();
-	generator.initializeRandomStream();
+	
+		Integer fulfilled = 0;
+		Integer notFulfilled = 0;
+		Integer maxRun = 0;
+		Integer minRun = 0;
+		Integer notEnoughRuns = 0;
+		Integer totalRuns = 0;
+		Integer run = 0;
+		
+		Double lower;
+		Double upper;
+		Double midpoint;
+		Double halfwidth;
+	
+		SampleGenerator generator;
+		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(intervalID, model, minNumberOfRuns, logger, root, confidenceLevel, halfIntervalWidth);
+		
+		Integer n = 0;
+		while(n < calculations){
+	
+			generator = new SampleGenerator();
+			generator.initializeRandomStream();
+			if (logger != null)
+				logger.info("Simulation started for a 'P=?' property with fixed interval width");
+	
+					
 			
-	if (logger != null)
-		logger.info("Simulation started for a 'P=?' property with fixed interval width");
-
-	ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(intervalID, model, minNumberOfRuns, logger, root, confidenceLevel, halfIntervalWidth);
-	
-	if (!printRunResults)
-		System.out.println("Running simulation...");
-	int run = 0;
-	while (!calc.checkBound() && run < maxNumberOfRuns){
-		
-		if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
-		
-		currentTime = 0.0;
-		try {
-			model.resetMarking();
-			generator.sampleGeneralTransitions(model, logger);
-		} catch (InvalidDistributionParameterException e) {
-			throw new ModelNotReadableException(e.getLocalizedMessage());				
-		}
-	
-		currentPlot = new MarkingPlot(maxTime);
-		plots.add(currentPlot);
-		currentPlot.initialize(model);
-		
-		//simulation
-		while (currentTime <= maxTime)
-			currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);			
-		
-		calc.calculateConfidenceInterval(run+1, currentPlot);
+			if (fixedNumber){				
 				
-		if (printRunResults){
-			System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
-			model.printCurrentMarking(false, true);	
-		}
+				for (run = 0; run < fixedNumberOfRuns; run++){
+					
+					if (printRunResults)
+						System.out.println("Starting simulation run no." + (run+1));
+					
+					currentTime = 0.0;
+					try {
+						model.resetMarking();
+						generator.sampleGeneralTransitions(model, logger);
+					} catch (InvalidDistributionParameterException e) {
+						throw new ModelNotReadableException(e.getLocalizedMessage());				
+					}
+				
+					currentPlot = new MarkingPlot(maxTime);
+					plots.add(currentPlot);
+					currentPlot.initialize(model);
+					
+					//simulation
+					while (currentTime <= maxTime)
+						currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);		
+					
+					calc.calculateConfidenceInterval(run+1, currentPlot);
+					
+					if (printRunResults){
+						System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
+						model.printCurrentMarking(false, true);	
+					}	
+					
+				}
+				
+				
+				midpoint = calc.getMidpoint();
+				lower = calc.getLowerBorder();
+				upper = calc.getUpperBorder(); 
+				halfwidth = (upper - lower)/2.0;	
+				
+					
+				System.out.println(fixedNumberOfRuns + " runs simulated. Midpoint: " + midpoint + ".");
+				System.out.println("Resulting confidence interval borders:" + lower + " & " + upper + " (one sided interval width = " + halfwidth+ ")");			
 		
-		
-		run++;		
-	}
-	
-	System.out.println(run + " runs needed. Midpoint: " + calc.getMidpoint() + ".");
-	System.out.println("Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
-	
-	if (logger != null){
-		logger.info("Simulation finished after " + run + " runs");
-		logger.info("Simulation results: Midpoint: " + calc.getMidpoint() + ". Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
-	}
-}
+									
+				if (lower <= realProbability && realProbability <= upper){
+					System.out.println("The real probability lies within the interval.");
+					fulfilled ++;
+					maxRun = calcMaxRun(run, maxRun);
+					minRun = calcMinRun(run, minRun);
+					totalRuns += run;
 
-		
-	
-	private void simulateAndCheckPROBQWithFixedNumberOfRuns() throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
-			
-		SampleGenerator generator = new SampleGenerator();
-		generator.initializeRandomStream();
-		
-		if (logger != null)
-			logger.info("Simulation started for a 'P=?' property with fixed number of runs");
-		
-		
-		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(intervalID, model, fixedNumberOfRuns, logger, root, confidenceLevel, halfIntervalWidth);
-		
-		if (!printRunResults)
-			System.out.println("Running simulation...");
-		for (int run = 0; run < fixedNumberOfRuns; run++){
-			
-			if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
+				}else{
+					System.out.println("The real probability does not lie within the interval.");
+					notFulfilled ++;
+					maxRun = calcMaxRun(run, maxRun);
+					minRun = calcMinRun(run, minRun);
+					totalRuns += run;
 
-			currentTime = 0.0;
-			try {
-				model.resetMarking();
-				generator.sampleGeneralTransitions(model, logger);
-			} catch (InvalidDistributionParameterException e) {
-				throw new ModelNotReadableException(e.getLocalizedMessage());				
-			}
-			currentPlot = new MarkingPlot(maxTime);
-			plots.add(currentPlot);
-			currentPlot.initialize(model);
-			
-			//simulation
-			while (currentTime <= maxTime)
-				currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);			
-			
-			calc.calculateConfidenceInterval(run+1, currentPlot);
+				}					
+					
+				if (logger != null){
+					logger.info("Simulation finished after " + fixedNumberOfRuns + " runs");
+					logger.info("Simulation results: Midpoint: " + midpoint + ". Resulting confidence interval borders:" + lower + " & " + upper + " (one sided interval width = " + halfwidth+ ")");
+				}
+				
+				
+			} else {
+
+				run = 0;
+				while (!calc.checkBound() && run < maxNumberOfRuns){
+					
+					if (printRunResults)
+						System.out.println("Starting simulation run no." + (run+1));
+					
+					currentTime = 0.0;
+					try {
+						model.resetMarking();
+						generator.sampleGeneralTransitions(model, logger);
+					} catch (InvalidDistributionParameterException e) {
+						throw new ModelNotReadableException(e.getLocalizedMessage());				
+					}
+				
+					currentPlot = new MarkingPlot(maxTime);
+					plots.add(currentPlot);
+					currentPlot.initialize(model);
+					
+					//simulation
+					while (currentTime <= maxTime)
+						currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);		
+					
+					calc.calculateConfidenceInterval(run+1, currentPlot);
+					
+					if (printRunResults){
+						System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
+						model.printCurrentMarking(false, true);	
+					}
+					
+					run++;		
+				}
+				
+				midpoint = calc.getMidpoint();
+				lower = calc.getLowerBorder();
+				upper = calc.getUpperBorder(); 
+				halfwidth = (upper - lower)/2.0;	
+				
+				
+				if (logger != null)
+					logger.info("Simulation finished after " + run + " runs");		
+				
+				if (!calc.checkBound()){
+					
+					System.out.println("The maximum number of " + maxNumberOfRuns + " runs has been achieved.");
+					notEnoughRuns++;
+					
+					if (logger != null)
+						logger.info("The maximum number of " + maxNumberOfRuns + " runs has been achieved.");
 						
-			if (printRunResults){
-				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
-				model.printCurrentMarking(false, true);	
-			}
+					
+				} else {
+					
+					System.out.println(run + " runs needed. Midpoint: " + midpoint + ".");
+					System.out.println("Resulting confidence interval borders:" + lower + " & " + upper + " (one sided interval width = " + halfwidth+ ")");			
 				
+										
+					if (lower <= realProbability && realProbability <= upper){
+						System.out.println("The real probability lies within the interval.");
+						fulfilled ++;
+						maxRun = calcMaxRun(run, maxRun);
+						minRun = calcMinRun(run, minRun);
+						totalRuns += run;
+	
+					}else{
+						System.out.println("The real probability does not lie within the interval.");
+						notFulfilled ++;
+						maxRun = calcMaxRun(run, maxRun);
+						minRun = calcMinRun(run, minRun);
+						totalRuns += run;
+	
+					}
+					
+					if (logger != null)
+						logger.info("Simulation results: Midpoint: " + midpoint + ". Resulting confidence interval borders:" + lower + " & " + upper + " (one sided interval width = " + halfwidth+ ")");
+						
+				}				
+							
+			}
+	
+			calc.resetResults();
+			n++;			
+						
 		}
-		System.out.println(fixedNumberOfRuns + " runs simulated. Midpoint: " + calc.getMidpoint() + ".");
-		System.out.println("Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
 		
-		if (logger != null){
-			logger.info("Simulation finished after " + fixedNumberOfRuns + " runs");
-			logger.info("Simulation results: Midpoint: " + calc.getMidpoint() + ". Resulting confidence interval borders:" + calc.getLowerBorder() + " & " + calc.getUpperBorder() + " (one sided interval width = " + (calc.getUpperBorder() - calc.getLowerBorder())/2.0 + ")");
-		}
-	}	
+		System.out.println("\n" + "The real probability lies within the interval in: " + calcPercentage(fulfilled) + "% (" + fulfilled + ") of " + calculations +" calculations"  );
+		System.out.println("The real probability does not lie within the interval in: " + calcPercentage(notFulfilled) + "% (" + notFulfilled + ") of " + calculations +" calculations"  );
+		System.out.println("The maximum number of " + maxNumberOfRuns + " runs has been achieved in: " + calcPercentage(notEnoughRuns) + "% (" + notEnoughRuns + ") of " + calculations +" calculations" + "\n");
+		System.out.println("Minimal number of simulation runs needed: " + minRun) ;
+		System.out.println("Maximal number of simulation runs needed: " + maxRun);
+		if(fulfilled > 0 || notFulfilled > 0){
+			System.out.println("Average number of simulation runs needed: " + totalRuns/(fulfilled+notFulfilled) + "\n");
+			}else {System.out.println("There where no successfull runs" + "\n");}
+		
+		
+			
+	/*	Properties parameters = new Properties();
+		
+		parameters.setProperty("numberOfRuns", fixedNumberOfRuns.toString());
+		parameters.setProperty("midpoint", midpoint.toString());
+		parameters.setProperty("lowerBorder", lower.toString());
+		parameters.setProperty("upperBorder", upper.toString());
+		parameters.setProperty("oneSidedIntervalWidth", halfwidth.toString());
+		
+		parameters.store(new FileOutputStream(results),"");*/
+	}
+
 		
 	
 	
-	private void simulateAndTestPROB(Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
 		
-		Testing testing = new Testing(model, minNumberOfRuns, logger, root, correctnessIndifferenceLevel, powerIndifferenceLevel, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold, printRunResults, maxNumberOfRuns, currentTime, currentPlot, maxTime, plots, simulator, false, 0, testRuns);
+	
+	
+	private void simulateAndTestPROB(Boolean checkLowerThan, Boolean invertPropertyAndThreshold, Boolean fixedNumber) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
+		
+		Testing testing;
+		
+		if (fixedNumber)
+			testing = new Testing(model, minNumberOfRuns, logger, root, correctnessIndifferenceLevel, powerIndifferenceLevel, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold, printRunResults, 0, currentTime, currentPlot, maxTime, plots, simulator, true, fixedNumberOfRuns, testRuns);
+		else		
+			testing = new Testing(model, minNumberOfRuns, logger, root, correctnessIndifferenceLevel, powerIndifferenceLevel, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold, printRunResults, maxNumberOfRuns, currentTime, currentPlot, maxTime, plots, simulator, false, 0, testRuns);
+		
 		testing.performTesting(algorithmID, getAlgorithmName());
 	}
 	
-	
-	
-	private void simulateAndTestPROBWithFixedNumberOfRuns(Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
+		
 
-		Testing testing = new Testing(model, minNumberOfRuns, logger, root, correctnessIndifferenceLevel, powerIndifferenceLevel, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold, printRunResults, 0, currentTime, currentPlot, maxTime, plots, simulator, true, fixedNumberOfRuns, testRuns);
-		testing.performTesting(algorithmID, getAlgorithmName());		
+	private Integer calcMinRun(Integer currRun, Integer minRun){
+		
+		if(minRun == 0)
+			minRun = currRun;
+		
+		if(minRun > currRun)
+			minRun = currRun;
+		
+		return minRun;
+	}
+	
+	private Integer calcMaxRun(Integer currRun, Integer maxRun){
+		
+		if(maxRun < currRun)
+			{maxRun = currRun;}
+		
+		return maxRun;
 	}
 	
 
+	private double calcPercentage(Integer calc){
+		double curr =((double) calc) / calculations;
+		curr = curr*100;
+		return curr;
+	}
+	
 	
 	
 	public void loadParameters(){		
@@ -670,6 +810,8 @@ public class SimulationHandler {
 			intervalID = Byte.parseByte(parameters.getProperty("intervalID"));
 			halfIntervalWidth = Double.parseDouble(parameters.getProperty("halfIntervalWidth"));
 			confidenceLevel = Double.parseDouble(parameters.getProperty("confidenceLevel"));
+			realProbability = Double.parseDouble(parameters.getProperty("realProbability"));
+			calculations = Integer.parseInt(parameters.getProperty("calculations"));
 			
 			algorithmID = Byte.parseByte(parameters.getProperty("algorithmID"));
 			correctnessIndifferenceLevel = Double.parseDouble(parameters.getProperty("correctnessIndifferenceLevel"));
@@ -696,7 +838,9 @@ public class SimulationHandler {
 		
 			intervalID = 0;
 			halfIntervalWidth = 0.005;
-			confidenceLevel = 0.95;
+			confidenceLevel = 0.95;			
+			realProbability = 0.5;
+			calculations = 1;
 			
 			algorithmID = 0;
 			correctnessIndifferenceLevel = 0.005;
@@ -726,6 +870,8 @@ public class SimulationHandler {
 			parameters.setProperty("intervalID", intervalID.toString());
 			parameters.setProperty("halfIntervalWidth", halfIntervalWidth.toString());
 			parameters.setProperty("confidenceLevel", confidenceLevel.toString());
+			parameters.setProperty("realProbability", realProbability.toString());
+			parameters.setProperty("calculations", calculations.toString());
 			
 			parameters.setProperty("algorithmID", algorithmID.toString());
 			parameters.setProperty("correctnessIndifferenceLevel", correctnessIndifferenceLevel.toString());
