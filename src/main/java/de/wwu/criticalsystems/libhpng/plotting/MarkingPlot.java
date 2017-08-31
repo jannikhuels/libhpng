@@ -3,7 +3,6 @@ package de.wwu.criticalsystems.libhpng.plotting;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
-import org.jfree.ui.RefineryUtilities;
 import de.wwu.criticalsystems.libhpng.model.*;
 
 public class MarkingPlot {
@@ -16,7 +15,7 @@ public class MarkingPlot {
 		return placePlots;
 	}
 	
-	public HashMap<String,TransitionPlot> getTransitionPlots() {
+	public HashMap<String, TransitionPlot> getTransitionPlots() {
 		return transitionPlots;
 	}	
 
@@ -42,10 +41,8 @@ public class MarkingPlot {
 		saveContinuousPlaceData(time);		
 	}
 	
+
 	
-	public void addPlace(Place place) {
-		this.placePlots.put(place.getId(),new PlacePlot(place));
-	}
 	
 	
 	public void addAllPlaces(HPnGModel model){
@@ -133,7 +130,7 @@ public class MarkingPlot {
 	}
 	
 	
-	public void plotContinuousPlaces(){
+	/*public void plotContinuousPlaces(){
 		XYLineGraph graph = new XYLineGraph("Continuous Places", "time", "fluid level");
 		
 		PlacePlot currentPlot;
@@ -170,7 +167,13 @@ public class MarkingPlot {
         graph.pack();
         RefineryUtilities.centerFrameOnScreen(graph);
         graph.setVisible(true);
+	}*/
+	
+	
+	private void addPlace(Place place) {
+		this.placePlots.put(place.getId(),new PlacePlot(place));
 	}
+	
 
 	
 	private void saveContinuousPlaceData(Double time){
@@ -187,6 +190,14 @@ public class MarkingPlot {
 	    	  currentPlot.addEntry(entry);	    	  			
 			}
 	    }
+	}
+	
+	
+	
+	private void saveAllTransitionData(Double time){
+		saveDeterministicTransitionData(time);
+		saveImmediateOrContinuousTransitionData(time);
+		saveGeneralTransitionData(time);
 	}
 	
 	
@@ -258,9 +269,5 @@ public class MarkingPlot {
 	}
 	
 	
-	private void saveAllTransitionData(Double time){
-		saveDeterministicTransitionData(time);
-		saveImmediateOrContinuousTransitionData(time);
-		saveGeneralTransitionData(time);
-	}
+	
 }

@@ -131,7 +131,7 @@ public class ContinuousPlace extends Place{
 		return lowerBoundaryReached;
 	}
 	
-	public Double calculateNewFluidLevelAndDrift(Double timePoint){ //timeDelta seit letzter Berechnung
+/*	public Double calculateNewFluidLevelAndDrift(Double timePoint){ //timeDelta seit letzter Berechnung
 		
 		
 		
@@ -164,7 +164,7 @@ public class ContinuousPlace extends Place{
 		return currentFluidLevel;
 	}
 	
-//	
+	*/
 //	public Double getNextTimePoint(){
 //		
 //		Double next;
