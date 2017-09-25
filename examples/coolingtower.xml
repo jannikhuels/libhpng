@@ -10,9 +10,9 @@
   <transitions> 
   	<deterministicTransition id="T_filled" discTime="3.0" priority="1" weight="1.0E0"/>
   	<deterministicTransition id="T_finished" discTime="3.0" priority="1" weight="1.0E0"/>
-  	<generalTransition id="T_attack" cdf="normal" priority="0" weight="1.0E0" policy="repeatdifferent">
-      <parameter name="mu" value="60.0"/>
-      <parameter name="sigma" value="15.0"/>
+  	<generalTransition id="T_attack" cdf="foldednormal" priority="0" weight="1.0E0" policy="repeatdifferent">
+      <parameter name="mu" value="30.0"/>
+      <parameter name="sigma" value="2.0"/>
 	</generalTransition>
 	<generalTransition id="T_defense" cdf="normal" priority="0" weight="1.0E0" policy="repeatdifferent">
       <parameter name="mu" value="30.0"/>
@@ -27,14 +27,14 @@
     <discreteArc  id="P_outflow-to-T_finished" fromNode="P_outflow" toNode="T_finished" weight="1.0E0"/>
     <discreteArc  id="T_finished-to-P_inflow" fromNode="T_finished" toNode="P_inflow" weight="1.0E0"/>
     <discreteArc  id="P_safe-to-T_attack" fromNode="P_safe" toNode="T_attack" weight="1.0E0"/>
-    <discreteArc  id="T_attack-to-P_usafe" fromNode="T_attack" toNode="P_unsafe" weight="1.0E0"/>
+    <discreteArc  id="T_attack-to-P_unsafe" fromNode="T_attack" toNode="P_unsafe" weight="1.0E0"/>
     <discreteArc  id="P_unsafe-to-T_defense" fromNode="P_unsafe" toNode="T_defense" weight="1.0E0"/>
     <discreteArc  id="T_defense-to-P_safe" fromNode="T_defense" toNode="P_safe" weight="1.0E0"/>
     <continuousArc id="T_in-to-P_tower" fromNode="T_in"  toNode="P_tower" priority="1" share="1.0E0" weight="1.0E0"/>
     <continuousArc id="P_tower-to-T_out" fromNode="P_tower"  toNode="T_out" priority="1" share="1.0E0" weight="1.0E0"/>
     <guardArc id="P_outflow-to-T_out" fromNode="P_outflow" toNode="T_out" isInhibitor="0" weight="1.0E0"/>
     <guardArc id="P_unsafe-to-T_filled" fromNode="P_unsafe" toNode="T_filled" isInhibitor="1" weight="1.0E0"/>
-    <guardArc id="P_tower-to-T_filled" fromNode="P_tower" toNode="T_filled" isInhibitor="0" weight="1.0E0"/>
-	<guardArc id="P_tower-to-T_finished" fromNode="P_tower" toNode="T_out" isInhibitor="1" weight="1.0E0"/>
+    <guardArc id="P_tower-to-T_filled" fromNode="P_tower" toNode="T_filled" isInhibitor="0" weight="30.0E0"/>
+	<guardArc id="P_tower-to-T_finished" fromNode="P_tower" toNode="T_finished" isInhibitor="1" weight="5.0E0"/>
    </arcs>
 </HPnG>

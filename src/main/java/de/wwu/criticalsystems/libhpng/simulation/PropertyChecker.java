@@ -34,13 +34,8 @@ public class PropertyChecker {
 		this.logger = logger;
 	}
 	
-	private static enum PropertyFamily {discrete, continuous, undefined}
 
-	private HPnGModel model;
-	private MarkingPlot plot;	
-	private Logger logger;
-	private Double time = 0.0;
-	private SimpleNode propertyRoot;
+	
 	
 	
 	public Boolean checkProperty(MarkingPlot plot) throws InvalidPropertyException{
@@ -87,6 +82,19 @@ public class PropertyChecker {
 			logger.severe("Property Error: the boundary node of the property root could not be identified");
 		throw new InvalidPropertyException("Property Error: the boundary node of the property root could not be identified");
 	}
+	
+	
+	
+	
+	private static enum PropertyFamily {discrete, continuous, undefined}
+	private HPnGModel model;
+	private MarkingPlot plot;	
+	private Logger logger;
+	private Double time = 0.0;
+	private SimpleNode propertyRoot;
+	
+	
+	
 	
 	
 	//recursive method for checking property
@@ -184,6 +192,7 @@ public class PropertyChecker {
 			case "ATOMIC_ARC":
 				if (currentEntry.getClass().equals(ContinuousPlaceEntry.class)) {
 					value = ((ContinuousPlaceEntry)currentEntry).getFluidLevel();
+					//TODO ohne approximation?
 					if (currentEntry.getTime() < time)
 						value = Math.max(0.0, value + ((ContinuousPlaceEntry)currentEntry).getDrift()*(time - currentEntry.getTime()));				
 					return (compareValues(value, boundary, compare));
@@ -197,6 +206,7 @@ public class PropertyChecker {
 				break;
 			case "ATOMIC_DRIFT":
 				if (currentEntry.getClass().equals(ContinuousPlaceEntry.class)) {
+					//TODO ohne approximation?
 					value = ((ContinuousPlaceEntry)currentEntry).getDrift();
 					return (compareValues(value, boundary, compare));
 				}
@@ -484,6 +494,9 @@ public class PropertyChecker {
 				
 		   	case "ATOMIC_CLOCK":
 		   		return findTForAtomicClock(leftBorder, rightBorder, leftBorderIncluded, rightBorderIncluded, propertyRoot, true);
+		   		
+		   	case "ATOMIC_ENABLINGTIME":			
+		   		return findTForAtomicEnablingTime(leftBorder, rightBorder, leftBorderIncluded, rightBorderIncluded, propertyRoot, true);	
 			
 			case "ATOMIC_TOKENS":
 			case "ATOMIC_ENABLED":
@@ -677,6 +690,7 @@ public class PropertyChecker {
 				
 		PlotEntry startEntry = placePlot.getNextEntryBeforeOrAtGivenTime(leftBorder);
 		PlotEntry endEntry = placePlot.getNextEntryBeforeOrAtGivenTime(rightBorder);
+		//TODO
 	    Double startValue = ((ContinuousPlaceEntry)startEntry).getFluidLevel() + ((ContinuousPlaceEntry)startEntry).getDrift()*(leftBorder - startEntry.getTime());
 	    Double endValue= ((ContinuousPlaceEntry)endEntry).getFluidLevel() + ((ContinuousPlaceEntry)endEntry).getDrift()*(rightBorder - endEntry.getTime());
 	   
@@ -692,7 +706,7 @@ public class PropertyChecker {
 		Double drift = ((ContinuousPlaceEntry)startEntry).getDrift();
 		
 		if (drift != 0.0){
-							
+			//TODO				
 			Double timeDelta = (boundary - startValue)/ drift;		
 			
 			if ((compare.contains("=") != invalid)){
@@ -770,6 +784,7 @@ public class PropertyChecker {
    			return rightBorder;
 	   	return -1.0;
 	}
+
 	
 private Double findTForAtomicEnablingTime(Double leftBorder, Double rightBorder, Boolean leftBorderIncluded, Boolean rightBorderIncluded, SimpleNode propertyRoot, Boolean invalid) throws InvalidPropertyException{
 		
