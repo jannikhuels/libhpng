@@ -48,7 +48,7 @@ public class Testing {
 
 	
 	
-	public Testing (HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double correctnessIndifferenceLevel, Double powerIndifferenceLevel, Double guess, Double type1Error, Double type2Error, Boolean checkLowerThan, Boolean invertPropertyAndThreshold, Boolean printRunResults, Integer maxNumberOfRuns, Double currentTime, MarkingPlot currentPlot, Double maxTime, ArrayList<MarkingPlot> plots, Simulator simulator, Boolean fixedNumber, Integer fixedNumberOfRuns, Integer testRuns) throws InvalidPropertyException, ModelNotReadableException, NullPointerException{
+	public Testing (HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double correctnessIndifferenceLevel, Double powerIndifferenceLevel, Double guess, Double type1Error, Double type2Error, Boolean checkLowerThan, Boolean invertPropertyAndThreshold, Boolean printRunResults, Integer maxNumberOfRuns, Double currentTime, MarkingPlot currentPlot, Double maxTime, Simulator simulator, Boolean fixedNumber, Integer fixedNumberOfRuns, Integer testRuns) throws InvalidPropertyException, ModelNotReadableException, NullPointerException{
 		
 		this.model = model;
 		this.minNumberOfRuns = minNumberOfRuns;
@@ -65,7 +65,6 @@ public class Testing {
 		this.currentTime = currentTime;
 		this.currentPlot = currentPlot;
 		this.maxTime = maxTime;
-		this.plots = plots;
 		this.simulator = simulator;
 		this.fixedNumber = fixedNumber;
 		this.fixedNumberOfRuns = fixedNumberOfRuns;
