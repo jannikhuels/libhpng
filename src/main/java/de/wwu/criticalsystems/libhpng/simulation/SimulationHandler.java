@@ -594,7 +594,6 @@ public class SimulationHandler {
 					}
 				
 					currentPlot = new MarkingPlot(maxTime);
-					plots.add(currentPlot);
 					currentPlot.initialize(model);
 					
 					//simulation
@@ -660,7 +659,6 @@ public class SimulationHandler {
 					}
 				
 					currentPlot = new MarkingPlot(maxTime);
-					plots.add(currentPlot);
 					currentPlot.initialize(model);
 					
 					//simulation
@@ -762,9 +760,9 @@ public class SimulationHandler {
 		Testing testing;
 		
 		if (fixedNumber)
-			testing = new Testing(model, minNumberOfRuns, logger, root, correctnessIndifferenceLevel, powerIndifferenceLevel, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold, printRunResults, 0, currentTime, currentPlot, maxTime, plots, simulator, true, fixedNumberOfRuns, testRuns);
+			testing = new Testing(model, minNumberOfRuns, logger, root, correctnessIndifferenceLevel, powerIndifferenceLevel, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold, printRunResults, 0, currentTime, currentPlot, maxTime, simulator, true, fixedNumberOfRuns, testRuns);
 		else		
-			testing = new Testing(model, minNumberOfRuns, logger, root, correctnessIndifferenceLevel, powerIndifferenceLevel, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold, printRunResults, maxNumberOfRuns, currentTime, currentPlot, maxTime, plots, simulator, false, 0, testRuns);
+			testing = new Testing(model, minNumberOfRuns, logger, root, correctnessIndifferenceLevel, powerIndifferenceLevel, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold, printRunResults, maxNumberOfRuns, currentTime, currentPlot, maxTime, simulator, false, 0, testRuns);
 		
 		testing.performTesting(algorithmID, getAlgorithmName());
 	}
