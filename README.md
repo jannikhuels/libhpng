@@ -6,6 +6,9 @@ multiple general transitions](https://www.uni-muenster.de/imperia/md/content/inf
 ## How to get started?
 Please refer to the [wiki](https://github.com/jannikhuels/libhpng/wiki) on how to get started with HYPEG.
 
+## Download
+You can either clone this repository and import the Java Maven project (including a shell for user input) or you can use the provided jar-file hypeg_1.0.jar and include it in your Java project.
+
 ## What are the aims of HYPEG?
 Currently there are several tools and different algorithms available that are used to analyze or simulate HPnG models. HYPEG aims at assembling all these in one *hopefully* well-structured and easy-to-use library. However this project is still in progress. So please do not heasitate to contact us for further information or interest in contribution. 
 
