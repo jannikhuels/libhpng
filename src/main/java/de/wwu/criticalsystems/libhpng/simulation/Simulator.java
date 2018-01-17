@@ -28,6 +28,7 @@ public class Simulator {
 	private Double maxTime;
 	private Logger logger;
 
+
 	
 	public Double getAndCompleteNextEvent(Double currentTime, MarkingPlot currentPlot, Boolean printRunResults) throws InvalidRandomVariateGeneratorException{
 		
@@ -91,14 +92,14 @@ public class Simulator {
 				//guard arc starting from fluid place
 					 
 					ContinuousPlace place = ((ContinuousPlace)arc.getConnectedPlace()); 
-					Double timeDelta=-1.0;
+					Double timeDelta = -1.0;
 					
 					if (place.getDrift() == 0.0){
-						if (((GuardArc)arc).getConditionFulfilled().equals(((GuardArc)arc).getInhibitor()) && arc.getWeight().equals(place.getFluidLevel())){
+						if (((GuardArc)arc).getConditionFulfilled().equals(((GuardArc)arc).getInhibitor()) && arc.getWeight().equals(place.getCurrentFluidLevel())){
 							timeDelta = 0.0;
 						}						
 					} else 
-						timeDelta = (arc.getWeight() - place.getFluidLevel()) / place.getDrift();
+						timeDelta = (arc.getWeight() - place.getCurrentFluidLevel()) / place.getDrift();
 				
 					if (timeDelta == 0.0 && place.getDrift() < 0.0)
 						((GuardArc)arc).setConditionFulfilled(false);				
@@ -159,32 +160,57 @@ public class Simulator {
 			for (Place p: model.getPlaces()){				
 				if (p.getClass().equals(ContinuousPlace.class)){
 					
-					ContinuousPlace place = (ContinuousPlace)p;					
-					Double timeDelta;
-					if (place.getDrift() < 0.0 && !place.getLowerBoundaryReached())
-						timeDelta = Math.abs(place.getFluidLevel() / place.getDrift());
-					else if (place.getDrift() > 0.0 && !place.getUpperBoundaryInfinity() && !place.getUpperBoundaryReached())
-						timeDelta = (place.getUpperBoundary() - place.getFluidLevel())/ place.getDrift();
-					else
-						continue;
-				
-					timeOfCurrentEvent = currentTime + timeDelta;
+					ContinuousPlace place = (ContinuousPlace)p;	
+					Double timeDelta = -1.0;
 					
-					if (timeOfCurrentEvent < event.getOccurenceTime()){
+			
+					if (place.getDrift() < 0.0 && !place.getLowerBoundaryReached())
+						timeDelta = Math.abs(place.getCurrentFluidLevel() / place.getDrift());
+					else if (place.getDrift() > 0.0 && !place.getUpperBoundaryInfinity() && !place.getUpperBoundaryReached())
+						timeDelta = (place.getUpperBoundary() - place.getCurrentFluidLevel())/ place.getDrift();
+					
+					
+					if (timeDelta > 0.0 && timeDelta <= place.getTimeToNextInternalTransition()){	
 						
-						event.setEventType(SimulationEventType.place_boundary);							
-						event.setFirstEventItem(place, 0);
-						event.setOccurenceTime(timeOfCurrentEvent);
+						timeOfCurrentEvent = currentTime + timeDelta;		
+						
+						if (timeOfCurrentEvent < event.getOccurenceTime()){
 							
-					} else if (timeOfCurrentEvent == event.getOccurenceTime()) {
+							event.setEventType(SimulationEventType.place_boundary);							
+							event.setFirstEventItem(place, 0);
+							event.setOccurenceTime(timeOfCurrentEvent);
+								
+						} else if (timeOfCurrentEvent == event.getOccurenceTime()) {
+							
+							if (event.getEventType() == SimulationEventType.no_event || event.getEventType() == SimulationEventType.general_transition || event.getEventType() == SimulationEventType.guard_arcs_deterministic || event.getEventType() == SimulationEventType.guard_arcs_continuous){							
+								event.setEventType(SimulationEventType.place_boundary);
+								event.setFirstEventItem(place, 0);							
+							} else if (event.getEventType() == SimulationEventType.place_boundary){
+								event.getRelatedObjects().add(place);
+							}							
+						}	
 						
-						if (event.getEventType() == SimulationEventType.no_event || event.getEventType() == SimulationEventType.general_transition || event.getEventType() == SimulationEventType.guard_arcs_deterministic || event.getEventType() == SimulationEventType.guard_arcs_continuous){							
-							event.setEventType(SimulationEventType.place_boundary);
-							event.setFirstEventItem(place, 0);							
-						} else if (event.getEventType() == SimulationEventType.place_boundary){
-							event.getRelatedObjects().add(place);
-						}							
-					}			
+					} else {	
+						
+						timeOfCurrentEvent = currentTime + place.getTimeToNextInternalTransition();
+
+						if (timeOfCurrentEvent < event.getOccurenceTime()){
+							
+							event.setEventType(SimulationEventType.place_internaltransition);							
+							event.setFirstEventItem(place, 0);
+							event.setOccurenceTime(timeOfCurrentEvent);
+								
+						} else if (timeOfCurrentEvent == event.getOccurenceTime()) {
+							
+							if (event.getEventType() == SimulationEventType.no_event){							
+								event.setEventType(SimulationEventType.place_internaltransition);
+								event.setFirstEventItem(place, 0);							
+							} else if (event.getEventType() == SimulationEventType.place_internaltransition){
+								event.getRelatedObjects().add(place);
+							}							
+						}	
+						
+					}
 				}					
 			}	
 		}
@@ -195,7 +221,7 @@ public class Simulator {
 				model.advanceMarking(maxTime- currentTime);
 			
 			model.updateEnabling(false);
-			model.updateFluidRates();
+			model.updateFluidRates(maxTime);
 			currentPlot.saveAll(maxTime);
 			
 			
@@ -204,12 +230,14 @@ public class Simulator {
 				model.advanceMarking(event.getOccurenceTime() - currentTime);
 				
 			completeEvent(printRunResults, currentPlot);
+			
 			if (printRunResults) 
 				model.printCurrentMarking(false, false);
-		}		
+		}
 		
 				
-		return event.getOccurenceTime();
+		return event.getOccurenceTime(); 
+		
 	}
 	
 	
@@ -234,38 +262,101 @@ public class Simulator {
 		} else if (event.getEventType() == SimulationEventType.guard_arcs_immediate || event.getEventType() == SimulationEventType.guard_arcs_continuous || event.getEventType() == SimulationEventType.guard_arcs_deterministic){
 			
 			//guard arc condition
+			GuardArc arc;
 			for (Object object: event.getRelatedObjects()){
-				Boolean fulfilled = ((GuardArc)object).checkCondition();
 				
-				if (printRunResults && fulfilled && !((GuardArc)object).getInhibitor()) 
-					System.out.println(event.getOccurenceTime() + " seconds: test arc " + ((GuardArc)object).getId() + " has its condition fulfilled for transition " + ((GuardArc)object).getConnectedTransition().getId());
-				else if (printRunResults && !fulfilled && !((GuardArc)object).getInhibitor())
-					System.out.println(event.getOccurenceTime() + " seconds: test arc " + ((GuardArc)object).getId() + " has its condition stopped being fulfilled for transition " + ((GuardArc)object).getConnectedTransition().getId());
-				else if (printRunResults && fulfilled && ((GuardArc)object).getInhibitor()) 
-					System.out.println(event.getOccurenceTime() + " seconds: inhibitor arc " + ((GuardArc)object).getId() + " has its condition fulfilled for transition " + ((GuardArc)object).getConnectedTransition().getId());
-				else if (printRunResults && !fulfilled && ((GuardArc)object).getInhibitor())
-					System.out.println(event.getOccurenceTime() + " seconds: inhibitor arc " + ((GuardArc)object).getId() + " has its condition stopped being fulfilled for transition " + ((GuardArc)object).getConnectedTransition().getId());									
+				arc = (GuardArc)object;
+				Boolean fulfilled = arc.checkCondition();
+				
+				if (printRunResults && fulfilled && !arc.getInhibitor()) 
+					System.out.println(event.getOccurenceTime() + " seconds: test arc " + arc.getId() + " has its condition fulfilled for transition " + arc.getConnectedTransition().getId());
+				else if (printRunResults && !fulfilled && !arc.getInhibitor())
+					System.out.println(event.getOccurenceTime() + " seconds: test arc " + arc.getId() + " has its condition stopped being fulfilled for transition " + arc.getConnectedTransition().getId());
+				else if (printRunResults && fulfilled && arc.getInhibitor()) 
+					System.out.println(event.getOccurenceTime() + " seconds: inhibitor arc " + arc.getId() + " has its condition fulfilled for transition " + arc.getConnectedTransition().getId());
+				else if (printRunResults && !fulfilled && arc.getInhibitor())
+					System.out.println(event.getOccurenceTime() + " seconds: inhibitor arc " + arc.getId() + " has its condition stopped being fulfilled for transition " + arc.getConnectedTransition().getId());									
 			}			
 		} else if (event.getEventType() == SimulationEventType.place_boundary){
 			
 			//place boundary reached
+			ContinuousPlace place;
 			for (Object object: event.getRelatedObjects()){				
 				
-				if (((ContinuousPlace)object).checkLowerBoundary()){
-					((ContinuousPlace)object).checkUpperBoundary();
+				place = (ContinuousPlace)object;
+				place.setExactFluidLevel(place.getCurrentFluidLevel(), event.getOccurenceTime());
+					
+				if (place.checkLowerBoundary()){
+					place.checkUpperBoundary();
 					if (printRunResults)
-						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + ((ContinuousPlace)object).getId() + " is empty");
+						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " is empty");
 				} else {
-					((ContinuousPlace)object).checkUpperBoundary();
+					place.checkUpperBoundary();
 					if (printRunResults)
-						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + ((ContinuousPlace)object).getId() + " has reached its upper boundary");
-				}					
+						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " has reached its upper boundary");
+				}	
 			}	
+		} else if (event.getEventType() == SimulationEventType.place_internaltransition){
+
+			ContinuousPlace place;
+			
+			//internal transition
+			for (Object object: event.getRelatedObjects()){
+				
+				place = ((ContinuousPlace)object);
+				
+				Boolean lowerBoundary = place.getLowerBoundaryReached();
+				Boolean upperBoundary = false;
+				if (!place.getUpperBoundaryInfinity())
+					upperBoundary = place.getUpperBoundaryReached();
+				
+							
+				place.performInternalTransition(event.getOccurenceTime(), place.getExactDrift(), place.getChangeOfExactDrift(), model.getArcs());	
+				
+				if (printRunResults)
+					System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " has performed an internal transition");
+				
+				
+				if (!lowerBoundary && place.checkLowerBoundary()){
+					place.checkUpperBoundary();
+					if (printRunResults)
+						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " is empty");
+				} else if (!upperBoundary && place.checkUpperBoundary()) {
+					if (printRunResults)
+						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " has reached its upper boundary");
+				}
+				
+	 			
+				for (Arc arc: model.getArcs()){
+
+					if (arc.getClass().equals(GuardArc.class) && arc.getConnectedPlace().equals(place)){
+					//guard arc starting from fluid place
+		 
+						if (!((GuardArc)arc).getConditionFulfilled().equals(((GuardArc)arc).checkCondition())){
+							Boolean fulfilled = ((GuardArc)arc).getConditionFulfilled();
+							
+							if (printRunResults && fulfilled && !((GuardArc)arc).getInhibitor()) 
+								System.out.println(event.getOccurenceTime() + " seconds: test arc " + arc.getId() + " has its condition fulfilled for transition " + arc.getConnectedTransition().getId());
+							else if (printRunResults && !fulfilled && !((GuardArc)arc).getInhibitor())
+								System.out.println(event.getOccurenceTime() + " seconds: test arc " + arc.getId() + " has its condition stopped being fulfilled for transition " + arc.getConnectedTransition().getId());
+							else if (printRunResults && fulfilled && ((GuardArc)arc).getInhibitor()) 
+								System.out.println(event.getOccurenceTime() + " seconds: inhibitor arc " + arc.getId() + " has its condition fulfilled for transition " + arc.getConnectedTransition().getId());
+							else if (printRunResults && !fulfilled && ((GuardArc)arc).getInhibitor())
+								System.out.println(event.getOccurenceTime() + " seconds: inhibitor arc " + arc.getId() + " has its condition stopped being fulfilled for transition " + arc.getConnectedTransition().getId());						
+				
+						}
+					}					
+				}
+				
+				
+			}
 		}
 
 		//update model status
 		model.updateEnabling(false);
-		model.updateFluidRates();
+		model.updateFluidRates(event.getOccurenceTime());
+		if (event.getEventType() != SimulationEventType.place_internaltransition)
+			model.computeInternalTransitionsAtEvent();
 		
 		//plot status
 		currentPlot.saveAll(event.getOccurenceTime());		

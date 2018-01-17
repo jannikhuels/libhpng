@@ -594,6 +594,7 @@ public class SimulationHandler {
 					}
 				
 					currentPlot = new MarkingPlot(maxTime);
+
 					currentPlot.initialize(model);
 					
 					//simulation

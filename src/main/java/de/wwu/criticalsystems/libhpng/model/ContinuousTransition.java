@@ -33,7 +33,15 @@ public class ContinuousTransition extends Transition{
 	public void setCurrentFluid(Double currentFluid) {
 		this.currentFluid = currentFluid;
 	}
+	
+	public Double getCurrentChangeOfFluid() {
+		return currentChangeOfFluid;
+	}
+	public void setCurrentChangeOfFluid(Double currentChangeOfFluid) {
+		this.currentChangeOfFluid = currentChangeOfFluid;
+	}
 
 	private Double fluidRate;
 	private Double currentFluid;
+	private Double currentChangeOfFluid = 0.0;
 }

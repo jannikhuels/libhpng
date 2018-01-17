@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HPnG>
+    <places>
+    <continuousPlace id="a" capacity="20000" infiniteCapacity="0" level="5000.0"/>
+    <continuousPlace id="b" capacity="20000" infiniteCapacity="0" level="5000.0"/>
+     <discretePlace id="pd1" marking="1"/>
+     <discretePlace id="pd2" marking="0"/>
+     <discretePlace id="pd3" marking="0"/>
+     <discretePlace id="pd4" marking="0"/>
+  </places>
+  <transitions>   	
+     <continuousTransition id="i1"  rate="400.0"/>
+     <continuousTransition id="i2"  rate="100.0"/>
+     <continuousTransition id="i3"  rate="600.0"/>
+     <continuousTransition id="i4"  rate="10.0"/>
+     <dynamicContinuousTransition id="out"/>
+     <dynamicContinuousTransition id="in"/>
+     <deterministicTransition id="td1" discTime="10.0" priority="1" weight="1.0E0"/>
+     <deterministicTransition id="td2" discTime="30.0" priority="1" weight="1.0E0"/>
+     <deterministicTransition id="td3" discTime="15.0" priority="1" weight="1.0E0"/>
+        </transitions>
+  <arcs>
+    <continuousArc id="ca1" fromNode="b" priority="1" share="1.0E0" toNode="out" weight="1.0E0"/>
+    <continuousArc id="ca2" fromNode="out" priority="1" share="1.0E0" toNode="a" weight="1.0E0"/>
+    <continuousArc id="ca3" fromNode="a" priority="1" share="1.0E0" toNode="in" weight="1.0E0"/>  
+    <continuousArc id="ca4" fromNode="in" priority="1" share="1.0E0" toNode="b" weight="1.0E0"/>
+    <continuousArc id="ca5" fromNode="a" priority="1" share="1.0E0" toNode="i1" weight="1.0E0"/>
+    <continuousArc id="ca6" fromNode="i2" priority="1" share="1.0E0" toNode="a" weight="1.0E0"/>
+    <continuousArc id="ca7" fromNode="i3" priority="1" share="1.0E0" toNode="a" weight="1.0E0"/>
+    <continuousArc id="ca8" fromNode="i4" priority="1" share="1.0E0" toNode="a" weight="1.0E0"/>
+    <discreteArc fromNode="pd1" id="da1" toNode="td1" weight="1.0E0"/>
+    <discreteArc fromNode="td1" id="da2" toNode="pd2" weight="1.0E0"/>
+    <discreteArc fromNode="pd2" id="da3" toNode="td2" weight="1.0E0"/>
+    <discreteArc fromNode="td2" id="da4" toNode="pd3" weight="1.0E0"/>
+    <discreteArc fromNode="pd3" id="da5" toNode="td3" weight="1.0E0"/>
+    <discreteArc fromNode="td3" id="da6" toNode="pd4" weight="1.0E0"/>
+    <guardArc fromNode="pd1" id="ga1" isInhibitor="0" toNode="i1" weight="1.0E0"/>
+    <guardArc fromNode="pd2" id="ga2" isInhibitor="0" toNode="i2" weight="1.0E0"/>
+    <guardArc fromNode="pd3" id="ga3" isInhibitor="0" toNode="i3" weight="1.0E0"/>
+    <guardArc fromNode="pd4" id="ga4" isInhibitor="0" toNode="i4" weight="1.0E0"/>
+   </arcs>
+</HPnG>

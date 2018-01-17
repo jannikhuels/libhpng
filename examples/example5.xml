@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HPnG>
+    <places>
+    <continuousPlace id="pt1" capacity="10" infiniteCapacity="0" level="2.0"/>
+    <continuousPlace id="p2" capacity="10" infiniteCapacity="0" level="3.0"/>
+  </places>
+  <transitions>   	
+     <continuousTransition id="tc"  rate="1.0"/>
+     <dynamicContinuousTransition id="t1"/>
+        </transitions>
+  <arcs>
+    <continuousArc id="ca1" fromNode="tc" priority="1" share="1.0E0" toNode="pt1" weight="1.0E0"/>
+    <continuousArc id="ca2" fromNode="pt1" priority="1" share="1.0E0" toNode="t1" weight="1.0E0"/>
+    <continuousArc id="ca3" fromNode="t1" priority="1" share="1.0E0" toNode="p2" weight="1.0E0"/>     
+   </arcs>
+</HPnG>

@@ -186,7 +186,7 @@ public class MarkingPlot {
 	       if (currentPlot.getReferencedPlace().getClass().equals(ContinuousPlace.class)){
 	    	   
 	    	  ContinuousPlace place = (ContinuousPlace) currentPlot.getReferencedPlace();				
-	    	  ContinuousPlaceEntry entry = new ContinuousPlaceEntry(time, place.getFluidLevel(), place.getDrift());
+	    	  ContinuousPlaceEntry entry = new ContinuousPlaceEntry(time, place.getCurrentFluidLevel(), place.getDrift());
 	    	  currentPlot.addEntry(entry);	    	  			
 			}
 	    }

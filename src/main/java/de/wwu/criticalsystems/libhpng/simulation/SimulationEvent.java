@@ -10,7 +10,7 @@ public class SimulationEvent {
 		eventType = SimulationEventType.no_event;
 	}
 
-	public static enum SimulationEventType{immediate_transition, deterministic_transition, general_transition, place_boundary, guard_arcs_immediate, guard_arcs_continuous, guard_arcs_deterministic, no_event}
+	public static enum SimulationEventType{immediate_transition, deterministic_transition, general_transition, place_boundary, guard_arcs_immediate, guard_arcs_continuous, guard_arcs_deterministic, place_internaltransition, no_event}
 		
 	public SimulationEventType getEventType() {
 		return eventType;
