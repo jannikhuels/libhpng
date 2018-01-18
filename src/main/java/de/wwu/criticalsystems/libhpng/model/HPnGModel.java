@@ -640,6 +640,7 @@ public class HPnGModel {
 				((ContinuousPlace)place).resetFluidLevel();
 				((ContinuousPlace)place).checkLowerBoundary();
 				((ContinuousPlace)place).checkUpperBoundary();
+				((ContinuousPlace)place).setLastUpdate(0.0);;
 			} else
 				((DiscretePlace)place).resetNumberOfTokens();
 		}

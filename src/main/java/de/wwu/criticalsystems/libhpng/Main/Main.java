@@ -9,7 +9,8 @@ public class Main {
 	
 
     public static void main(String[] args){
-    		
+    	
+
     	try {
     		PrintWriter writer = new PrintWriter("shellLogFile.log");
     		writer.print("");

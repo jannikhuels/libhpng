@@ -124,8 +124,8 @@ public class ContinuousPlacesPlotter {
 			}			
 			ssquareFluid = ssquareFluid / (plots.size() - 1);		
 			ssquares.add(new ContinuousPlaceEntry(time, ssquareFluid, null));
-			graph.addSeriesEntry(place.getId() + "_up", time, (meanFluid + t * Math.sqrt(ssquareFluid/plots.size())));
-			graph.addSeriesEntry(place.getId() + "_low", time, (meanFluid - t * Math.sqrt(ssquareFluid/plots.size())));
+			//graph.addSeriesEntry(place.getId() + "_up", time, (meanFluid + t * Math.sqrt(ssquareFluid/plots.size())));
+			//graph.addSeriesEntry(place.getId() + "_low", time, (meanFluid - t * Math.sqrt(ssquareFluid/plots.size())));
 			
 		}
 	}

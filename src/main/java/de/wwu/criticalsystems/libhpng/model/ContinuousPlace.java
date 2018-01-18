@@ -36,7 +36,7 @@ public class ContinuousPlace extends Place{
 		this.drift = new Double (placeToCopy.getDrift());
 		this.exactDrift = this.drift;
 		this.changeOfExactDrift = new Double(placeToCopy.getChangeOfExactDrift());
-		this.quanta = new Double(placeToCopy.getQuanta());
+		this.quantum = new Double(placeToCopy.getQuantum());
 		this.lastUpdate = new Double(placeToCopy.getLastUpdate());
 	}
 
@@ -93,12 +93,12 @@ public class ContinuousPlace extends Place{
 		this.lowerBoundaryReached = lowerBoundaryReached;
 	}
 	
-	public Double getQuanta() {
-		return quanta;
+	public Double getQuantum() {
+		return quantum;
 	}
-
-	public void setQuanta(Double quanta) {
-		this.quanta = quanta;
+	@XmlAttribute (name = "quantum")
+	public void setQuantum(Double quantum) {
+		this.quantum = quantum;
 	}
 	
 	public Double getTimeToNextInternalTransition() {
@@ -226,7 +226,7 @@ public class ContinuousPlace extends Place{
 		} 
 		
 		if (changeOfExactDrift != 0.0)		
-			timeToNextInternalTransition = Math.sqrt(Math.abs((2 * quanta)/changeOfExactDrift));
+			timeToNextInternalTransition = Math.sqrt(Math.abs((2 * quantum)/changeOfExactDrift));
 		else		
 			timeToNextInternalTransition = Double.POSITIVE_INFINITY;		
 	}
@@ -284,8 +284,8 @@ public class ContinuousPlace extends Place{
 		if (changeOfExactDrift != 0.0){
 			
 			Double termB = Math.pow((drift - exactDrift) / changeOfExactDrift, 2.0);
-			Double termC = Math.sqrt(termB - 2.0*(currentFluidLevel - exactFluidLevel - quanta)/changeOfExactDrift);
-			Double termD = Math.sqrt(termB - 2.0*(currentFluidLevel - exactFluidLevel + quanta)/changeOfExactDrift);
+			Double termC = Math.sqrt(termB - 2.0*(currentFluidLevel - exactFluidLevel - quantum)/changeOfExactDrift);
+			Double termD = Math.sqrt(termB - 2.0*(currentFluidLevel - exactFluidLevel + quantum)/changeOfExactDrift);
 			Double termE = -1.0 * (drift - exactDrift) / changeOfExactDrift;
 					
 			Double s1 = termE + termC;
@@ -349,8 +349,7 @@ public class ContinuousPlace extends Place{
 	private Double exactFluidLevel;//x
 	private Double exactDrift = 0.0; // u
 	private Double changeOfExactDrift = 0.0; //mu
-	//TODO
-	private Double quanta = 5.0;
+	private Double quantum;
 	private Double timeToNextInternalTransition;
 	private Double lastUpdate = 0.0;
 		
