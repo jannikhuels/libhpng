@@ -175,8 +175,8 @@ public class DynamicContinuousTransition extends Transition{
 	private Double getArgumentValue(String argument, ContinuousPlace p){
     	
     	if (("delta_" + p.getId()).equals(argument))
-    		return p.getExactDrift();	 
+    		return p.getDrift(); 
     	else 
-    		return p.getExactFluidLevel();	
+    		return p.getCurrentFluidLevel();	
 	}
 }

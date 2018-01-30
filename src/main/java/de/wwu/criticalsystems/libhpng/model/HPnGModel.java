@@ -368,13 +368,15 @@ public class HPnGModel {
 				
 				BigDecimal level = new BigDecimal(fluid);
 				level = level.setScale(8,BigDecimal.ROUND_HALF_UP);
-				if (level.doubleValue() <= 0.0 ) 
+				if (level.doubleValue() <= 0.0 )
 					fluid = 0.0;
 				else if (!p.getUpperBoundaryInfinity() && level.doubleValue() == p.getUpperBoundary())
-					fluid = p.getUpperBoundary();
+					fluid = p.getUpperBoundary();					
 				else
 					fluid = level.doubleValue();
 				p.setCurrentFluidLevel(fluid);
+				p.checkUpperBoundary();
+				p.checkLowerBoundary();
 				
 			}
 		}
@@ -388,6 +390,7 @@ public class HPnGModel {
 		}	
 		
 		updateDynamicRates();
+		checkAllGuardArcs();
 	}	
 	
 	public void printCurrentMarking(Boolean initial, Boolean last){
@@ -602,7 +605,7 @@ public class HPnGModel {
 				arcIndex++;
 		}
 		
-		//set lower proprity arcs to zero
+		//set lower priority arcs to zero
 		while(arcIndex < arcs.size()){	
 			if (arcs.get(arcIndex).getConnectedPlace().getId().equals(place.getId()) && arcs.get(arcIndex).getClass().equals(ContinuousArc.class) && ((ContinuousArc)arcs.get(arcIndex)).getDirection().equals(direction)){
 								

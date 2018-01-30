@@ -23,10 +23,10 @@ public class Simulator {
 	}
 
 	
-	private SimulationEvent event;
-	private HPnGModel model;
-	private Double maxTime;
-	private Logger logger;
+	protected SimulationEvent event;
+	protected HPnGModel model;
+	protected Double maxTime;
+	protected Logger logger;
 
 
 	
@@ -88,68 +88,102 @@ public class Simulator {
 			//if no immediate transition, check guard arcs next
 			for (Arc arc: model.getArcs()){
 		
+				
 				if (arc.getClass().equals(GuardArc.class) && arc.getConnectedPlace().getClass().equals(ContinuousPlace.class)){
 				//guard arc starting from fluid place
 					 
 					ContinuousPlace place = ((ContinuousPlace)arc.getConnectedPlace()); 
 					Double timeDelta = -1.0;
+					Double timeDeltaQ = -1.0;
 					
-					if (place.getDrift() == 0.0){
-						if (((GuardArc)arc).getConditionFulfilled().equals(((GuardArc)arc).getInhibitor()) && arc.getWeight().equals(place.getCurrentFluidLevel())){
-							timeDelta = 0.0;
-						}						
-					} else 
-						timeDelta = (arc.getWeight() - place.getCurrentFluidLevel()) / place.getDrift();
-				
-					if (timeDelta == 0.0 && place.getDrift() < 0.0)
-						((GuardArc)arc).setConditionFulfilled(false);				
-									
+
+					timeDelta = place.getTimeTilExactFluidLevelHitsBoundary(arc.getWeight(), currentTime);
+					timeDeltaQ = place.getTimeTilCurrentFluidLevelHitsBoundary(arc.getWeight());
 					
-					if (timeDelta == 0.0 && !((GuardArc)arc).getConditionFulfilled().equals(((GuardArc)arc).getInhibitor()))
-						continue;
-					
-					if (timeDelta == 0.0 && place.getDrift() < 0.0 && ((GuardArc)arc).getInhibitor())
-						continue;
-					
-					if (timeDelta < 0.0 
-							|| (timeDelta == 0.0) && ((place.getDrift() > 0.0 && ((GuardArc)arc).getConditionFulfilled()) || (place.getDrift() < 0.0 && !((GuardArc)arc).getConditionFulfilled()))) 
-						continue;
-					
-					timeOfCurrentEvent = currentTime + timeDelta;
-					
-					if (timeOfCurrentEvent < event.getOccurenceTime()){
-										
-						if (arc.getConnectedTransition().getClass().equals(ImmediateTransition.class))
-							event.setEventType(SimulationEventType.guard_arcs_immediate);
-						else if (arc.getConnectedTransition().getClass().equals(ContinuousTransition.class))
-							event.setEventType(SimulationEventType.guard_arcs_continuous);
-						else
-							event.setEventType(SimulationEventType.guard_arcs_deterministic);
-							
-						event.setFirstEventItem(arc, 0);
-						event.setOccurenceTime(timeOfCurrentEvent);
-							
-					} else if (timeOfCurrentEvent == event.getOccurenceTime()) {
+					if (((timeDelta >= 0.0 && timeDelta < Double.POSITIVE_INFINITY || (timeDeltaQ >= 0.0 && timeDeltaQ < Double.POSITIVE_INFINITY))) && !timeDelta.equals(timeDeltaQ) && (timeDelta < place.getTimeToNextInternalTransition() || timeDeltaQ < place.getTimeToNextInternalTransition())){
 						
-						if ((!event.getEventType().equals(SimulationEventType.guard_arcs_immediate) && arc.getConnectedTransition().getClass().equals(ImmediateTransition.class))){
+						if (timeDelta < 0.0)
+							timeDelta = Double.POSITIVE_INFINITY;
 						
-							//guard arc for immediate transition replaces other guard arcs
-							event.setEventType(SimulationEventType.guard_arcs_immediate);
-							event.setFirstEventItem(arc, 0);
+						if (timeDeltaQ < 0.0)
+							timeDelta = Double.POSITIVE_INFINITY;
+						
+						timeOfCurrentEvent = currentTime + Math.min(timeDelta, timeDeltaQ);
+
+						if (timeOfCurrentEvent < event.getOccurenceTime()){
 							
-						} else if (event.getEventType().equals(SimulationEventType.guard_arcs_deterministic) && arc.getConnectedTransition().getClass().equals(ContinuousTransition.class)){ 
+							event.setEventType(SimulationEventType.place_internaltransition);							
+							event.setFirstEventItem(place, 0);
+							event.setOccurenceTime(timeOfCurrentEvent);
+								
+						} else if (timeOfCurrentEvent == event.getOccurenceTime()) {
 							
-							//guard arc for continuous transition replaces guard arcs for deterministic/general transitions
-							event.setEventType(SimulationEventType.guard_arcs_continuous);
-							event.setFirstEventItem(arc, 0);
+							if (event.getEventType() == SimulationEventType.no_event){							
+								event.setEventType(SimulationEventType.place_internaltransition);
+								event.setFirstEventItem(place, 0);							
+							} else if (event.getEventType() == SimulationEventType.place_internaltransition){
+								event.getRelatedObjects().add(place);
+							}							
+						}	
+						
+						
+					} else {
+					
+						if (timeDelta < 0.0 || timeDelta.equals(Double.POSITIVE_INFINITY))
+							continue;
+						
+						if (timeDelta == 0.0){
+													
+							if(place.getDrift() >= 0.0 && ((GuardArc)arc).getConditionFulfilled().equals(true))
+								continue;
 							
-						} else if ((event.getEventType().equals(SimulationEventType.guard_arcs_immediate) && arc.getConnectedTransition().getClass().equals(ImmediateTransition.class))
-								|| (event.getEventType().equals(SimulationEventType.guard_arcs_continuous) && arc.getConnectedTransition().getClass().equals(ContinuousTransition.class)) 
-								|| (event.getEventType().equals(SimulationEventType.guard_arcs_deterministic) && (arc.getConnectedTransition().getClass().equals(DeterministicTransition.class) || arc.getConnectedTransition().getClass().equals(GeneralTransition.class)))){
+							if (place.getDrift() < 0.0 && ((GuardArc)arc).getConditionFulfilled().equals(false))							
+								continue;						
+	
+							((GuardArc)arc).setConditionFulfilled(true);
+								
 							
-							//otherwise, if same kind of transitions, add to list
-							event.getRelatedObjects().add(arc);
 						}
+						
+		
+						
+						timeOfCurrentEvent = currentTime + timeDelta;
+						
+						if (timeOfCurrentEvent < event.getOccurenceTime()){
+											
+							if (arc.getConnectedTransition().getClass().equals(ImmediateTransition.class))
+								event.setEventType(SimulationEventType.guard_arcs_immediate);
+							else if (arc.getConnectedTransition().getClass().equals(ContinuousTransition.class))
+								event.setEventType(SimulationEventType.guard_arcs_continuous);
+							else
+								event.setEventType(SimulationEventType.guard_arcs_deterministic);
+								
+							event.setFirstEventItem(arc, 0);
+							event.setOccurenceTime(timeOfCurrentEvent);
+								
+						} else if (timeOfCurrentEvent == event.getOccurenceTime()) {
+							
+							if ((!event.getEventType().equals(SimulationEventType.guard_arcs_immediate) && arc.getConnectedTransition().getClass().equals(ImmediateTransition.class))){
+							
+								//guard arc for immediate transition replaces other guard arcs
+								event.setEventType(SimulationEventType.guard_arcs_immediate);
+								event.setFirstEventItem(arc, 0);
+								
+							} else if (event.getEventType().equals(SimulationEventType.guard_arcs_deterministic) && arc.getConnectedTransition().getClass().equals(ContinuousTransition.class)){ 
+								
+								//guard arc for continuous transition replaces guard arcs for deterministic/general transitions
+								event.setEventType(SimulationEventType.guard_arcs_continuous);
+								event.setFirstEventItem(arc, 0);
+								
+							} else if ((event.getEventType().equals(SimulationEventType.guard_arcs_immediate) && arc.getConnectedTransition().getClass().equals(ImmediateTransition.class))
+									|| (event.getEventType().equals(SimulationEventType.guard_arcs_continuous) && arc.getConnectedTransition().getClass().equals(ContinuousTransition.class)) 
+									|| (event.getEventType().equals(SimulationEventType.guard_arcs_deterministic) && (arc.getConnectedTransition().getClass().equals(DeterministicTransition.class) || arc.getConnectedTransition().getClass().equals(GeneralTransition.class)))){
+								
+								//otherwise, if same kind of transitions, add to list
+								event.getRelatedObjects().add(arc);
+							}
+						}
+						
 					}
 				
 				} else if (!arc.getClass().equals(GuardArc.class))
@@ -162,15 +196,50 @@ public class Simulator {
 					
 					ContinuousPlace place = (ContinuousPlace)p;	
 					Double timeDelta = -1.0;
-					
+					Double timeDeltaQ = -1.0;
+											
 			
+					if (place.getExactDrift() < 0.0 && !place.getLowerBoundaryReached())
+						timeDelta = place.getTimeTilExactFluidLevelHitsBoundary(0.0, currentTime);
+					else if (place.getExactDrift() > 0.0 && !place.getUpperBoundaryInfinity() && !place.getUpperBoundaryReached())
+						timeDelta = place.getTimeTilExactFluidLevelHitsBoundary(place.getUpperBoundary(), currentTime);
+					
 					if (place.getDrift() < 0.0 && !place.getLowerBoundaryReached())
-						timeDelta = Math.abs(place.getCurrentFluidLevel() / place.getDrift());
+						timeDeltaQ = place.getTimeTilCurrentFluidLevelHitsBoundary(0.0);
 					else if (place.getDrift() > 0.0 && !place.getUpperBoundaryInfinity() && !place.getUpperBoundaryReached())
-						timeDelta = (place.getUpperBoundary() - place.getCurrentFluidLevel())/ place.getDrift();
+						timeDeltaQ = place.getTimeTilCurrentFluidLevelHitsBoundary(place.getUpperBoundary());
 					
 					
-					if (timeDelta > 0.0 && timeDelta <= place.getTimeToNextInternalTransition()){	
+
+					
+					if (((timeDelta >= 0.0 && timeDelta < Double.POSITIVE_INFINITY || (timeDeltaQ >= 0.0 && timeDeltaQ < Double.POSITIVE_INFINITY))) && !timeDelta.equals(timeDeltaQ) && (timeDelta < place.getTimeToNextInternalTransition() || timeDeltaQ < place.getTimeToNextInternalTransition())){
+						
+						if (timeDelta < 0.0)
+							timeDelta = Double.POSITIVE_INFINITY;
+						
+						if (timeDeltaQ < 0.0)
+							timeDelta = Double.POSITIVE_INFINITY;
+						
+						timeOfCurrentEvent = currentTime + Math.min(timeDelta, timeDeltaQ);
+
+						if (timeOfCurrentEvent < event.getOccurenceTime()){
+							
+							event.setEventType(SimulationEventType.place_internaltransition);							
+							event.setFirstEventItem(place, 0);
+							event.setOccurenceTime(timeOfCurrentEvent);
+								
+						} else if (timeOfCurrentEvent == event.getOccurenceTime()) {
+							
+							if (event.getEventType() == SimulationEventType.no_event){							
+								event.setEventType(SimulationEventType.place_internaltransition);
+								event.setFirstEventItem(place, 0);							
+							} else if (event.getEventType() == SimulationEventType.place_internaltransition){
+								event.getRelatedObjects().add(place);
+							}							
+						}	
+						
+						
+					} else if (timeDelta >= 0.0 && timeDelta <= place.getTimeToNextInternalTransition() && !timeDelta.equals(Double.POSITIVE_INFINITY)){	
 						
 						timeOfCurrentEvent = currentTime + timeDelta;		
 						
@@ -189,6 +258,11 @@ public class Simulator {
 								event.getRelatedObjects().add(place);
 							}							
 						}	
+						
+						if (timeDelta == 0.0 && place.getCurrentFluidLevel() == 0.0)
+							place.checkLowerBoundary();
+						else if (timeDelta == 0.0)
+							place.checkUpperBoundary();
 						
 					} else {	
 						
@@ -235,13 +309,14 @@ public class Simulator {
 				model.printCurrentMarking(false, false);
 		}
 		
+		//model.checkAllGuardArcs();
 				
 		return event.getOccurenceTime(); 
 		
 	}
 	
 	
-	private void completeEvent(Boolean printRunResults, MarkingPlot currentPlot) throws InvalidRandomVariateGeneratorException{
+	protected void completeEvent(Boolean printRunResults, MarkingPlot currentPlot) throws InvalidRandomVariateGeneratorException{
 	
 		if (event.getEventType() == SimulationEventType.immediate_transition || event.getEventType() == SimulationEventType.deterministic_transition || event.getEventType() == SimulationEventType.general_transition) {
 			
@@ -400,4 +475,7 @@ public class Simulator {
 		
 		return null;
 	}
+	
+	
+
 }

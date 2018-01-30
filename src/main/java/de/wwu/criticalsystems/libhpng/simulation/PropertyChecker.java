@@ -54,7 +54,7 @@ public class PropertyChecker {
 	}
 	
 	
-	public static String getProbKind(SimpleNode root) throws InvalidPropertyException{
+	public static String getProbertyKind(SimpleNode root) throws InvalidPropertyException{
 		for (int i=0;i < root.jjtGetNumChildren(); i++){
 			if (root.jjtGetChild(i).toString().equals("PROBQ"))
 				return "PROBQ";
@@ -84,6 +84,32 @@ public class PropertyChecker {
 	}
 	
 	
+	
+	//TODO
+	/*public ArrayList<SimpleNode> getFluidProperties(root){
+		
+		//Double currentMax;
+		se "ATOMIC_FLUID":
+	case "ATOMIC_UBOUND":
+	case "ATOMIC_LBOUND":
+	case "ATOMIC_ARC":
+		if (root.toString().equals("ATOMIC_FLUID") || root.toString().equals("ATOMIC_UBOUND") || root.toString().equals("ATOMIC_LBOUND") || root.toString().equals("ATOMIC_ARC")))			
+			maxTime = maxTime + Double.parseDouble(((SimpleNode)propertyRoot.jjtGetChild(1)).jjtGetValue().toString());
+			
+
+		if (propertyRoot.jjtGetNumChildren() > 0) {
+			
+			currentMax = checkForUntil((SimpleNode)propertyRoot.jjtGetChild(0), maxTime);
+			for (int i = 1;i < propertyRoot.jjtGetNumChildren(); i++){
+				currentMax = Math.max(currentMax, checkForUntil((SimpleNode)propertyRoot.jjtGetChild(i), maxTime));
+			}	
+			return currentMax;
+		}
+		
+		return maxTime;
+		
+	}
+	*/
 	
 	
 	private static enum PropertyFamily {discrete, continuous, undefined}

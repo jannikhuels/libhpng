@@ -361,12 +361,12 @@ public class SimulationHandler {
 				logger.info("The simulation has been set to simulation with optimal number of runs");
 		}
 	}	
-	
-	
+		
 	
 	public Boolean getPrintRunResults() {
 		return printRunResults;
 	}
+	
 	
 	public void setPrintRunResults(Boolean printRunResults) {
 		this.printRunResults = printRunResults;
@@ -378,60 +378,22 @@ public class SimulationHandler {
 		}
 	}
 	
-
-	
 	
 	public Logger getLogger() {
 		return logger;
 	}
+	
 	
 	public void setLogger(Logger logger) {
 		this.logger = logger;
 	}
 	
 	
-	//simulation parameters
-	private Byte intervalID;
-	private Double halfIntervalWidth = 0.0;
-	private Double confidenceLevel;
-	private Double realProbability;
-	private Integer calculations;
-	
-	private Byte algorithmID;
-	private Double correctnessIndifferenceLevel;
-	private Double powerIndifferenceLevel;	
-	private Double guess;
-	private Integer testRuns;
-	private Double type1Error;
-	private Double type2Error;
-	
-	private Integer fixedNumberOfRuns;
-	private Integer minNumberOfRuns;
-	private Integer maxNumberOfRuns;
-	private Boolean simulationWithFixedNumberOfRuns;
-	private Boolean printRunResults;
-
-		
-	private Simulator simulator;
-	private Logger logger;
-	private HPnGModel model;
-	private SimpleNode root;
-	private Double maxTime;
-	private Double currentTime;
-	private ArrayList<MarkingPlot> plots = new ArrayList<MarkingPlot>();
-	private MarkingPlot currentPlot;
-
-	
-	
-	public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNotReadableException, InvalidRandomVariateGeneratorException{
+public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNotReadableException, InvalidRandomVariateGeneratorException{
 		
 		this.maxTime = maxTime;
 		this.model = model;
-		
-		
-		//int cores = 1;//Runtime.getRuntime().availableProcessors();
-		
-		
+			
 		simulator = new Simulator(model, maxTime);
 		simulator.setLogger(logger);
 		SampleGenerator generator = new SampleGenerator();
@@ -476,7 +438,7 @@ public class SimulationHandler {
 		if (logger != null)
 			logger.info("Simulation finished after " + fixedNumberOfRuns + " runs");
 
-
+		plots.clear();
 
 	}
 	
@@ -488,13 +450,18 @@ public class SimulationHandler {
 		this.model = model;
 		this.root = root;
 		this.maxTime = PropertyChecker.getMaxTimeForSimulation(root);
+
+		//ArrayList<SimpleNode> fluidProperties =
+		
+		
+		
 		
 		simulator = new Simulator(model, maxTime);
 		simulator.setLogger(logger);
 		
 		String prob = "";
 		try {
-			prob = PropertyChecker.getProbKind(root);
+			prob = PropertyChecker.getProbertyKind(root);
 		} catch (InvalidPropertyException e) {		
 			if (logger != null)
 				logger.severe(e.getLocalizedMessage());
@@ -544,6 +511,143 @@ public class SimulationHandler {
 		System.out.printf("Time needed: " + "%,.2f" + "  ms.%n" ,(double)(timeEnd - timeStart));
 
 	}
+	
+	
+	public void loadParameters(){		
+		
+
+		try {	
+			Properties parameters = new Properties();
+			parameters.load(new FileInputStream("libhpng_parameters.cfg"));
+			
+			
+			intervalID = Byte.parseByte(parameters.getProperty("intervalID"));
+			halfIntervalWidth = Double.parseDouble(parameters.getProperty("halfIntervalWidth"));
+			confidenceLevel = Double.parseDouble(parameters.getProperty("confidenceLevel"));
+			realProbability = Double.parseDouble(parameters.getProperty("realProbability"));
+			calculations = Integer.parseInt(parameters.getProperty("calculations"));
+			
+			algorithmID = Byte.parseByte(parameters.getProperty("algorithmID"));
+			correctnessIndifferenceLevel = Double.parseDouble(parameters.getProperty("correctnessIndifferenceLevel"));
+			powerIndifferenceLevel = Double.parseDouble(parameters.getProperty("powerIndifferenceLevel"));
+			guess = Double.parseDouble(parameters.getProperty("guess"));
+			testRuns = Integer.parseInt(parameters.getProperty("testRuns"));
+			type1Error = Double.parseDouble(parameters.getProperty("type1Error"));
+			type2Error = Double.parseDouble(parameters.getProperty("type2Error"));
+			
+			fixedNumberOfRuns = Integer.parseInt(parameters.getProperty("fixedNumberOfRuns"));
+			minNumberOfRuns = Integer.parseInt(parameters.getProperty("minNumberOfRuns"));
+			maxNumberOfRuns = Integer.parseInt(parameters.getProperty("maxNumberOfRuns"));
+			simulationWithFixedNumberOfRuns = Boolean.parseBoolean(parameters.getProperty("simulationWithFixedNumberOfRuns"));
+			printRunResults = Boolean.parseBoolean(parameters.getProperty("printRunResults"));
+			
+			
+					
+			
+		} catch (Exception e) {
+			
+			if (logger != null)
+				logger.warning("Simulation parameters from configuration file could not be loaded. Default values are set.");
+			System.out.println("Simulation parameters from configuration file could not be loaded. Default values are set.");
+		
+			intervalID = 0;
+			halfIntervalWidth = 0.005;
+			confidenceLevel = 0.95;			
+			realProbability = 0.5;
+			calculations = 1;
+			
+			algorithmID = 0;
+			correctnessIndifferenceLevel = 0.005;
+			powerIndifferenceLevel = 0.005;
+			guess = 0.1;
+			testRuns = 1;
+			type1Error = 0.05;
+			type2Error = 0.05;
+			
+			fixedNumberOfRuns = 1000;
+			minNumberOfRuns = 100;
+			maxNumberOfRuns = 100000;
+			simulationWithFixedNumberOfRuns = false;
+			printRunResults = false;
+					
+			
+		}
+	}
+	
+	
+	public void storeParameters(){		
+		
+		try {
+			
+			Properties parameters = new Properties();
+			
+			parameters.setProperty("intervalID", intervalID.toString());
+			parameters.setProperty("halfIntervalWidth", halfIntervalWidth.toString());
+			parameters.setProperty("confidenceLevel", confidenceLevel.toString());
+			parameters.setProperty("realProbability", realProbability.toString());
+			parameters.setProperty("calculations", calculations.toString());
+			
+			parameters.setProperty("algorithmID", algorithmID.toString());
+			parameters.setProperty("correctnessIndifferenceLevel", correctnessIndifferenceLevel.toString());
+			parameters.setProperty("powerIndifferenceLevel", powerIndifferenceLevel.toString());
+			parameters.setProperty("guess", guess.toString());
+			parameters.setProperty("testRuns", testRuns.toString());
+			parameters.setProperty("type1Error", type1Error.toString());
+			parameters.setProperty("type2Error", type2Error.toString());
+			
+			parameters.setProperty("fixedNumberOfRuns", fixedNumberOfRuns.toString());
+			parameters.setProperty("minNumberOfRuns", minNumberOfRuns.toString());
+			parameters.setProperty("maxNumberOfRuns", maxNumberOfRuns.toString());
+			parameters.setProperty("simulationWithFixedNumberOfRuns", simulationWithFixedNumberOfRuns.toString());
+			parameters.setProperty("printRunResults", printRunResults.toString());
+			
+			parameters.store(new FileOutputStream("libhpng_parameters.cfg"),"");
+						
+		} catch (Exception e) {
+			
+			if (logger != null)
+				logger.severe("Simulation parameters could not be saved into the configuration file.");
+			System.out.println("Simulation parameters could not be saved into the configuration file.");
+			
+		}
+	}
+
+	
+	
+	//simulation parameters
+	private Byte intervalID;
+	private Double halfIntervalWidth = 0.0;
+	private Double confidenceLevel;
+	private Double realProbability;
+	private Integer calculations;
+	
+	private Byte algorithmID;
+	private Double correctnessIndifferenceLevel;
+	private Double powerIndifferenceLevel;	
+	private Double guess;
+	private Integer testRuns;
+	private Double type1Error;
+	private Double type2Error;
+	
+	private Integer fixedNumberOfRuns;
+	private Integer minNumberOfRuns;
+	private Integer maxNumberOfRuns;
+	private Boolean simulationWithFixedNumberOfRuns;
+	private Boolean printRunResults;
+
+		
+	private Simulator simulator;
+	private Logger logger;
+	private HPnGModel model;
+	private SimpleNode root;
+	private Double maxTime;
+	private Double currentTime;
+	private ArrayList<MarkingPlot> plots = new ArrayList<MarkingPlot>();
+	private MarkingPlot currentPlot;
+
+	
+	
+	
 	
 		
 	
@@ -738,7 +842,7 @@ public class SimulationHandler {
 			System.out.println("Average number of simulation runs needed: " + totalRuns/(fulfilled+notFulfilled) + "\n");
 			}else {System.out.println("There where no successfull runs" + "\n");}
 		
-		
+		plots.clear();
 			
 	/*	Properties parameters = new Properties();
 		
@@ -796,106 +900,7 @@ public class SimulationHandler {
 		curr = curr*100;
 		return curr;
 	}
-	
-	
-	
-	public void loadParameters(){		
 		
-
-		try {	
-			Properties parameters = new Properties();
-			parameters.load(new FileInputStream("libhpng_parameters.cfg"));
-			
-			
-			intervalID = Byte.parseByte(parameters.getProperty("intervalID"));
-			halfIntervalWidth = Double.parseDouble(parameters.getProperty("halfIntervalWidth"));
-			confidenceLevel = Double.parseDouble(parameters.getProperty("confidenceLevel"));
-			realProbability = Double.parseDouble(parameters.getProperty("realProbability"));
-			calculations = Integer.parseInt(parameters.getProperty("calculations"));
-			
-			algorithmID = Byte.parseByte(parameters.getProperty("algorithmID"));
-			correctnessIndifferenceLevel = Double.parseDouble(parameters.getProperty("correctnessIndifferenceLevel"));
-			powerIndifferenceLevel = Double.parseDouble(parameters.getProperty("powerIndifferenceLevel"));
-			guess = Double.parseDouble(parameters.getProperty("guess"));
-			testRuns = Integer.parseInt(parameters.getProperty("testRuns"));
-			type1Error = Double.parseDouble(parameters.getProperty("type1Error"));
-			type2Error = Double.parseDouble(parameters.getProperty("type2Error"));
-			
-			fixedNumberOfRuns = Integer.parseInt(parameters.getProperty("fixedNumberOfRuns"));
-			minNumberOfRuns = Integer.parseInt(parameters.getProperty("minNumberOfRuns"));
-			maxNumberOfRuns = Integer.parseInt(parameters.getProperty("maxNumberOfRuns"));
-			simulationWithFixedNumberOfRuns = Boolean.parseBoolean(parameters.getProperty("simulationWithFixedNumberOfRuns"));
-			printRunResults = Boolean.parseBoolean(parameters.getProperty("printRunResults"));
-			
-			
-					
-			
-		} catch (Exception e) {
-			
-			if (logger != null)
-				logger.warning("Simulation parameters from configuration file could not be loaded. Default values are set.");
-			System.out.println("Simulation parameters from configuration file could not be loaded. Default values are set.");
-		
-			intervalID = 0;
-			halfIntervalWidth = 0.005;
-			confidenceLevel = 0.95;			
-			realProbability = 0.5;
-			calculations = 1;
-			
-			algorithmID = 0;
-			correctnessIndifferenceLevel = 0.005;
-			powerIndifferenceLevel = 0.005;
-			guess = 0.1;
-			testRuns = 1;
-			type1Error = 0.05;
-			type2Error = 0.05;
-			
-			fixedNumberOfRuns = 1000;
-			minNumberOfRuns = 100;
-			maxNumberOfRuns = 100000;
-			simulationWithFixedNumberOfRuns = false;
-			printRunResults = false;
-					
-			
-		}
-	}
 	
 	
-	public void storeParameters(){		
-		
-		try {
-			
-			Properties parameters = new Properties();
-			
-			parameters.setProperty("intervalID", intervalID.toString());
-			parameters.setProperty("halfIntervalWidth", halfIntervalWidth.toString());
-			parameters.setProperty("confidenceLevel", confidenceLevel.toString());
-			parameters.setProperty("realProbability", realProbability.toString());
-			parameters.setProperty("calculations", calculations.toString());
-			
-			parameters.setProperty("algorithmID", algorithmID.toString());
-			parameters.setProperty("correctnessIndifferenceLevel", correctnessIndifferenceLevel.toString());
-			parameters.setProperty("powerIndifferenceLevel", powerIndifferenceLevel.toString());
-			parameters.setProperty("guess", guess.toString());
-			parameters.setProperty("testRuns", testRuns.toString());
-			parameters.setProperty("type1Error", type1Error.toString());
-			parameters.setProperty("type2Error", type2Error.toString());
-			
-			parameters.setProperty("fixedNumberOfRuns", fixedNumberOfRuns.toString());
-			parameters.setProperty("minNumberOfRuns", minNumberOfRuns.toString());
-			parameters.setProperty("maxNumberOfRuns", maxNumberOfRuns.toString());
-			parameters.setProperty("simulationWithFixedNumberOfRuns", simulationWithFixedNumberOfRuns.toString());
-			parameters.setProperty("printRunResults", printRunResults.toString());
-			
-			parameters.store(new FileOutputStream("libhpng_parameters.cfg"),"");
-						
-		} catch (Exception e) {
-			
-			if (logger != null)
-				logger.severe("Simulation parameters could not be saved into the configuration file.");
-			System.out.println("Simulation parameters could not be saved into the configuration file.");
-			
-		}
-	}
-
 }

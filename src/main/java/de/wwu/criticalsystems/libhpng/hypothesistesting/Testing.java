@@ -303,6 +303,8 @@ public class Testing {
 		else 
 			System.out.println("There where no successfull runs" + "\n");		
 		
+		plots.clear();
+		
 	}	
 		
 		

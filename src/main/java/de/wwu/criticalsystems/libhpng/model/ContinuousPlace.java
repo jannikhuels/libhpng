@@ -338,6 +338,59 @@ public class ContinuousPlace extends Place{
 				
 	}
 	
+	
+
+	public Double getTimeTilExactFluidLevelHitsBoundary(Double boundary, Double timePoint){
+		
+			Double timeSinceLastInternalTransition = timePoint - lastUpdate;
+			Double fluid = exactFluidLevel + exactDrift * timeSinceLastInternalTransition + changeOfExactDrift/2.0 * Math.pow(timeSinceLastInternalTransition, 2.0);
+		
+			if ((!upperBoundaryInfinity && upperBoundaryReached && boundary == upperBoundary) || (lowerBoundaryReached && boundary == 0.0))
+				return Double.POSITIVE_INFINITY;
+			
+			if (exactDrift == 0.0 && fluid - boundary == 0.0)
+				return 0.0;
+			else if (exactDrift == 0.0)
+				return Double.POSITIVE_INFINITY;
+			
+			if (changeOfExactDrift == 0.0)
+				return ((boundary - fluid)/exactDrift);
+			
+			
+			Double termA = exactDrift / changeOfExactDrift;
+			Double termB = Math.sqrt(Math.pow(termA, 2.0) - 2.0*(fluid - boundary)/changeOfExactDrift);
+			Double termC = -1*termA;
+
+					
+			Double t1 = termC + termB;
+			Double t2 = termC - termB;
+			
+			
+			if (t1 <= 0.0 || Double.isNaN(t1))
+				t1 = Double.POSITIVE_INFINITY;
+			
+			if (t2 <= 0.0 || Double.isNaN(t2))
+				t2 = Double.POSITIVE_INFINITY;
+									
+			return Math.min(t1, t2);		
+	}
+	
+	
+	public Double getTimeTilCurrentFluidLevelHitsBoundary(Double boundary){
+		
+		
+		if ((!upperBoundaryInfinity && upperBoundaryReached && boundary == upperBoundary) || (lowerBoundaryReached && boundary == 0.0))
+			return Double.POSITIVE_INFINITY;
+		
+		if (drift == 0.0 && currentFluidLevel - boundary == 0.0)
+			return 0.0;
+		else if (drift == 0.0)
+			return Double.POSITIVE_INFINITY;		
+		
+		return ((boundary - currentFluidLevel)/drift);
+		
+}
+	
 
 	private Double currentFluidLevel; 
 	private Double originalFluidLevel;
