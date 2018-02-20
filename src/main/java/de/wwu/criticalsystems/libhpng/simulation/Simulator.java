@@ -46,22 +46,22 @@ public class Simulator {
 					event.setEventType(SimulationEventType.immediate_transition);
 					event.setFirstEventItem(transition, ((ImmediateTransition)transition).getPriority());
 					event.setOccurenceTime(currentTime);
-				} else if (((ImmediateTransition)transition).getPriority() == event.getPriority()){
+				} else if (((ImmediateTransition)transition).getPriority().equals(event.getPriority())){
 					event.getRelatedObjects().add(transition);
 				} else
 					break; //if immediate transition with higher priority found, transition loop can be exited here
 			} else if (transition.getClass().equals(DeterministicTransition.class)){
 			
-				if (event.getEventType() == SimulationEventType.immediate_transition)
+				if (event.getEventType().equals(SimulationEventType.immediate_transition))
 					break;
 				
 				timeOfCurrentEvent = currentTime + ((DeterministicTransition)transition).getFiringTime() - ((DeterministicTransition)transition).getClock();
 				
-				if (timeOfCurrentEvent < event.getOccurenceTime() || (timeOfCurrentEvent == event.getOccurenceTime() && ((DeterministicTransition)transition).getPriority() > event.getPriority())){
+				if (timeOfCurrentEvent < event.getOccurenceTime() || (timeOfCurrentEvent.equals(event.getOccurenceTime()) && ((DeterministicTransition)transition).getPriority() > event.getPriority())){
 					event.setEventType(SimulationEventType.deterministic_transition);
 					event.setFirstEventItem(transition, ((DeterministicTransition)transition).getPriority());
 					event.setOccurenceTime(timeOfCurrentEvent);
-				} else if (timeOfCurrentEvent == event.getOccurenceTime() && ((DeterministicTransition)transition).getPriority() == event.getPriority()){
+				} else if (timeOfCurrentEvent.equals(event.getOccurenceTime()) && ((DeterministicTransition)transition).getPriority().equals(event.getPriority())){
 					event.getRelatedObjects().add(transition);				
 				}
 			} else if (transition.getClass().equals(GeneralTransition.class)){
@@ -71,11 +71,11 @@ public class Simulator {
 				
 				timeOfCurrentEvent = currentTime + ((GeneralTransition)transition).getDiscreteFiringTime() - ((GeneralTransition)transition).getEnablingTime();
 				
-				if (timeOfCurrentEvent < event.getOccurenceTime() || (timeOfCurrentEvent == event.getOccurenceTime() && !(event.getEventType() == SimulationEventType.deterministic_transition) && ((GeneralTransition)transition).getPriority() > event.getPriority())){
+				if (timeOfCurrentEvent < event.getOccurenceTime() || (timeOfCurrentEvent.equals(event.getOccurenceTime()) && !(event.getEventType().equals(SimulationEventType.deterministic_transition)) && ((GeneralTransition)transition).getPriority() > event.getPriority())){
 					event.setEventType(SimulationEventType.general_transition);
 					event.setFirstEventItem(transition, ((GeneralTransition)transition).getPriority());
 					event.setOccurenceTime(timeOfCurrentEvent);
-				} else if (timeOfCurrentEvent == event.getOccurenceTime() && ((GeneralTransition)transition).getPriority() == event.getPriority()){
+				} else if (timeOfCurrentEvent.equals(event.getOccurenceTime()) && ((GeneralTransition)transition).getPriority().equals(event.getPriority())){
 					event.getRelatedObjects().add(transition);				
 				}
 			} else 
@@ -116,12 +116,12 @@ public class Simulator {
 							event.setFirstEventItem(place, 0);
 							event.setOccurenceTime(timeOfCurrentEvent);
 								
-						} else if (timeOfCurrentEvent == event.getOccurenceTime()) {
+						} else if (timeOfCurrentEvent.equals(event.getOccurenceTime())) {
 							
-							if (event.getEventType() == SimulationEventType.no_event){							
+							if (event.getEventType().equals(SimulationEventType.no_event)){							
 								event.setEventType(SimulationEventType.place_internaltransition);
 								event.setFirstEventItem(place, 0);							
-							} else if (event.getEventType() == SimulationEventType.place_internaltransition){
+							} else if (event.getEventType().equals(SimulationEventType.place_internaltransition)){
 								event.getRelatedObjects().add(place);
 							}							
 						}	
@@ -161,7 +161,7 @@ public class Simulator {
 							event.setFirstEventItem(arc, 0);
 							event.setOccurenceTime(timeOfCurrentEvent);
 								
-						} else if (timeOfCurrentEvent == event.getOccurenceTime()) {
+						} else if (timeOfCurrentEvent.equals(event.getOccurenceTime())) {
 							
 							if ((!event.getEventType().equals(SimulationEventType.guard_arcs_immediate) && arc.getConnectedTransition().getClass().equals(ImmediateTransition.class))){
 							
@@ -228,12 +228,12 @@ public class Simulator {
 							event.setFirstEventItem(place, 0);
 							event.setOccurenceTime(timeOfCurrentEvent);
 								
-						} else if (timeOfCurrentEvent == event.getOccurenceTime()) {
+						} else if (timeOfCurrentEvent.equals(event.getOccurenceTime())) {
 							
-							if (event.getEventType() == SimulationEventType.no_event){							
+							if (event.getEventType().equals(SimulationEventType.no_event)){							
 								event.setEventType(SimulationEventType.place_internaltransition);
 								event.setFirstEventItem(place, 0);							
-							} else if (event.getEventType() == SimulationEventType.place_internaltransition){
+							} else if (event.getEventType().equals(SimulationEventType.place_internaltransition)){
 								event.getRelatedObjects().add(place);
 							}							
 						}	
@@ -249,12 +249,12 @@ public class Simulator {
 							event.setFirstEventItem(place, 0);
 							event.setOccurenceTime(timeOfCurrentEvent);
 								
-						} else if (timeOfCurrentEvent == event.getOccurenceTime()) {
+						} else if (timeOfCurrentEvent.equals(event.getOccurenceTime())) {
 							
-							if (event.getEventType() == SimulationEventType.no_event || event.getEventType() == SimulationEventType.general_transition || event.getEventType() == SimulationEventType.guard_arcs_deterministic || event.getEventType() == SimulationEventType.guard_arcs_continuous){							
+							if (event.getEventType().equals(SimulationEventType.no_event) || event.getEventType().equals(SimulationEventType.general_transition) || event.getEventType().equals(SimulationEventType.guard_arcs_deterministic) || event.getEventType().equals(SimulationEventType.guard_arcs_continuous)){							
 								event.setEventType(SimulationEventType.place_boundary);
 								event.setFirstEventItem(place, 0);							
-							} else if (event.getEventType() == SimulationEventType.place_boundary){
+							} else if (event.getEventType().equals(SimulationEventType.place_boundary)){
 								event.getRelatedObjects().add(place);
 							}							
 						}	
@@ -274,12 +274,12 @@ public class Simulator {
 							event.setFirstEventItem(place, 0);
 							event.setOccurenceTime(timeOfCurrentEvent);
 								
-						} else if (timeOfCurrentEvent == event.getOccurenceTime()) {
+						} else if (timeOfCurrentEvent.equals(event.getOccurenceTime())) {
 							
-							if (event.getEventType() == SimulationEventType.no_event){							
+							if (event.getEventType().equals(SimulationEventType.no_event)){							
 								event.setEventType(SimulationEventType.place_internaltransition);
 								event.setFirstEventItem(place, 0);							
-							} else if (event.getEventType() == SimulationEventType.place_internaltransition){
+							} else if (event.getEventType().equals(SimulationEventType.place_internaltransition)){
 								event.getRelatedObjects().add(place);
 							}							
 						}	
@@ -290,7 +290,7 @@ public class Simulator {
 		}
 		
 		//complete event and update model marking
-		if (maxTime < event.getOccurenceTime() || event.getEventType() == SimulationEventType.no_event){
+		if (maxTime < event.getOccurenceTime() || event.getEventType().equals(SimulationEventType.no_event)){
 			if (maxTime- currentTime > 0.0)
 				model.advanceMarking(maxTime- currentTime);
 			
@@ -318,7 +318,7 @@ public class Simulator {
 	
 	protected void completeEvent(Boolean printRunResults, MarkingPlot currentPlot) throws InvalidRandomVariateGeneratorException{
 	
-		if (event.getEventType() == SimulationEventType.immediate_transition || event.getEventType() == SimulationEventType.deterministic_transition || event.getEventType() == SimulationEventType.general_transition) {
+		if (event.getEventType().equals(SimulationEventType.immediate_transition) || event.getEventType().equals(SimulationEventType.deterministic_transition) || event.getEventType().equals(SimulationEventType.general_transition)) {
 			
 			//transition firing
 			Transition transition = conflictResolutionByTransitionWeight();		
@@ -334,7 +334,7 @@ public class Simulator {
 				if (printRunResults) System.out.println(event.getOccurenceTime() + " seconds: Deterministic transition " + transition.getId() + " is fired");
 			}
 	
-		} else if (event.getEventType() == SimulationEventType.guard_arcs_immediate || event.getEventType() == SimulationEventType.guard_arcs_continuous || event.getEventType() == SimulationEventType.guard_arcs_deterministic){
+		} else if (event.getEventType().equals(SimulationEventType.guard_arcs_immediate) || event.getEventType().equals(SimulationEventType.guard_arcs_continuous) || event.getEventType().equals(SimulationEventType.guard_arcs_deterministic)){
 			
 			//guard arc condition
 			GuardArc arc;
@@ -352,7 +352,7 @@ public class Simulator {
 				else if (printRunResults && !fulfilled && arc.getInhibitor())
 					System.out.println(event.getOccurenceTime() + " seconds: inhibitor arc " + arc.getId() + " has its condition stopped being fulfilled for transition " + arc.getConnectedTransition().getId());									
 			}			
-		} else if (event.getEventType() == SimulationEventType.place_boundary){
+		} else if (event.getEventType().equals(SimulationEventType.place_boundary)){
 			
 			//place boundary reached
 			ContinuousPlace place;
@@ -371,7 +371,7 @@ public class Simulator {
 						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " has reached its upper boundary");
 				}	
 			}	
-		} else if (event.getEventType() == SimulationEventType.place_internaltransition){
+		} else if (event.getEventType().equals(SimulationEventType.place_internaltransition)){
 
 			ContinuousPlace place;
 			
@@ -444,7 +444,7 @@ public class Simulator {
 		Double probability = 0.0;
 		Double winner =  new Random().nextDouble();
 		
-		if (event.getEventType() == SimulationEventType.immediate_transition){
+		if (event.getEventType().equals(SimulationEventType.immediate_transition)){
 			for (Object object : event.getRelatedObjects())
 				sum += ((ImmediateTransition)object).getWeight();
 			
@@ -453,7 +453,7 @@ public class Simulator {
 				if (winner < probability)
 					return ((Transition)object);
 			}	
-		} else if (event.getEventType() == SimulationEventType.deterministic_transition){
+		} else if (event.getEventType().equals(SimulationEventType.deterministic_transition)){
 			for (Object object : event.getRelatedObjects())
 				sum += ((DeterministicTransition)object).getWeight();
 			
@@ -462,7 +462,7 @@ public class Simulator {
 				if (winner < probability)
 					return ((Transition)object);
 			}
-		} else if (event.getEventType() == SimulationEventType.general_transition){
+		} else if (event.getEventType().equals(SimulationEventType.general_transition)){
 			for (Object object : event.getRelatedObjects())
 				sum += ((GeneralTransition)object).getWeight();
 			

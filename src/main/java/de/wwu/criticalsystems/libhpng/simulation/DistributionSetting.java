@@ -187,9 +187,9 @@ public class DistributionSetting {
 		for (CDFFunctionParameter parameter : transition.getParameters()){
 			switch (parameter.getName()){
 				case "n":
-					double nDouble = parameter.getValue();
-					if (nDouble == Math.floor(nDouble)){
-						n = (int) nDouble;
+					Double nDouble = parameter.getValue();
+					if (nDouble.equals(Math.floor(nDouble))){
+						n = nDouble.intValue();
 						nFound = true;
 					} else{
 						if (logger != null)

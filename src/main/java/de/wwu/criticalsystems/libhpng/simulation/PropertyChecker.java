@@ -169,7 +169,7 @@ public class PropertyChecker {
 		} else
 			id = temp;	
 		
-		if (id == null){
+		if (id.equals(null)){
 			if (logger != null)
 				logger.severe("Property Error: the ID of the property node '" + propertyRoot.toString() + "' could not be matched");
 			throw new InvalidPropertyException("Property Error: the ID of the property node '" + propertyRoot.toString() + "' could not be matched");
@@ -192,7 +192,7 @@ public class PropertyChecker {
 					compare = ">=";
 				}					
 			}
-			if (boundary == null){
+			if (boundary.equals(null)){
 				if (logger != null)
 					logger.severe("Property Error: the boundary of the property node '" + propertyRoot.toString() + "' could not be identified");
 				throw new InvalidPropertyException("Property Error: the boundary of the property node '" + propertyRoot.toString() + "' could not be identified");
@@ -454,7 +454,7 @@ public class PropertyChecker {
 					
 					//special case t1=0 and no tPsi1 found
 					if (t1 == 0.0 && tPsi1 == -1.0){
-						if (tPsi2 == leftBorder && !leftBorderIncluded){
+						if (tPsi2.equals(leftBorder) && !leftBorderIncluded){
 							if (checkAnyProperty(psi2, tPsi2 + Double.MIN_VALUE))
 								return tPsi2 + Double.MIN_VALUE;
 							return -1.0;
@@ -463,7 +463,7 @@ public class PropertyChecker {
 					}
 					
 					if (tPsi1 > -1.0 && findTForInvalidProperty(tPsi1, tPsi2, true, false, psi1) == -1.0){
-						if (tPsi1 == leftBorder && !leftBorderIncluded){
+						if (tPsi1.equals(leftBorder) && !leftBorderIncluded){
 							return tPsi1 + Double.MIN_VALUE;
 						}	
 						return tPsi1;
@@ -488,7 +488,7 @@ public class PropertyChecker {
 						}
 						
 						if (tPsi1 > -1.0 && findTForInvalidProperty(tPsi1, rightBorder, true, false, psi1) == -1.0){													
-							if (tPsi1 == leftBorder && !leftBorderIncluded)
+							if (tPsi1.equals(leftBorder) && !leftBorderIncluded)
 								return tPsi1 + Double.MIN_VALUE;	
 							return tPsi1;
 						}						
@@ -649,7 +649,7 @@ public class PropertyChecker {
 		} else
 			id = temp;	
 				
-		if (id == null){
+		if (id.equals(null)){
 			if (logger != null)
 				logger.severe("Property Error: the ID of the property node '" + propertyRoot.toString() + "' could not be matched");
 			throw new InvalidPropertyException("Property Error: the ID of the property node '" + propertyRoot.toString() + "' could not be matched");
@@ -670,7 +670,7 @@ public class PropertyChecker {
 					compare = ">=";
 				}					
 			}
-			if (boundary == null){
+			if (boundary.equals(null)){
 				if (logger != null)
 					logger.severe("Property Error: the boundary of the property node '" + propertyRoot.toString() + "' could not be identified");
 				throw new InvalidPropertyException("Property Error: the boundary of the property node '" + propertyRoot.toString() + "' could not be identified");

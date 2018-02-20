@@ -190,7 +190,7 @@ public class ContinuousPlace extends Place{
 				if (arc.getConnectedPlace().getId().equals(this.getId()) && !arc.getClass().equals(GuardArc.class)){
 					if (arc.getConnectedTransition().getEnabled()) {
 						
-						if (((ContinuousArc)arc).getDirection() == ContinuousArcType.input){
+						if (((ContinuousArc)arc).getDirection().equals(ContinuousArcType.input)){
 							
 							if (arc.getConnectedTransition().getClass().equals(ContinuousTransition.class)){
 								inFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();								
@@ -245,7 +245,7 @@ public class ContinuousPlace extends Place{
 				if (arc.getConnectedPlace().getId().equals(this.getId()) && !arc.getClass().equals(GuardArc.class)){
 					if (arc.getConnectedTransition().getEnabled()) {
 						
-						if (((ContinuousArc)arc).getDirection() == ContinuousArcType.input){
+						if (((ContinuousArc)arc).getDirection().equals(ContinuousArcType.input)){
 							
 							if (arc.getConnectedTransition().getClass().equals(ContinuousTransition.class)){
 								inFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();								
@@ -322,7 +322,7 @@ public class ContinuousPlace extends Place{
 		level = level.setScale(8,BigDecimal.ROUND_HALF_UP);
 		if (level.doubleValue() <= 0.0 ) 
 			fluid = 0.0;
-		else if (!upperBoundaryInfinity && level.doubleValue() == upperBoundary)
+		else if (!upperBoundaryInfinity && upperBoundary.equals(level.doubleValue()))
 			fluid = upperBoundary;
 		else
 			fluid = level.doubleValue();	
@@ -345,7 +345,7 @@ public class ContinuousPlace extends Place{
 			Double timeSinceLastInternalTransition = timePoint - lastUpdate;
 			Double fluid = exactFluidLevel + exactDrift * timeSinceLastInternalTransition + changeOfExactDrift/2.0 * Math.pow(timeSinceLastInternalTransition, 2.0);
 		
-			if ((!upperBoundaryInfinity && upperBoundaryReached && boundary == upperBoundary) || (lowerBoundaryReached && boundary == 0.0))
+			if ((!upperBoundaryInfinity && upperBoundaryReached && boundary.equals(upperBoundary)) || (lowerBoundaryReached && boundary == 0.0))
 				return Double.POSITIVE_INFINITY;
 			
 			if (exactDrift == 0.0 && fluid - boundary == 0.0)
@@ -379,7 +379,7 @@ public class ContinuousPlace extends Place{
 	public Double getTimeTilCurrentFluidLevelHitsBoundary(Double boundary){
 		
 		
-		if ((!upperBoundaryInfinity && upperBoundaryReached && boundary == upperBoundary) || (lowerBoundaryReached && boundary == 0.0))
+		if ((!upperBoundaryInfinity && upperBoundaryReached && boundary.equals(upperBoundary)) || (lowerBoundaryReached && boundary == 0.0))
 			return Double.POSITIVE_INFINITY;
 		
 		if (drift == 0.0 && currentFluidLevel - boundary == 0.0)

@@ -51,7 +51,7 @@ public abstract class Transition {
 			if (arc.getClass().equals(DiscreteArc.class)){
 				place = (DiscretePlace)arc.getConnectedPlace();
 				
-				if (((DiscreteArc)arc).getDirection() == DiscreteArcType.input) 
+				if (((DiscreteArc)arc).getDirection().equals(DiscreteArcType.input)) 
 					//input for place = output for transition -> add tokens
 					place.setNumberOfTokens(place.getNumberOfTokens() + arc.getWeight().intValue());
 				else //output for place = input for transition -> reduce tokens

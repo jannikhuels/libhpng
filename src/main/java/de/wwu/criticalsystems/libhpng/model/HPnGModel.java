@@ -215,7 +215,7 @@ public class HPnGModel {
 					
 				if (!transition.getClass().equals(ContinuousTransition.class) && !transition.getClass().equals(DynamicContinuousTransition.class)){		
 				
-					if (((DiscreteArc)arc).getDirection() == DiscreteArcType.input)
+					if (((DiscreteArc)arc).getDirection().equals(DiscreteArcType.input))
 						continue;
 					
 					if (((DiscretePlace)arc.getConnectedPlace()).getNumberOfTokens() < arc.getWeight())
@@ -295,7 +295,7 @@ public class HPnGModel {
 						if (arc.getConnectedPlace().getId().equals(place.getId()) && !arc.getClass().equals(GuardArc.class)){
 							if (arc.getConnectedTransition().getEnabled()) {
 								
-								if (((ContinuousArc)arc).getDirection() == ContinuousArcType.input){
+								if (((ContinuousArc)arc).getDirection().equals(ContinuousArcType.input)){
 									
 									if (arc.getConnectedTransition().getClass().equals(ContinuousTransition.class)){
 										inFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();								
@@ -370,7 +370,7 @@ public class HPnGModel {
 				level = level.setScale(8,BigDecimal.ROUND_HALF_UP);
 				if (level.doubleValue() <= 0.0 )
 					fluid = 0.0;
-				else if (!p.getUpperBoundaryInfinity() && level.doubleValue() == p.getUpperBoundary())
+				else if (!p.getUpperBoundaryInfinity() && p.getUpperBoundary().equals(level.doubleValue()))
 					fluid = p.getUpperBoundary();					
 				else
 					fluid = level.doubleValue();
@@ -520,7 +520,7 @@ public class HPnGModel {
 						ContinuousArc currentArc = (ContinuousArc)arcs.get(arcIndex2);
 						
 						if (currentArc.getConnectedPlace().getId().equals(place.getId()) && currentArc.getConnectedTransition().getEnabled() 
-								&& currentArc.getPriority() == currentPriority && currentArc.getDirection().equals(direction)){
+								&& currentArc.getPriority().equals(currentPriority) && currentArc.getDirection().equals(direction)){
 							
 							if (currentArc.getConnectedTransition().getClass().equals(DynamicContinuousTransition.class)){
 								
@@ -542,6 +542,10 @@ public class HPnGModel {
 						break;
 				}
 				
+				
+				
+				
+				//TODO zeitpunkt an dem dies nicht mehr erfuellt sein wird?
 				//if enough flux for current priority, subtract
 				if (fluxRequired < flux){
 					flux =- fluxRequired;
@@ -605,6 +609,7 @@ public class HPnGModel {
 				arcIndex++;
 		}
 		
+		//TODO zeitpunkt an dem mehr verfügbar sein wird?
 		//set lower priority arcs to zero
 		while(arcIndex < arcs.size()){	
 			if (arcs.get(arcIndex).getConnectedPlace().getId().equals(place.getId()) && arcs.get(arcIndex).getClass().equals(ContinuousArc.class) && ((ContinuousArc)arcs.get(arcIndex)).getDirection().equals(direction)){

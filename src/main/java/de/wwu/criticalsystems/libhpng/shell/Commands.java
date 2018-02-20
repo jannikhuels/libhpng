@@ -26,7 +26,7 @@ public class Commands implements CommandMarker {
 	
 	@CliAvailabilityIndicator({"plot"})
 	public boolean isPlotAvailable() {
-		if (handler.getModel() == null) return false;
+		if (handler.getModel().equals(null)) return false;
 		return true;
 	}	
 	

@@ -70,7 +70,7 @@ public class ModelHandler {
 			formula += "\n";
 			InputStream stream = new ByteArrayInputStream(formula.getBytes(StandardCharsets.UTF_8));
 			
-			 if (parser == null) 
+			 if (parser.equals(null)) 
 				 parser = new SMCParser(stream);
 			 else 
 				 SMCParser.ReInit(stream);
