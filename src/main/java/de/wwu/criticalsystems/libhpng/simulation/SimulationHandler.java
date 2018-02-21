@@ -842,7 +842,7 @@ public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNot
 			System.out.println("Average number of simulation runs needed: " + totalRuns/(fulfilled+notFulfilled) + "\n");
 			}else {System.out.println("There where no successfull runs" + "\n");}
 		
-		plots.clear();
+		//plots.clear();
 			
 	/*	Properties parameters = new Properties();
 		

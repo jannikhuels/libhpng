@@ -322,19 +322,24 @@ public class HPnGModel {
 					
 					if((inFlux > outFlux) && p.checkUpperBoundary()){
 						//if upper boundary reached
-						rateAdaption((ContinuousPlace)place, outFlux, ContinuousArcType.input, changeOfOutFlux);
-						//updateDynamicRates();
+						Double timeToNextPriority = rateAdaption((ContinuousPlace)place, outFlux, ContinuousArcType.input, changeOfOutFlux);
 						p.setExactDrift(0.0);
 						p.setChangeOfExactDrift(0.0);
+						
+						if (timeToNextPriority < Double.POSITIVE_INFINITY)
+							p.setTimeToNextInternalTransition(Math.min(p.getTimeToNextInternalTransition(), timeToNextPriority));
 						
 						change = true;
 					
 					} else if ((outFlux > inFlux) && p.checkLowerBoundary()){
 						//lower boundary reached
-						rateAdaption((ContinuousPlace)place, inFlux, ContinuousArcType.output, changeOfInFlux);
-						//updateDynamicRates();
+						Double timeToNextPriority = rateAdaption((ContinuousPlace)place, inFlux, ContinuousArcType.output, changeOfInFlux);
+						
 						p.setExactDrift(0.0);
 						p.setChangeOfExactDrift(0.0);
+
+						if (timeToNextPriority < Double.POSITIVE_INFINITY)
+							p.setTimeToNextInternalTransition(Math.min(p.getTimeToNextInternalTransition(), timeToNextPriority));
 						
 						change = true;
 						
@@ -480,6 +485,18 @@ public class HPnGModel {
 	}
 
 	
+
+	public void computeInternalTransitionsAtEvent() {
+		
+		for(Place place: places){		
+			
+			if (place.getClass().equals(ContinuousPlace.class))				
+				((ContinuousPlace)place).computeTimeToNextInternalTransitionFromExternal(arcs);	
+						
+		}
+		
+	}
+	
 	
 	private void setDynamicContinuousTransitionsBack() {
 		for(Transition transition: transitions){
@@ -489,27 +506,37 @@ public class HPnGModel {
 	}
 	
 	
-	private void rateAdaption(ContinuousPlace place, Double flux, ContinuousArcType direction, Double changeOfFlux){
+	private Double rateAdaption(ContinuousPlace place, Double flux, ContinuousArcType direction, Double changeOfFlux){
 		
 		Integer arcIndex = 0;
 		Integer arcIndex2;
-		Integer currentPriority;
-		Double fluxRequired;
-		Double changeOfFluxRequired;
+		Integer currentPriority = 0;
+		Double fluxRequired = 0.0;
+		Double changeOfFluxRequired = 0.0;
 		Double sum = 0.0;
-		//Double changeOfSum = 0.0;
+		Double accumulatedFluxRequired = 0.0;
+		Double accumulatedChangeOfFluxRequired  = 0.0;
+
 		Double sharedFluid;
 		Double changeOfSharedFluid;
 		ArrayList<ContinuousArc> priorityArcs = new ArrayList<ContinuousArc>();
+		Integer highestPriority;
+		Integer lowestPriority;
+		Boolean enoughForCurrentPriority = false;
 		
 		
-		//updateDynamicRates();
-		//place.setDrift(flux);		
+
+		int i = 0;
+		while (!arcs.get(i).getClass().equals(ContinuousArc.class))
+			i++;
+		highestPriority = ((ContinuousArc)arcs.get(i)).getPriority();
+		lowestPriority = highestPriority;
 		while(arcIndex < arcs.size() && flux > 0.0){	
 			if (arcs.get(arcIndex).getConnectedPlace().getId().equals(place.getId()) && arcs.get(arcIndex).getClass().equals(ContinuousArc.class)
 					&& ((ContinuousArc)arcs.get(arcIndex)).getDirection().equals(direction)){
 							
 				currentPriority = ((ContinuousArc)arcs.get(arcIndex)).getPriority();
+				enoughForCurrentPriority = false;
 				fluxRequired = 0.0;
 				changeOfFluxRequired = 0.0;
 				priorityArcs.clear();
@@ -542,15 +569,15 @@ public class HPnGModel {
 						break;
 				}
 				
-				
-				
-				
-				//TODO zeitpunkt an dem dies nicht mehr erfuellt sein wird?
+
 				//if enough flux for current priority, subtract
 				if (fluxRequired < flux){
 					flux =- fluxRequired;
 					changeOfFlux =- changeOfFluxRequired;
 					arcIndex = arcIndex2;
+					enoughForCurrentPriority = true;
+					accumulatedFluxRequired += fluxRequired;
+					accumulatedChangeOfFluxRequired += changeOfFluxRequired;
 					continue;
 				}				
 				
@@ -608,8 +635,11 @@ public class HPnGModel {
 			} else
 				arcIndex++;
 		}
+
+		if (enoughForCurrentPriority)
+			currentPriority -= 1;
 		
-		//TODO zeitpunkt an dem mehr verfügbar sein wird?
+
 		//set lower priority arcs to zero
 		while(arcIndex < arcs.size()){	
 			if (arcs.get(arcIndex).getConnectedPlace().getId().equals(place.getId()) && arcs.get(arcIndex).getClass().equals(ContinuousArc.class) && ((ContinuousArc)arcs.get(arcIndex)).getDirection().equals(direction)){
@@ -617,18 +647,34 @@ public class HPnGModel {
 				if (arcs.get(arcIndex).getConnectedTransition().getClass().equals(DynamicContinuousTransition.class)){
 					((DynamicContinuousTransition)arcs.get(arcIndex).getConnectedTransition()).setCurrentFluid(0.0);
 					((DynamicContinuousTransition)arcs.get(arcIndex).getConnectedTransition()).setCurrentChangeOfFluid(0.0);
-					((DynamicContinuousTransition)arcs.get(arcIndex).getConnectedTransition()).setAdapted(true);
+					((DynamicContinuousTransition)arcs.get(arcIndex).getConnectedTransition()).setAdapted(true);					
 				} else { 
 					((ContinuousTransition)arcs.get(arcIndex).getConnectedTransition()).setCurrentFluid(0.0);	
 					((ContinuousTransition)arcs.get(arcIndex).getConnectedTransition()).setCurrentChangeOfFluid(0.0);
 				}
+				lowestPriority = ((ContinuousArc)arcs.get(arcIndex)).getPriority();
 			}
 			arcIndex++;
-		}		
+		}
+
+		
+		
+		if (highestPriority.equals(lowestPriority))
+			return Double.POSITIVE_INFINITY;
+		
+		Double timeToNextPriority = Double.POSITIVE_INFINITY;
+	
+		timeToNextPriority = computeTimeToNextPriority(flux, changeOfFlux, accumulatedFluxRequired, accumulatedChangeOfFluxRequired); //accumulated = priorities that got full flux
+		timeToNextPriority = Math.min(timeToNextPriority, computeTimeToNextPriority(flux, changeOfFlux, accumulatedFluxRequired + fluxRequired, accumulatedChangeOfFluxRequired + changeOfFluxRequired));
+	
+			
+		return timeToNextPriority;
 				
 	}	
 	
+
 	
+
 	private void setClockValuesToZero(){
 			
 		for(Transition transition: transitions){
@@ -654,6 +700,7 @@ public class HPnGModel {
 		}
 	}
 	
+	
 	private void updateDynamicRates(){
 			
 		for(Transition transition: transitions){			
@@ -675,15 +722,13 @@ public class HPnGModel {
 	}
 	
 	
-
-	public void computeInternalTransitionsAtEvent() {
+	private Double computeTimeToNextPriority(Double flux, Double changeOfFlux, Double accumulatedFluxRequired, Double accumulatedChangeOfFluxRequired) {
+	
+		Double t = (accumulatedChangeOfFluxRequired - changeOfFlux) / (flux - accumulatedFluxRequired);
 		
-		for(Place place: places){		
-			
-			if (place.getClass().equals(ContinuousPlace.class))				
-				((ContinuousPlace)place).computeTimeToNextInternalTransitionFromExternal(arcs);	
-						
-		}
+		if (t > 0.0)
+			return t;
 		
+		return Double.POSITIVE_INFINITY;
 	}
 }

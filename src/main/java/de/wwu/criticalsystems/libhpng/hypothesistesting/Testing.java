@@ -1,6 +1,5 @@
 package de.wwu.criticalsystems.libhpng.hypothesistesting;
 
-import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidDistributionParameterException;
@@ -33,7 +32,7 @@ public class Testing {
 	private Double currentTime;
 	private MarkingPlot currentPlot;
 	private Double maxTime;
-	private  ArrayList<MarkingPlot> plots;
+	//private  ArrayList<MarkingPlot> plots = new ArrayList<MarkingPlot>();
 	private Simulator simulator;
 	Boolean fixedNumber;
 	private Integer fixedNumberOfRuns;
@@ -167,7 +166,7 @@ public class Testing {
 					}
 				
 					currentPlot = new MarkingPlot(maxTime);
-					plots.add(currentPlot);
+					//plots.add(currentPlot);
 					currentPlot.initialize(model);
 					
 					//simulation
@@ -233,7 +232,7 @@ public class Testing {
 					}
 				
 					currentPlot = new MarkingPlot(maxTime);
-					plots.add(currentPlot);
+					//plots.add(currentPlot);
 					currentPlot.initialize(model);
 					
 					//simulation
@@ -303,7 +302,7 @@ public class Testing {
 		else 
 			System.out.println("There where no successfull runs" + "\n");		
 		
-		plots.clear();
+		//plots.clear();
 		
 	}	
 		

@@ -85,7 +85,7 @@ public class DynamicContinuousTransition extends Transition{
 			
 		
 
-		if(numberOfEntries .equals(null))
+		if(numberOfEntries == null)
 			createHashMapsAndArguments(places);
 
 		if (numberOfEntries > 0){
@@ -137,7 +137,7 @@ public class DynamicContinuousTransition extends Transition{
 		    	
 		        if(place.getClass().equals(ContinuousPlace.class) && (place.getId().equals(missing[i]) || ("delta_" + place.getId()).equals(missing[i]))){
 		        	
-		        	if (placesForFluidExpression.get(missing[i]).equals(null)){
+		        	if (placesForFluidExpression.get(missing[i]) == null){
 		        		placesForFluidExpression.put(missing[i], (ContinuousPlace) place);		
 		        		numberOfEntries++;
 		        	}
@@ -157,7 +157,7 @@ public class DynamicContinuousTransition extends Transition{
 		    	
 		        if(place.getClass().equals(ContinuousPlace.class) && (place.getId().equals(missing[i]) || ("delta_" + place.getId()).equals(missing[i]))){
 		        	
-		        	if (placesForChangeOfFluidExpression.get(missing[i]).equals(null)){
+		        	if (placesForChangeOfFluidExpression.get(missing[i]) == null){
 		        		placesForChangeOfFluidExpression.put(missing[i], (ContinuousPlace) place);		
 		        		numberOfEntries++;
 		        	}
