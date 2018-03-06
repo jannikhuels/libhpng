@@ -32,7 +32,7 @@ public abstract class HypothesisTester {
 		this.minNumberOfRuns = minNumberOfRuns;	
 
 
-		boundary = this.checker.getProbBoundary(root);		
+		boundary = this.checker.getProbBound(root);		
 		if (boundary < 0.0 || boundary > 1.0){
 			if (logger != null)
 				logger.severe("Property Error: the boundary node of the property root must be between 0.0 and 1.0");

@@ -3,6 +3,7 @@ package de.wwu.criticalsystems.libhpng.simulation;
 import java.util.Random;
 import java.util.logging.Logger;
 
+import de.wwu.criticalsystems.libhpng.errorhandling.InvalidPropertyException;
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidRandomVariateGeneratorException;
 import de.wwu.criticalsystems.libhpng.model.*;
 import de.wwu.criticalsystems.libhpng.plotting.*;
@@ -30,7 +31,160 @@ public class Simulator {
 
 
 	
-	public Double getAndCompleteNextEvent(Double currentTime, MarkingPlot currentPlot, Boolean printRunResults) throws InvalidRandomVariateGeneratorException{
+	public Double getAndCompleteNextEvent(Double currentTime, MarkingPlot currentPlot, Boolean printRunResults) throws InvalidRandomVariateGeneratorException, InvalidPropertyException{
+		
+		getNextEvent(currentTime);
+		
+		
+		//complete event and update model marking
+		if (maxTime < event.getOccurenceTime() || event.getEventType().equals(SimulationEventType.no_event)){
+			if (maxTime- currentTime > 0.0)
+				model.advanceMarking(maxTime- currentTime);
+			
+			model.updateEnabling(false);
+			model.updateFluidRates(maxTime);
+			currentPlot.saveAll(maxTime);
+			
+			
+		} else {
+			if (event.getOccurenceTime() - currentTime > 0.0)
+				model.advanceMarking(event.getOccurenceTime() - currentTime);
+				
+			completeEvent(printRunResults, currentPlot);
+			
+			if (printRunResults) 
+				model.printCurrentMarking(false, false);
+		}
+		
+	
+		return event.getOccurenceTime(); 
+		
+	}
+	
+	
+	protected void completeEvent(Boolean printRunResults, MarkingPlot currentPlot) throws InvalidRandomVariateGeneratorException{
+	
+		if (event.getEventType().equals(SimulationEventType.immediate_transition) || event.getEventType().equals(SimulationEventType.deterministic_transition) || event.getEventType().equals(SimulationEventType.general_transition)) {
+			
+			//transition firing
+			Transition transition = conflictResolutionByTransitionWeight();		
+			transition.fireTransition();
+			model.checkGuardArcsForDiscretePlaces();
+			transition.setEnabled(false);
+			
+			if (event.getEventType().equals(SimulationEventType.general_transition)){
+				if (printRunResults) System.out.println(event.getOccurenceTime() + " seconds: General transition " + transition.getId() + " is fired for the " + ((GeneralTransition)transition).getFirings() + ". time");
+			} else if (event.getEventType().equals(SimulationEventType.immediate_transition)){
+				if (printRunResults) System.out.println(event.getOccurenceTime() + " seconds: Immediate transition " + transition.getId() + " is fired");
+			} else if (event.getEventType().equals(SimulationEventType.deterministic_transition)){
+				if (printRunResults) System.out.println(event.getOccurenceTime() + " seconds: Deterministic transition " + transition.getId() + " is fired");
+			}
+	
+		} else if (event.getEventType().equals(SimulationEventType.guard_arcs_immediate) || event.getEventType().equals(SimulationEventType.guard_arcs_continuous) || event.getEventType().equals(SimulationEventType.guard_arcs_deterministic)){
+			
+			//guard arc condition
+			GuardArc arc;
+			for (Object object: event.getRelatedObjects()){
+				
+				arc = (GuardArc)object;
+				Boolean fulfilled = arc.checkCondition();
+				
+				if (printRunResults && fulfilled && !arc.getInhibitor()) 
+					System.out.println(event.getOccurenceTime() + " seconds: test arc " + arc.getId() + " has its condition fulfilled for transition " + arc.getConnectedTransition().getId());
+				else if (printRunResults && !fulfilled && !arc.getInhibitor())
+					System.out.println(event.getOccurenceTime() + " seconds: test arc " + arc.getId() + " has its condition stopped being fulfilled for transition " + arc.getConnectedTransition().getId());
+				else if (printRunResults && fulfilled && arc.getInhibitor()) 
+					System.out.println(event.getOccurenceTime() + " seconds: inhibitor arc " + arc.getId() + " has its condition fulfilled for transition " + arc.getConnectedTransition().getId());
+				else if (printRunResults && !fulfilled && arc.getInhibitor())
+					System.out.println(event.getOccurenceTime() + " seconds: inhibitor arc " + arc.getId() + " has its condition stopped being fulfilled for transition " + arc.getConnectedTransition().getId());									
+			}			
+		} else if (event.getEventType().equals(SimulationEventType.place_boundary)){
+			
+			//place boundary reached
+			ContinuousPlace place;
+			for (Object object: event.getRelatedObjects()){				
+				
+				place = (ContinuousPlace)object;
+				place.setExactFluidLevel(place.getCurrentFluidLevel(), event.getOccurenceTime());
+					
+				if (place.checkLowerBoundary()){
+					place.checkUpperBoundary();
+					if (printRunResults)
+						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " is empty");
+				} else {
+					place.checkUpperBoundary();
+					if (printRunResults)
+						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " has reached its upper boundary");
+				}	
+			}	
+		} else if (event.getEventType().equals(SimulationEventType.place_internaltransition)){
+
+			ContinuousPlace place;
+			
+			//internal transition
+			for (Object object: event.getRelatedObjects()){
+				
+				place = ((ContinuousPlace)object);
+				
+				Boolean lowerBoundary = place.getLowerBoundaryReached();
+				Boolean upperBoundary = false;
+				if (!place.getUpperBoundaryInfinity())
+					upperBoundary = place.getUpperBoundaryReached();
+				
+							
+				place.performInternalTransition(event.getOccurenceTime(), place.getExactDrift(), place.getChangeOfExactDrift(), model.getArcs());	
+				
+				if (printRunResults)
+					System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " has performed an internal transition");
+				
+				
+				if (!lowerBoundary && place.checkLowerBoundary()){
+					place.checkUpperBoundary();
+					if (printRunResults)
+						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " is empty");
+				} else if (!upperBoundary && place.checkUpperBoundary()) {
+					if (printRunResults)
+						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " has reached its upper boundary");
+				}
+				
+	 			
+				for (Arc arc: model.getArcs()){
+
+					if (arc.getClass().equals(GuardArc.class) && arc.getConnectedPlace().equals(place)){
+					//guard arc starting from fluid place
+		 
+						if (!((GuardArc)arc).getConditionFulfilled().equals(((GuardArc)arc).checkCondition())){
+							Boolean fulfilled = ((GuardArc)arc).getConditionFulfilled();
+							
+							if (printRunResults && fulfilled && !((GuardArc)arc).getInhibitor()) 
+								System.out.println(event.getOccurenceTime() + " seconds: test arc " + arc.getId() + " has its condition fulfilled for transition " + arc.getConnectedTransition().getId());
+							else if (printRunResults && !fulfilled && !((GuardArc)arc).getInhibitor())
+								System.out.println(event.getOccurenceTime() + " seconds: test arc " + arc.getId() + " has its condition stopped being fulfilled for transition " + arc.getConnectedTransition().getId());
+							else if (printRunResults && fulfilled && ((GuardArc)arc).getInhibitor()) 
+								System.out.println(event.getOccurenceTime() + " seconds: inhibitor arc " + arc.getId() + " has its condition fulfilled for transition " + arc.getConnectedTransition().getId());
+							else if (printRunResults && !fulfilled && ((GuardArc)arc).getInhibitor())
+								System.out.println(event.getOccurenceTime() + " seconds: inhibitor arc " + arc.getId() + " has its condition stopped being fulfilled for transition " + arc.getConnectedTransition().getId());						
+				
+						}
+					}					
+				}
+				
+				
+			}
+		}
+
+		//update model status
+		model.updateEnabling(false);
+		model.updateFluidRates(event.getOccurenceTime());
+		if (event.getEventType() != SimulationEventType.place_internaltransition)
+			model.computeInternalTransitionsAtEvent();
+		
+		//plot status
+		currentPlot.saveAll(event.getOccurenceTime());		
+	}
+	
+	
+	protected void getNextEvent(Double currentTime){
 		
 		Double timeOfCurrentEvent;		
 		event = new SimulationEvent(maxTime);
@@ -289,154 +443,7 @@ public class Simulator {
 			}	
 		}
 		
-		//complete event and update model marking
-		if (maxTime < event.getOccurenceTime() || event.getEventType().equals(SimulationEventType.no_event)){
-			if (maxTime- currentTime > 0.0)
-				model.advanceMarking(maxTime- currentTime);
-			
-			model.updateEnabling(false);
-			model.updateFluidRates(maxTime);
-			currentPlot.saveAll(maxTime);
-			
-			
-		} else {
-			if (event.getOccurenceTime() - currentTime > 0.0)
-				model.advanceMarking(event.getOccurenceTime() - currentTime);
-				
-			completeEvent(printRunResults, currentPlot);
-			
-			if (printRunResults) 
-				model.printCurrentMarking(false, false);
-		}
-		
-		//model.checkAllGuardArcs();
-				
-		return event.getOccurenceTime(); 
-		
 	}
-	
-	
-	protected void completeEvent(Boolean printRunResults, MarkingPlot currentPlot) throws InvalidRandomVariateGeneratorException{
-	
-		if (event.getEventType().equals(SimulationEventType.immediate_transition) || event.getEventType().equals(SimulationEventType.deterministic_transition) || event.getEventType().equals(SimulationEventType.general_transition)) {
-			
-			//transition firing
-			Transition transition = conflictResolutionByTransitionWeight();		
-			transition.fireTransition();
-			model.checkGuardArcsForDiscretePlaces();
-			transition.setEnabled(false);
-			
-			if (event.getEventType().equals(SimulationEventType.general_transition)){
-				if (printRunResults) System.out.println(event.getOccurenceTime() + " seconds: General transition " + transition.getId() + " is fired for the " + ((GeneralTransition)transition).getFirings() + ". time");
-			} else if (event.getEventType().equals(SimulationEventType.immediate_transition)){
-				if (printRunResults) System.out.println(event.getOccurenceTime() + " seconds: Immediate transition " + transition.getId() + " is fired");
-			} else if (event.getEventType().equals(SimulationEventType.deterministic_transition)){
-				if (printRunResults) System.out.println(event.getOccurenceTime() + " seconds: Deterministic transition " + transition.getId() + " is fired");
-			}
-	
-		} else if (event.getEventType().equals(SimulationEventType.guard_arcs_immediate) || event.getEventType().equals(SimulationEventType.guard_arcs_continuous) || event.getEventType().equals(SimulationEventType.guard_arcs_deterministic)){
-			
-			//guard arc condition
-			GuardArc arc;
-			for (Object object: event.getRelatedObjects()){
-				
-				arc = (GuardArc)object;
-				Boolean fulfilled = arc.checkCondition();
-				
-				if (printRunResults && fulfilled && !arc.getInhibitor()) 
-					System.out.println(event.getOccurenceTime() + " seconds: test arc " + arc.getId() + " has its condition fulfilled for transition " + arc.getConnectedTransition().getId());
-				else if (printRunResults && !fulfilled && !arc.getInhibitor())
-					System.out.println(event.getOccurenceTime() + " seconds: test arc " + arc.getId() + " has its condition stopped being fulfilled for transition " + arc.getConnectedTransition().getId());
-				else if (printRunResults && fulfilled && arc.getInhibitor()) 
-					System.out.println(event.getOccurenceTime() + " seconds: inhibitor arc " + arc.getId() + " has its condition fulfilled for transition " + arc.getConnectedTransition().getId());
-				else if (printRunResults && !fulfilled && arc.getInhibitor())
-					System.out.println(event.getOccurenceTime() + " seconds: inhibitor arc " + arc.getId() + " has its condition stopped being fulfilled for transition " + arc.getConnectedTransition().getId());									
-			}			
-		} else if (event.getEventType().equals(SimulationEventType.place_boundary)){
-			
-			//place boundary reached
-			ContinuousPlace place;
-			for (Object object: event.getRelatedObjects()){				
-				
-				place = (ContinuousPlace)object;
-				place.setExactFluidLevel(place.getCurrentFluidLevel(), event.getOccurenceTime());
-					
-				if (place.checkLowerBoundary()){
-					place.checkUpperBoundary();
-					if (printRunResults)
-						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " is empty");
-				} else {
-					place.checkUpperBoundary();
-					if (printRunResults)
-						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " has reached its upper boundary");
-				}	
-			}	
-		} else if (event.getEventType().equals(SimulationEventType.place_internaltransition)){
-
-			ContinuousPlace place;
-			
-			//internal transition
-			for (Object object: event.getRelatedObjects()){
-				
-				place = ((ContinuousPlace)object);
-				
-				Boolean lowerBoundary = place.getLowerBoundaryReached();
-				Boolean upperBoundary = false;
-				if (!place.getUpperBoundaryInfinity())
-					upperBoundary = place.getUpperBoundaryReached();
-				
-							
-				place.performInternalTransition(event.getOccurenceTime(), place.getExactDrift(), place.getChangeOfExactDrift(), model.getArcs());	
-				
-				if (printRunResults)
-					System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " has performed an internal transition");
-				
-				
-				if (!lowerBoundary && place.checkLowerBoundary()){
-					place.checkUpperBoundary();
-					if (printRunResults)
-						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " is empty");
-				} else if (!upperBoundary && place.checkUpperBoundary()) {
-					if (printRunResults)
-						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " has reached its upper boundary");
-				}
-				
-	 			
-				for (Arc arc: model.getArcs()){
-
-					if (arc.getClass().equals(GuardArc.class) && arc.getConnectedPlace().equals(place)){
-					//guard arc starting from fluid place
-		 
-						if (!((GuardArc)arc).getConditionFulfilled().equals(((GuardArc)arc).checkCondition())){
-							Boolean fulfilled = ((GuardArc)arc).getConditionFulfilled();
-							
-							if (printRunResults && fulfilled && !((GuardArc)arc).getInhibitor()) 
-								System.out.println(event.getOccurenceTime() + " seconds: test arc " + arc.getId() + " has its condition fulfilled for transition " + arc.getConnectedTransition().getId());
-							else if (printRunResults && !fulfilled && !((GuardArc)arc).getInhibitor())
-								System.out.println(event.getOccurenceTime() + " seconds: test arc " + arc.getId() + " has its condition stopped being fulfilled for transition " + arc.getConnectedTransition().getId());
-							else if (printRunResults && fulfilled && ((GuardArc)arc).getInhibitor()) 
-								System.out.println(event.getOccurenceTime() + " seconds: inhibitor arc " + arc.getId() + " has its condition fulfilled for transition " + arc.getConnectedTransition().getId());
-							else if (printRunResults && !fulfilled && ((GuardArc)arc).getInhibitor())
-								System.out.println(event.getOccurenceTime() + " seconds: inhibitor arc " + arc.getId() + " has its condition stopped being fulfilled for transition " + arc.getConnectedTransition().getId());						
-				
-						}
-					}					
-				}
-				
-				
-			}
-		}
-
-		//update model status
-		model.updateEnabling(false);
-		model.updateFluidRates(event.getOccurenceTime());
-		if (event.getEventType() != SimulationEventType.place_internaltransition)
-			model.computeInternalTransitionsAtEvent();
-		
-		//plot status
-		currentPlot.saveAll(event.getOccurenceTime());		
-	}
-	
 	
 	private Transition conflictResolutionByTransitionWeight(){
 		

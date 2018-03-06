@@ -150,6 +150,8 @@ public class ModelHandler {
 			System.out.println("An error occured while reading the model file. Please see the error log and recheck the model.");
 		} catch (InvalidRandomVariateGeneratorException e) {
 			System.out.println("An internal error occured while simulating. Please see the error log.");
+		} catch (InvalidPropertyException e) {
+			System.out.println("An internal error occured while simulating. Please see the error log.");
 		}    			
 	}
 	

@@ -389,7 +389,7 @@ public class SimulationHandler {
 	}
 	
 	
-public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNotReadableException, InvalidRandomVariateGeneratorException{
+public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNotReadableException, InvalidRandomVariateGeneratorException, InvalidPropertyException{
 		
 		this.maxTime = maxTime;
 		this.model = model;
@@ -450,13 +450,14 @@ public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNot
 		this.model = model;
 		this.root = root;
 		this.maxTime = PropertyChecker.getMaxTimeForSimulation(root);
-
-		//ArrayList<SimpleNode> fluidProperties =
+		this.propertyTime = PropertyChecker.getTimeFromRoot(root);
 		
 		
+		ArrayList<FluidProperty> fluidProperyList = new ArrayList<FluidProperty>();
+		fluidProperyList = PropertyChecker.getFluidProperties(root, fluidProperyList, logger, model, this.propertyTime, this.propertyTime, false);
 		
 		
-		simulator = new Simulator(model, maxTime);
+		simulator = new DynamicSimulator(model, maxTime, fluidProperyList);
 		simulator.setLogger(logger);
 		
 		String prob = "";
@@ -642,9 +643,11 @@ public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNot
 	private SimpleNode root;
 	private Double maxTime;
 	private Double currentTime;
+	private Double propertyTime;
 	private ArrayList<MarkingPlot> plots = new ArrayList<MarkingPlot>();
 	private MarkingPlot currentPlot;
-
+	
+	//ArrayList<SimpleNode> fluidProperties
 	
 	
 	
@@ -669,6 +672,7 @@ public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNot
 		Double midpoint;
 		Double halfwidth;
 	
+
 		SampleGenerator generator;
 		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(intervalID, model, minNumberOfRuns, logger, root, confidenceLevel, halfIntervalWidth);
 		
