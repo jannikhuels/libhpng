@@ -21,12 +21,14 @@ public class DarlingHypothesisTester extends HypothesisTester{
 
 	}
 	
+	
 	private Double zN;
 	private Double a;
 	private Double k;
 	private Double n;
 	private Double upperBoundary;
 	private Double lowerBoundary;
+	
 	
 	@Override
 	public Boolean doTesting(Integer currentRun, MarkingPlot plot) throws InvalidPropertyException{

@@ -8,6 +8,10 @@ public abstract class ConfidenceInterval {
 
 	public ConfidenceInterval() throws InvalidPropertyException { }
 
+	
+	public abstract Integer calculateMidpointAndHalfIntervalWidthForProperty(PropertyChecker checker, Integer currentRun, MarkingPlot plot) throws InvalidPropertyException;
+	
+	
 	public Integer getNumberOfRuns() {
 		return numberOfRuns;
 	}
@@ -19,13 +23,12 @@ public abstract class ConfidenceInterval {
 	public Double getCurrentHalfIntervalWidth() {
 		return currentHalfIntervalWidth;
 	}
-
+	
+	
 	protected Integer numberOfRuns;
 	protected Double midpoint;
 	protected Double currentHalfIntervalWidth;
 	protected Integer fulfilled;
-	
-	public abstract Integer calculateMidpointAndHalfIntervalWidthForProperty(PropertyChecker checker, Integer currentRun, MarkingPlot plot) throws InvalidPropertyException;
 	
 	
 	protected void checkPropertyForCurrentRun(PropertyChecker checker, Integer currentRun, MarkingPlot plot) throws InvalidPropertyException{

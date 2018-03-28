@@ -7,12 +7,11 @@ public class GeneralTransitionEntry extends TransitionEntry {
 		this.enablingTime = enablingTime;
 	}
 	
+	
 	public Double getEnablingTime() {
 		return enablingTime;
 	}
-	public void setEnablingTime(Double enablingTime) {
-		this.enablingTime = enablingTime;
-	}
+	
 	
 	private Double enablingTime;
 }

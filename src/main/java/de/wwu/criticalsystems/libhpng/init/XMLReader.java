@@ -15,11 +15,17 @@ import de.wwu.criticalsystems.libhpng.model.*;
 
 public class XMLReader {
 	
+		
+	public XMLReader() {}
+
+	
 	public void setLogger(Logger logger) {
 		this.logger = logger;
 	}
 	
+	
 	private Logger logger;
+	
 	
 	public HPnGModel readXmlIntoModel(File xmlFile) throws JAXBException, XmlNotValidException {
 		
@@ -65,4 +71,3 @@ public class XMLReader {
     	}
 	}
 }
-

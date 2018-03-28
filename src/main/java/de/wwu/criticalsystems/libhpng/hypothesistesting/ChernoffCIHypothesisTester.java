@@ -19,6 +19,7 @@ public class ChernoffCIHypothesisTester extends HypothesisTester{
 		
 	}
 	
+	
 	private Double epsilon;
 	private Double calcNumberOfRuns;
 

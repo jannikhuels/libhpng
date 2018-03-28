@@ -35,14 +35,13 @@ public abstract class Transition {
 	public ArrayList<Arc> getConnectedArcs() {
 		return connectedArcs;
 	}
-	public void setConnectedArcs(ArrayList<Arc> connectedArcs) {
-		this.connectedArcs = connectedArcs;
-	}
 
+	
 	private String id;
 	private Boolean enabled;
 	private ArrayList<Arc> connectedArcs = new ArrayList<Arc>();
 		
+	
 	public void fireTransition() throws InvalidRandomVariateGeneratorException{
 		
 		DiscretePlace place;		

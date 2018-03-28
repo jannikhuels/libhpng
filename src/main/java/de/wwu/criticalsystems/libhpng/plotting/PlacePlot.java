@@ -9,12 +9,11 @@ public class PlacePlot extends Plot {
 		this.referencedPlace = referencedPlace;
 	}
 		
+	
 	public Place getReferencedPlace() {
 		return referencedPlace;
 	}
-	public void setReferencedPlace(Place referencedPlace) {
-		this.referencedPlace = referencedPlace;
-	}
+	
 
 	private Place referencedPlace;	
 }

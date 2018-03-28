@@ -8,19 +8,15 @@ public class ContinuousPlaceEntry extends PlotEntry {
 		this.drift = drift;
 	}
 	
+	
 	public Double getFluidLevel() {
 		return fluidLevel;
-	}
-	public void setFluidLevel(Double fluidLevel) {
-		this.fluidLevel = fluidLevel;
 	}
 	
 	public Double getDrift() {
 		return drift;
 	}
-	public void setDrift(Double drift) {
-		this.drift = drift;
-	}
+	
 	
 	private Double fluidLevel;
 	private Double drift;

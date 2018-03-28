@@ -6,17 +6,15 @@ import de.wwu.criticalsystems.libhpng.errorhandling.InvalidPropertyException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.model.*;
 
-
 public class FluidProperty {
 
+	
 	public FluidProperty(ContinuousPlace place, Double boundary, Double propertyTime) {
 
 		this.place = place;
 		this.boundary = boundary;
 		this.propertyTime = propertyTime;
-	}
-	
-	
+	}	
 	
 	public FluidProperty(SimpleNode root, Logger logger, HPnGModel model, Double propertyTime, Boolean until, Double untilTime) throws InvalidPropertyException{
 		
@@ -50,8 +48,7 @@ public class FluidProperty {
 			if (logger != null)
 				logger.severe("Property Error: the ID of the property node '" + root.toString() + "' could not be matched");
 			throw new InvalidPropertyException("Property Error: the ID of the property node '" + root.toString() + "' could not be matched");
-		}
-		
+		}		
 				
 		boundary = PropertyChecker.getPropertyBoundary(root, type, logger);
 		
@@ -82,52 +79,28 @@ public class FluidProperty {
 		
 	}
 	
-	
-	
-	
-	
-	
-	
+		
 	public ContinuousPlace getPlace() {
 		return place;
 	}
-	public void setPlace(ContinuousPlace place) {
-		this.place = place;
-	}
-
 
 	public Double getBoundary() {
 		return boundary;
 	}
-	public void setBoundary(Double boundary) {
-		this.boundary = boundary;
-	}
-
 
 	public Double getPropertyTime() {
 		return propertyTime;
 	}
-	public void setPropertyTime(Double propertyTime) {
-		this.propertyTime = propertyTime;
-	}
-
 
 	public Boolean getUntil() {
 		return until;
 	}
-	public void setUntil(Boolean until) {
-		this.until = until;
-	}
-
 
 	public Double getUntilTime() {
 		return untilTime;
 	}
-	public void setUntilTime(Double untilTime) {
-		this.untilTime = untilTime;
-	}
 
-
+	
 	private ContinuousPlace place = null;
 	private Double boundary;
 	private Double propertyTime;

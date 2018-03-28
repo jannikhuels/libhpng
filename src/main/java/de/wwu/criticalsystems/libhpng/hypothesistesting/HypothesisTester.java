@@ -9,18 +9,6 @@ import de.wwu.criticalsystems.libhpng.simulation.PropertyChecker;
 
 public abstract class HypothesisTester {
 	
-	protected Boolean resultAchieved = false;
-	protected Boolean propertyFulfilled;
-	protected Boolean checkLowerThan;
-	protected Boolean invertPropertyAndThreshold;
-	protected PropertyChecker checker;
-	protected Double boundary;
-	protected Integer numberOfRuns;
-	protected Integer minNumberOfRuns;
-	protected Integer calcNumberOfRuns;
-	protected Integer fulfilled;
-	protected Boolean terminate = false;
-	
 	
 	public HypothesisTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws InvalidPropertyException{
 
@@ -43,8 +31,46 @@ public abstract class HypothesisTester {
 			
 	}
 	
+	
 	public abstract Boolean doTesting(Integer currentRun, MarkingPlot plot) throws InvalidPropertyException;
 	
+		
+	public Boolean getResultAchieved() {
+		return resultAchieved;
+	}
+		
+	public Boolean getPropertyFulfilled() {
+		return propertyFulfilled;
+	}
+
+	public Boolean getTerminate(){
+		return terminate;
+	}
+	
+	public PropertyChecker getChecker() {
+		return checker;
+	}
+
+
+	protected Boolean resultAchieved = false;
+	protected Boolean propertyFulfilled;
+	protected Boolean checkLowerThan;
+	protected Boolean invertPropertyAndThreshold;
+	protected PropertyChecker checker;
+	protected Double boundary;
+	protected Integer numberOfRuns;
+	protected Integer minNumberOfRuns;
+	protected Integer calcNumberOfRuns;
+	protected Integer fulfilled;
+	protected Boolean terminate = false;
+	
+	
+	public void resetResults() {
+		resultAchieved = false;
+		propertyFulfilled = false;
+		numberOfRuns = 0;
+		terminate = false;
+	}
 	
 	protected void checkPropertyForCurrentRun(Integer currentRun, MarkingPlot plot) throws InvalidPropertyException{
 		
@@ -60,27 +86,4 @@ public abstract class HypothesisTester {
 		numberOfRuns++;
 	}
 	
-	
-	public Boolean getResultAchieved() {
-		return resultAchieved;
-	}
-	
-	
-	public Boolean getPropertyFulfilled() {
-		return propertyFulfilled;
-	}
-
-
-	
-	public void resetResults() {
-		resultAchieved = false;
-		propertyFulfilled = false;
-		numberOfRuns = 0;
-		terminate = false;
-	}
-	
-	
-	public Boolean getTerminate(){
-		return terminate;
-	}
 }

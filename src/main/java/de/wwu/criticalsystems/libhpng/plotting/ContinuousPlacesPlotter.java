@@ -16,6 +16,9 @@ import de.wwu.criticalsystems.libhpng.model.*;
 public class ContinuousPlacesPlotter {
 	
 	
+	public ContinuousPlacesPlotter() {	}
+
+
 	private ArrayList<ContinuousPlaceEntry> means = new ArrayList<ContinuousPlaceEntry>();
 	private ArrayList<ContinuousPlaceEntry> ssquares = new ArrayList<ContinuousPlaceEntry>();
 
@@ -131,7 +134,7 @@ public class ContinuousPlacesPlotter {
 	}
 	
 	
-private XYLineGraph addSeriesToGraph(XYLineGraph oldGraph, String id, Integer series) {
+	private XYLineGraph addSeriesToGraph(XYLineGraph oldGraph, String id, Integer series) {
 		
 		XYLineGraph graph = oldGraph;		
 		Color color = defineColor(series);
@@ -163,8 +166,7 @@ private XYLineGraph addSeriesToGraph(XYLineGraph oldGraph, String id, Integer se
 		return graph;
 	}
 
-	
-	
+		
 	
 	private Color defineColor(Integer i){
 		

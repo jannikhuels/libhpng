@@ -15,7 +15,6 @@ public class DynamicSimulator extends Simulator {
 				this.fluidProperties = fluidProperties;
 	}
 	
-
 	
 	public Double getAndCompleteNextEvent(Double currentTime, MarkingPlot currentPlot, Boolean printRunResults) throws InvalidRandomVariateGeneratorException, InvalidPropertyException{
 		
@@ -29,29 +28,13 @@ public class DynamicSimulator extends Simulator {
 			
 			currentPropertyTime = fluidProperties.get(i).getPropertyTime();
 			currentUntilTime = fluidProperties.get(i).getUntilTime() ;
-//			
-//			if (currentTime < currentPropertyTime && currentUntilTime <= event.getOccurenceTime()){								
-//				if (!checkAtomicFluidProperty(fluidProperties.get(i), currentTime, currentPropertyTime, currentUntilTime))
-//					check = false;	
-//			} else if (currentTime < currentPropertyTime && currentPropertyTime <= event.getOccurenceTime()){
-//				if (!checkAtomicFluidProperty(fluidProperties.get(i), currentTime, currentPropertyTime, event.getOccurenceTime()))
-//					check = false;
-//			} else if (currentTime < currentUntilTime && currentUntilTime <= event.getOccurenceTime()){
-//				if (!checkAtomicFluidProperty(fluidProperties.get(i), currentTime, currentTime, currentUntilTime))
-//					check = false;
-//			} else if (currentPropertyTime <= event.getOccurenceTime() && event.getOccurenceTime() <= currentUntilTime){
-//				if (!checkAtomicFluidProperty(fluidProperties.get(i), currentTime, currentPropertyTime, event.getOccurenceTime()))
-//					check = false;
-//			}
-			
-			
+		
 			
 			if (currentPropertyTime <= event.getOccurenceTime() && currentTime < currentUntilTime){
 				if (!checkAtomicFluidProperty(fluidProperties.get(i), currentTime, Math.max(currentTime, currentPropertyTime), Math.min(event.getOccurenceTime(), currentUntilTime)));
 					check = false;
 			}	
-				
-				
+								
 		}			
 				
 		if (check == false)
@@ -81,13 +64,11 @@ public class DynamicSimulator extends Simulator {
 		return event.getOccurenceTime(); 
 		
 	}
-	
-	
+		
 
 	private ArrayList<FluidProperty> fluidProperties;
 	
-	
-	
+		
 	private Boolean checkAtomicFluidProperty(FluidProperty property, Double currentTime, Double startPoint, Double endPoint) throws InvalidPropertyException{
 		
 		Boolean check;
@@ -128,7 +109,4 @@ public class DynamicSimulator extends Simulator {
  	
 		return check;
 	}
-	
-
-
 }

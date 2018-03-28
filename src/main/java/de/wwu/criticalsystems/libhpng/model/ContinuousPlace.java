@@ -40,6 +40,7 @@ public class ContinuousPlace extends Place{
 		this.lastUpdate = new Double(placeToCopy.getLastUpdate());
 	}
 
+	
 	public Double getOriginalFluidLevel() {
 		return originalFluidLevel;
 	}	
@@ -66,10 +67,6 @@ public class ContinuousPlace extends Place{
 	public Double getDrift() {
 		return drift;
 	}
-	public void setDrift(Double drift) {
-		this.drift = drift;
-	}
-	
 
 	public Boolean getUpperBoundaryInfinity() {
 		return upperBoundaryInfinity;
@@ -82,15 +79,9 @@ public class ContinuousPlace extends Place{
 	public Boolean getUpperBoundaryReached() {
 		return upperBoundaryReached;
 	}
-	public void setUpperBoundaryReached(Boolean upperBoundaryReached) {
-		this.upperBoundaryReached = upperBoundaryReached;
-	}
 
 	public Boolean getLowerBoundaryReached() {
 		return lowerBoundaryReached;
-	}
-	public void setLowerBoundaryReached(Boolean lowerBoundaryReached) {
-		this.lowerBoundaryReached = lowerBoundaryReached;
 	}
 	
 	public Double getQuantum() {
@@ -144,6 +135,21 @@ public class ContinuousPlace extends Place{
 	}
 	
 	
+	private Double currentFluidLevel; 
+	private Double originalFluidLevel;
+	private Double upperBoundary = Double.POSITIVE_INFINITY;
+	private Double drift = 0.0;	
+	private Boolean upperBoundaryInfinity;
+	private Boolean upperBoundaryReached;
+	private Boolean lowerBoundaryReached;	
+	private Double exactFluidLevel;//x
+	private Double exactDrift = 0.0; // u
+	private Double changeOfExactDrift = 0.0; //mu
+	private Double quantum;
+	private Double timeToNextInternalTransition;
+	private Double lastUpdate = 0.0;
+	
+	
 	public void resetFluidLevel() {
 		this.currentFluidLevel = this.originalFluidLevel;
 		this.exactFluidLevel = this.originalFluidLevel;
@@ -162,6 +168,7 @@ public class ContinuousPlace extends Place{
 		return upperBoundaryReached;
 	}
 	
+	
 	public Boolean checkLowerBoundary(){	
 		
 		BigDecimal level = new BigDecimal(currentFluidLevel);
@@ -174,9 +181,7 @@ public class ContinuousPlace extends Place{
 		return lowerBoundaryReached;
 	}
 	
-	
-	
-	
+		
 	public void computeTimeToNextInternalTransition(ArrayList<Arc> arcs) {	
 		
 		if (upperBoundaryReached || lowerBoundaryReached){
@@ -231,7 +236,6 @@ public class ContinuousPlace extends Place{
 			timeToNextInternalTransition = Double.POSITIVE_INFINITY;		
 	}
 		
-
 	public void computeTimeToNextInternalTransitionFromExternal(ArrayList<Arc> arcs) {			
 		
 		if (upperBoundaryReached || lowerBoundaryReached){
@@ -310,8 +314,7 @@ public class ContinuousPlace extends Place{
 			timeToNextInternalTransition = Double.POSITIVE_INFINITY; 
 		
 	}
-	
-	
+		
 	public void performInternalTransition(Double timePoint, Double previousDrift, Double previousChangeOfDrift, ArrayList<Arc> arcs){
 		
 		Double timeSinceLastInternalTransition = timePoint - lastUpdate;				
@@ -320,11 +323,15 @@ public class ContinuousPlace extends Place{
 		
 		BigDecimal level = new BigDecimal(fluid);
 		level = level.setScale(8,BigDecimal.ROUND_HALF_UP);
-		if (level.doubleValue() <= 0.0 ) 
+		if (level.doubleValue() <= 0.0){ 
 			fluid = 0.0;
-		else if (!upperBoundaryInfinity && upperBoundary.equals(level.doubleValue()))
+			if (exactDrift < 0.0)
+				exactDrift = 0.0;
+		} else if (!upperBoundaryInfinity && upperBoundary.equals(level.doubleValue())){
 			fluid = upperBoundary;
-		else
+			if (exactDrift > 0.0)
+				exactDrift = 0.0;
+		} else
 			fluid = level.doubleValue();	
 		
 		setExactFluidLevel(fluid, timePoint);
@@ -332,14 +339,10 @@ public class ContinuousPlace extends Place{
 		
 		currentFluidLevel = exactFluidLevel;		
 		drift = exactDrift;			
-
 		
-		computeTimeToNextInternalTransition(arcs);
-				
+		computeTimeToNextInternalTransition(arcs);				
 	}
 	
-	
-
 	public Double getTimeTilExactFluidLevelHitsBoundary(Double boundary, Double timePoint){
 		
 			Double timeSinceLastInternalTransition = timePoint - lastUpdate;
@@ -373,11 +376,9 @@ public class ContinuousPlace extends Place{
 				t2 = Double.POSITIVE_INFINITY;
 									
 			return Math.min(t1, t2);		
-	}
+	}	
 	
-	
-	public Double getTimeTilCurrentFluidLevelHitsBoundary(Double boundary){
-		
+	public Double getTimeTilCurrentFluidLevelHitsBoundary(Double boundary){		
 		
 		if ((!upperBoundaryInfinity && upperBoundaryReached && boundary.equals(upperBoundary)) || (lowerBoundaryReached && boundary == 0.0))
 			return Double.POSITIVE_INFINITY;
@@ -389,24 +390,5 @@ public class ContinuousPlace extends Place{
 		
 		return ((boundary - currentFluidLevel)/drift);
 		
-}
-	
-
-	private Double currentFluidLevel; 
-	private Double originalFluidLevel;
-	private Double upperBoundary;
-	private Double drift = 0.0;	
-	private Boolean upperBoundaryInfinity;
-	private Boolean upperBoundaryReached;
-	private Boolean lowerBoundaryReached;	
-	private Double exactFluidLevel;//x
-	private Double exactDrift = 0.0; // u
-	private Double changeOfExactDrift = 0.0; //mu
-	private Double quantum;
-	private Double timeToNextInternalTransition;
-	private Double lastUpdate = 0.0;
-		
-	
-	
-	
+	}
 }

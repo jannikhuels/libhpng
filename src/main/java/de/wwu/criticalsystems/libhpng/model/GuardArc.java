@@ -19,6 +19,7 @@ public class GuardArc extends Arc{
 		this.inhibitor = new Boolean(arcToCopy.getInhibitor());
 		this.conditionFulfilled = new Boolean(arcToCopy.getConditionFulfilled());
 	}
+	
 
 	public Boolean getInhibitor() {
 		return inhibitor;
@@ -34,10 +35,12 @@ public class GuardArc extends Arc{
 	public void setConditionFulfilled(Boolean conditionFulfilled) {
 		this.conditionFulfilled = conditionFulfilled;
 	}
+	
 
 	private Boolean inhibitor;
 	private Boolean conditionFulfilled;
 		
+	
 	public Boolean checkCondition(){
 		
 		Place p = this.getConnectedPlace();		

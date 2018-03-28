@@ -9,13 +9,11 @@ public class TransitionPlot extends Plot{
 		this.referencedTransition = referencedTransition;
 	}
 	
+	
 	public Transition getReferencedTransition() {
 		return referencedTransition;
 	}
 	
-	public void setReferencedTransition(Transition referencedTransition) {
-		this.referencedTransition = referencedTransition;
-	}
-	
+		
 	private Transition referencedTransition;
 }

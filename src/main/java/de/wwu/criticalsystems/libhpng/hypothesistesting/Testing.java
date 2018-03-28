@@ -1,5 +1,6 @@
 package de.wwu.criticalsystems.libhpng.hypothesistesting;
 
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidDistributionParameterException;
@@ -16,37 +17,7 @@ import de.wwu.criticalsystems.libhpng.simulation.Simulator;
 
 public class Testing {
 	
-	private HPnGModel model;
-	private Integer minNumberOfRuns;
-	private Logger logger;
-	private SimpleNode root;
-	private Double correctnessIndifferenceLevel;
-	private Double powerIndifferenceLevel;
-	private Double type1Error;
-	private Double type2Error;
-	private Double guess;
-	private Boolean printRunResults;
-	private Boolean checkLowerThan;
-	private Boolean invertPropertyAndThreshold;
-	private Integer maxNumberOfRuns;
-	private Double currentTime;
-	private MarkingPlot currentPlot;
-	private Double maxTime;
-	//private  ArrayList<MarkingPlot> plots = new ArrayList<MarkingPlot>();
-	private Simulator simulator;
-	Boolean fixedNumber;
-	private Integer fixedNumberOfRuns;
-	private Integer testRuns;
-	
-	private Integer fulfilled;
-	private Integer notFulfilled;
-	private Integer noResult;
-	private Integer minRun;
-	private Integer maxRun;
-	private Integer totalRuns;
 
-	
-	
 	public Testing (HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double correctnessIndifferenceLevel, Double powerIndifferenceLevel, Double guess, Double type1Error, Double type2Error, Boolean checkLowerThan, Boolean invertPropertyAndThreshold, Boolean printRunResults, Integer maxNumberOfRuns, Double currentTime, MarkingPlot currentPlot, Double maxTime, Simulator simulator, Boolean fixedNumber, Integer fixedNumberOfRuns, Integer testRuns) throws InvalidPropertyException, ModelNotReadableException, NullPointerException{
 		
 		this.model = model;
@@ -73,8 +44,36 @@ public class Testing {
 	
 	}
 	
+	
+	private HPnGModel model;
+	private Integer minNumberOfRuns;
+	private Logger logger;
+	private SimpleNode root;
+	private Double correctnessIndifferenceLevel;
+	private Double powerIndifferenceLevel;
+	private Double type1Error;
+	private Double type2Error;
+	private Double guess;
+	private Boolean printRunResults;
+	private Boolean checkLowerThan;
+	private Boolean invertPropertyAndThreshold;
+	private Integer maxNumberOfRuns;
+	private Double currentTime;
+	private MarkingPlot currentPlot;
+	private Double maxTime;	
+	private Simulator simulator;
+	Boolean fixedNumber;
+	private Integer fixedNumberOfRuns;
+	private Integer testRuns;	
+	private Integer fulfilled;
+	private Integer notFulfilled;
+	private Integer noResult;
+	private Integer minRun;
+	private Integer maxRun;
+	private Integer totalRuns;
+
+	
 	public void performTesting(Byte algorithmID, String algorithmName) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
-		
 		
 		fulfilled = 0;
 		notFulfilled = 0;
@@ -85,14 +84,12 @@ public class Testing {
 		int run = 0;
 				
 		HypothesisTester tester = null;
-		SampleGenerator generator;
-		
+		SampleGenerator generator;				
 		
 		Double fulfilledPercentage;
 		Double notFulfilledPercentage;
 		Double noResultPercentage;
-		Integer averageRuns;
-		
+		Integer averageRuns;		
 		
 		switch (algorithmID){
 		
@@ -125,7 +122,7 @@ public class Testing {
 				break;
 		}
 		
-		
+		ArrayList<String> related = tester.getChecker().getAllRelatedPlaceAndTransitionIds();
 		
 		int n = 0;
 		while(n < testRuns){
@@ -167,7 +164,7 @@ public class Testing {
 				
 					currentPlot = new MarkingPlot(maxTime);
 					//plots.add(currentPlot);
-					currentPlot.initialize(model);
+					currentPlot.initializeRelatedOnly(this.model, related);
 					
 					//simulation
 					while (currentTime <= maxTime)
@@ -233,7 +230,7 @@ public class Testing {
 				
 					currentPlot = new MarkingPlot(maxTime);
 					//plots.add(currentPlot);
-					currentPlot.initialize(model);
+					currentPlot.initializeRelatedOnly(this.model, related);
 					
 					//simulation
 					while (currentTime <= maxTime)
@@ -302,12 +299,8 @@ public class Testing {
 		else 
 			System.out.println("There where no successfull runs" + "\n");		
 		
-		//plots.clear();
+	}			
 		
-	}	
-		
-		
-	
 	private void calcMinRun(int currRun){
 		
 		if(minRun == 0)
@@ -322,7 +315,6 @@ public class Testing {
 		if(maxRun < currRun)
 			{maxRun = currRun;}
 	}
-	
 	
 	private Double calcPercentage(Integer calc){
 		

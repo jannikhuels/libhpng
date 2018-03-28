@@ -26,7 +26,6 @@ public class DynamicContinuousTransition extends Transition{
 		this.adapted = new Boolean(transitionToCopy.getAdapted());
 		this.fluidExpression = new Expression(transitionToCopy.getFluidExpression().getExpressionString());
 		this.changeOfFluidExpression = new Expression(transitionToCopy.getChangeOfFluidExpression().getExpressionString());
-
 	}
 
 	
@@ -47,14 +46,12 @@ public class DynamicContinuousTransition extends Transition{
 		this.fluidExpression = fluidExpression;
 	}
 
-
 	public Expression getChangeOfFluidExpression() {
 		return changeOfFluidExpression;
 	}
 	public void setChangeOfFluidExpression(Expression changeOfFluidExpression) {
 		this.changeOfFluidExpression = changeOfFluidExpression;
-	}
-	
+	}	
 	
 	public Double getCurrentFluid() {
 		return currentFluid;
@@ -78,13 +75,18 @@ public class DynamicContinuousTransition extends Transition{
 	}
 
 
-
-
+	private Double currentFluid;
+	private Double currentChangeOfFluid;
+	private Boolean adapted = false;
+	private Expression fluidExpression;
+	private Expression changeOfFluidExpression;
+	private HashMap<String, ContinuousPlace> placesForFluidExpression = new HashMap<String, ContinuousPlace>();
+	private HashMap<String, ContinuousPlace> placesForChangeOfFluidExpression = new HashMap<String, ContinuousPlace>();
+	private Integer numberOfEntries = null;
+	
 
 	public void computeCurrentFluidAndCurrentChangeOfFluid(ArrayList<Place> places){		
 			
-		
-
 		if(numberOfEntries == null)
 			createHashMapsAndArguments(places);
 
@@ -109,20 +111,7 @@ public class DynamicContinuousTransition extends Transition{
 	    currentFluid = fluidExpression.calculate();
 	    currentChangeOfFluid = changeOfFluidExpression.calculate();
 
-		
 	}
-	
-	
-
-
-	private Double currentFluid;
-	private Double currentChangeOfFluid;
-	private Boolean adapted = false;
-	private Expression fluidExpression;
-	private Expression changeOfFluidExpression;
-	private HashMap<String, ContinuousPlace> placesForFluidExpression = new HashMap<String, ContinuousPlace>();
-	private HashMap<String, ContinuousPlace> placesForChangeOfFluidExpression = new HashMap<String, ContinuousPlace>();
-	private Integer numberOfEntries = null;
 	
 	
 	private void createHashMapsAndArguments(ArrayList<Place> places){
@@ -168,9 +157,7 @@ public class DynamicContinuousTransition extends Transition{
 		}	
 		
 	}
-	
-	
-	
+		
 	
 	private Double getArgumentValue(String argument, ContinuousPlace p){
     	

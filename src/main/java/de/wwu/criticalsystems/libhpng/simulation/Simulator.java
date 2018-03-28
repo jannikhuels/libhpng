@@ -11,14 +11,13 @@ import de.wwu.criticalsystems.libhpng.simulation.SimulationEvent.SimulationEvent
 
 public class Simulator {
 	
+	
 	public Simulator(HPnGModel model, Double maxTime) {
 		this.model = model;
 		this.maxTime = maxTime;
 	}
 	
-	public Logger getLogger() {
-		return logger;
-	}
+	
 	public void setLogger(Logger logger) {
 		this.logger = logger;
 	}
@@ -28,7 +27,6 @@ public class Simulator {
 	protected HPnGModel model;
 	protected Double maxTime;
 	protected Logger logger;
-
 
 	
 	public Double getAndCompleteNextEvent(Double currentTime, MarkingPlot currentPlot, Boolean printRunResults) throws InvalidRandomVariateGeneratorException, InvalidPropertyException{
@@ -57,8 +55,7 @@ public class Simulator {
 		}
 		
 	
-		return event.getOccurenceTime(); 
-		
+		return event.getOccurenceTime(); 		
 	}
 	
 	
@@ -220,7 +217,7 @@ public class Simulator {
 				}
 			} else if (transition.getClass().equals(GeneralTransition.class)){
 				
-				if (event.getEventType() == SimulationEventType.immediate_transition)
+				if (event.getEventType().equals(SimulationEventType.immediate_transition))
 					break;
 				
 				timeOfCurrentEvent = currentTime + ((GeneralTransition)transition).getDiscreteFiringTime() - ((GeneralTransition)transition).getEnablingTime();
@@ -350,8 +347,8 @@ public class Simulator {
 					
 					ContinuousPlace place = (ContinuousPlace)p;	
 					Double timeDelta = -1.0;
-					Double timeDeltaQ = -1.0;
-											
+					Double timeDeltaQ = -1.0;						
+		
 			
 					if (place.getExactDrift() < 0.0 && !place.getLowerBoundaryReached())
 						timeDelta = place.getTimeTilExactFluidLevelHitsBoundary(0.0, currentTime);
@@ -481,8 +478,5 @@ public class Simulator {
 		}
 		
 		return null;
-	}
-	
-	
-
+	}	
 }

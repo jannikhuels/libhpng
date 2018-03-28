@@ -16,6 +16,7 @@ public class StandardConfidenceInterval extends ConfidenceInterval {
 		this.halfIntervalWidth = halfIntervalWidth;
 	}
 
+	
 	public Integer getNumberOfRuns() {
 		return numberOfRuns;
 	}
@@ -28,6 +29,7 @@ public class StandardConfidenceInterval extends ConfidenceInterval {
 		return currentHalfIntervalWidth;
 	}
 
+	
 	private Integer minNumberOfRuns;
 	private Double ssquare;
 	private Double t;
@@ -70,9 +72,11 @@ public class StandardConfidenceInterval extends ConfidenceInterval {
 
 	
 	public Boolean checkBound(){
+		
 		if (ssquare == null || (ssquare == 0.0 && numberOfRuns < minNumberOfRuns) || numberOfRuns < minNumberOfRuns) 
 			return false;
 		Double bound = Math.pow(t, 2.0)*ssquare / Math.pow(halfIntervalWidth, 2.0);
+		
 		return (bound <= numberOfRuns);
 	}
 

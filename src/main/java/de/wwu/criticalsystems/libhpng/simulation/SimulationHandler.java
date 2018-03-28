@@ -14,69 +14,17 @@ import de.wwu.criticalsystems.libhpng.model.HPnGModel;
 import de.wwu.criticalsystems.libhpng.plotting.ContinuousPlacesPlotter;
 import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
 
-
-
 public class SimulationHandler {
 
+	
 	public SimulationHandler(){
 		loadParameters();
 	}
 	
 	
-	
-	public String getIntervalName(){
-		
-		switch(intervalID){		
-			case 0:
-				return "Standard";
-			case 1:
-				return "Wald";
-			case 2:
-				return "Clopper Pearson";
-			case 3:
-				return "Score";
-			case 4:
-				return "adjusted Wald";
-
-		}
-		return "";
-	}		
-	
-	
-	public void setIntervalID(String intervalName) throws InvalidSimulationParameterException {		
-		
-		switch (intervalName){
-			case "Standard":
-				this.intervalID = 0;
-				break;
-			case "Wald":
-				this.intervalID = 1;
-				break;
-			case "CP":
-				this.intervalID = 2;
-				break;
-			case "Score":
-				this.intervalID = 3;
-				break;
-			case "adjWald":
-				this.intervalID = 4;
-				break;			
-				
-			default:	
-				if (logger != null)
-					logger.severe("Invalid confidence interval caclulation approach, type help to see valid abbreviation");
-				throw new InvalidSimulationParameterException("Invalid interval type");
-		}
-		
-		if (logger != null) logger.info("The approach for the calculation of confidence intervals has been changed to : " + intervalName);			
-	}
-	
-	
-	
 	public Double getHalfIntervalWidth() {
 		return halfIntervalWidth;
-	}
-	
+	}	
 	public void setHalfIntervalWidth(Double halfIntervalWidth) throws InvalidSimulationParameterException {
 		
 		if (halfIntervalWidth < 0.0 || halfIntervalWidth > 1.0){
@@ -88,13 +36,11 @@ public class SimulationHandler {
 		this.halfIntervalWidth = halfIntervalWidth;
 		if (logger != null) logger.info("The half interval width has been changed to: " + halfIntervalWidth);
 	}
-	
-	
+		
 	
 	public Double getConfidenceLevel() {
 		return confidenceLevel;
-	}
-	
+	}	
 	public void setConfidenceLevel(Double confidenceLevel) throws InvalidSimulationParameterException {
 		
 		if (confidenceLevel < 0.0 || confidenceLevel > 1.0){
@@ -106,93 +52,24 @@ public class SimulationHandler {
 		this.confidenceLevel = confidenceLevel;
 		if (logger != null) logger.info("The confidence level has been changed to: " + confidenceLevel);
 	}
-	
-	
-	
+		
 	public Double getRealProbability() {
 		return realProbability;
 	}
-
-
 	public void setRealProbability(Double realProbability) {
 		this.realProbability = realProbability;
 	}
 	
-	
-	
 	public Integer getCalculations() {
 		return calculations;
 	}
-
-
 	public void setCalculations(Integer calculations) {
 		this.calculations = calculations;
 	}
-		
-
-	
-	
-	public String getAlgorithmName(){
-		
-		switch(algorithmID){		
-			case 0:
-				return "Sequential Probability Ratio Test";
-			case 1:
-				return "Gauss Confidence Interval Test";
-			case 2:
-				return "Chow Robbins Test";
-			case 3:
-				return "Azuma Test";
-			case 4:
-				return "Chernoff Confidence Interval Test";
-			case 5:
-				return "Gauss SSP Test";
-			case 6:
-				return "Darling Test";
-		}
-		return "";
-	}	
-		
-	public void setAlgorithmID(String algorithmName) throws InvalidSimulationParameterException {		
-		
-		switch (algorithmName){
-			case "SPR":
-				this.algorithmID = 0;
-				break;
-			case "GCI":
-				this.algorithmID = 1;
-				break;
-			case "CR":
-				this.algorithmID = 2;
-				break;
-			case "Azuma":
-				this.algorithmID = 3;
-				break;
-			case "CCI":
-				this.algorithmID = 4;
-				break;
-			case "GSSP":
-				this.algorithmID = 5;
-				break;
-			case "Darling":
-				this.algorithmID = 6;
-				break;
-				
-			default:	
-				if (logger != null)
-					logger.severe("Invalid algorithm, type help to see valid abbreviation");
-				throw new InvalidSimulationParameterException("Invalid algorithm");
-		}
-		
-		if (logger != null) logger.info("The algorithm used for hypothesis testing has been changed to : " + algorithmName);			
-	}
-	
-	
-	
+			
 	public Double getCorrectnessIndifferenceLevel() {
 		return correctnessIndifferenceLevel;
-	}
-	
+	}	
 	public void setCorrectnessIndifferenceLevel(Double correctnessIndifferenceLevel) throws InvalidSimulationParameterException {
 		
 		if (correctnessIndifferenceLevel <= 0.0 || correctnessIndifferenceLevel > 1.0){
@@ -202,14 +79,11 @@ public class SimulationHandler {
 		}
 		this.correctnessIndifferenceLevel = correctnessIndifferenceLevel;
 		if (logger != null) logger.info("The  correctness indifference level has been changed to: " + correctnessIndifferenceLevel);
-	}
-	
-	
+	}	
 	
 	public Double getPowerIndifferenceLevel() {
 		return powerIndifferenceLevel;
-	}
-	
+	}	
 	public void setPowerIndifferenceLevel(Double powerIndifferenceLevel) throws InvalidSimulationParameterException {
 		
 		if (powerIndifferenceLevel <= 0.0 || powerIndifferenceLevel > 1.0){
@@ -221,12 +95,10 @@ public class SimulationHandler {
 		if (logger != null) logger.info("The  power indifference level has been changed to: " + powerIndifferenceLevel);
 	}
 
-	
-
 	public Double getGuess(){
 		return guess;
 	}
-		public void setGuess(Double guess) throws InvalidSimulationParameterException {
+	public void setGuess(Double guess) throws InvalidSimulationParameterException {
 		this.guess = guess;
 		
 		if (guess < 0.0 || guess > 1.0){
@@ -238,12 +110,9 @@ public class SimulationHandler {
 
 	}
 	
-	
-
 	public Integer getTestRuns(){
 		return testRuns;		
-	}
-			
+	}			
 	public void setNumberOfTestRuns(Integer testRuns) throws InvalidSimulationParameterException {
 		this.testRuns = testRuns;
 		
@@ -255,12 +124,10 @@ public class SimulationHandler {
 		if (logger != null) logger.info("The value of guess has been changed to: " + guess);
 	}
 	
-		
 	
 	public Double getType1Error() {
 		return type1Error;
-	}
-	
+	}	
 	public void setType1Error(Double type1Error) throws InvalidSimulationParameterException {
 		
 		if (type1Error < 0.0 || type1Error > 1.0){
@@ -273,12 +140,9 @@ public class SimulationHandler {
 		if (logger != null) logger.info("The type 1 error has been changed to: " + type1Error);
 	}
 
-	
-
 	public Double getType2Error() {
 		return type2Error;
-	}
-	
+	}	
 	public void setType2Error(Double type2Error) throws InvalidSimulationParameterException {
 		
 		if (type2Error < 0.0 || type2Error > 1.0){
@@ -290,14 +154,10 @@ public class SimulationHandler {
 		this.type2Error = type2Error;
 		if (logger != null) logger.info("The type 2 error has been changed to: " + type2Error);
 	}
-
-
-	
 	
 	public Integer getFixedNumberOfRuns() {
 		return fixedNumberOfRuns;
-	}
-	
+	}	
 	public void setFixedNumberOfRuns(Integer fixedNumberOfRuns) throws InvalidSimulationParameterException {
 		
 		if (fixedNumberOfRuns < minNumberOfRuns || fixedNumberOfRuns > maxNumberOfRuns){
@@ -310,12 +170,9 @@ public class SimulationHandler {
 		if (logger != null) logger.info("The (fixed) number of runs has been changed to: " + fixedNumberOfRuns);
 	}
 
-	
-
 	public Integer getMinNumberOfRuns() {
 		return minNumberOfRuns;
-	}
-	
+	}	
 	public void setMinNumberOfRuns(Integer minNumberOfRuns) throws InvalidSimulationParameterException {
 		
 		if (minNumberOfRuns < 1 || minNumberOfRuns > maxNumberOfRuns){
@@ -327,13 +184,10 @@ public class SimulationHandler {
 		this.minNumberOfRuns = minNumberOfRuns;
 		if (logger != null) logger.info("The minimum number of runs has been changed to: " + minNumberOfRuns);
 	}
-
 	
-
 	public Integer getMaxNumberOfRuns() {
 		return maxNumberOfRuns;
-	}
-	
+	}	
 	public void setMaxNumberOfRuns(Integer maxNumberOfRuns) throws InvalidSimulationParameterException {
 
 		if (maxNumberOfRuns < minNumberOfRuns || maxNumberOfRuns > 1000000){
@@ -346,12 +200,9 @@ public class SimulationHandler {
 		if (logger != null) logger.info("The maximum number of runs has been changed to: " + maxNumberOfRuns);
 	}
 
-	
-	
 	public Boolean getSimulationWithFixedNumberOfRuns() {
 		return simulationWithFixedNumberOfRuns;
-	}
-	
+	}	
 	public void setSimulationWithFixedNumberOfRuns(Boolean simulationWithFixedNumberOfRuns) {
 		this.simulationWithFixedNumberOfRuns = simulationWithFixedNumberOfRuns;
 		if (logger != null){
@@ -362,12 +213,9 @@ public class SimulationHandler {
 		}
 	}	
 		
-	
 	public Boolean getPrintRunResults() {
 		return printRunResults;
-	}
-	
-	
+	}	
 	public void setPrintRunResults(Boolean printRunResults) {
 		this.printRunResults = printRunResults;
 		if (logger != null){
@@ -377,19 +225,43 @@ public class SimulationHandler {
 				logger.info("Printing of results has been turned off.");
 		}
 	}
-	
-	
-	public Logger getLogger() {
-		return logger;
-	}
-	
-	
+		
 	public void setLogger(Logger logger) {
 		this.logger = logger;
 	}
 	
+			
+	private Simulator simulator;
+	private Logger logger;
+	private HPnGModel model;
+	private SimpleNode root;
+	private Double maxTime;
+	private Double currentTime;
+	private Double propertyTime;
+	private ArrayList<MarkingPlot> plots = new ArrayList<MarkingPlot>();
+	private MarkingPlot currentPlot;
 	
-public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNotReadableException, InvalidRandomVariateGeneratorException, InvalidPropertyException{
+	//simulation parameters
+	private Byte intervalID;
+	private Double halfIntervalWidth = 0.0;
+	private Double confidenceLevel;
+	private Double realProbability;
+	private Integer calculations;	
+	private Byte algorithmID;
+	private Double correctnessIndifferenceLevel;
+	private Double powerIndifferenceLevel;	
+	private Double guess;
+	private Integer testRuns;
+	private Double type1Error;
+	private Double type2Error;	
+	private Integer fixedNumberOfRuns;
+	private Integer minNumberOfRuns;
+	private Integer maxNumberOfRuns;
+	private Boolean simulationWithFixedNumberOfRuns;
+	private Boolean printRunResults;
+	
+	
+	public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNotReadableException, InvalidRandomVariateGeneratorException, InvalidPropertyException{
 		
 		this.maxTime = maxTime;
 		this.model = model;
@@ -420,7 +292,7 @@ public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNot
 			
 			currentPlot = new MarkingPlot(maxTime);
 			plots.add(currentPlot);
-			currentPlot.initialize(model);
+			currentPlot.initializeContinuousPlacesOnly(this.model);
 			
 			//simulation
 			while (currentTime <= maxTime)
@@ -614,48 +486,110 @@ public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNot
 	}
 
 	
-	
-	//simulation parameters
-	private Byte intervalID;
-	private Double halfIntervalWidth = 0.0;
-	private Double confidenceLevel;
-	private Double realProbability;
-	private Integer calculations;
-	
-	private Byte algorithmID;
-	private Double correctnessIndifferenceLevel;
-	private Double powerIndifferenceLevel;	
-	private Double guess;
-	private Integer testRuns;
-	private Double type1Error;
-	private Double type2Error;
-	
-	private Integer fixedNumberOfRuns;
-	private Integer minNumberOfRuns;
-	private Integer maxNumberOfRuns;
-	private Boolean simulationWithFixedNumberOfRuns;
-	private Boolean printRunResults;
+	public String getIntervalName(){
+		
+		switch(intervalID){		
+			case 0:
+				return "Standard";
+			case 1:
+				return "Wald";
+			case 2:
+				return "Clopper Pearson";
+			case 3:
+				return "Score";
+			case 4:
+				return "adjusted Wald";
 
+		}
+		return "";
+	}		
+	
+	
+	public void setIntervalID(String intervalName) throws InvalidSimulationParameterException {		
 		
-	private Simulator simulator;
-	private Logger logger;
-	private HPnGModel model;
-	private SimpleNode root;
-	private Double maxTime;
-	private Double currentTime;
-	private Double propertyTime;
-	private ArrayList<MarkingPlot> plots = new ArrayList<MarkingPlot>();
-	private MarkingPlot currentPlot;
-	
-	//ArrayList<SimpleNode> fluidProperties
-	
-	
-	
+		switch (intervalName){
+			case "Standard":
+				this.intervalID = 0;
+				break;
+			case "Wald":
+				this.intervalID = 1;
+				break;
+			case "CP":
+				this.intervalID = 2;
+				break;
+			case "Score":
+				this.intervalID = 3;
+				break;
+			case "adjWald":
+				this.intervalID = 4;
+				break;			
+				
+			default:	
+				if (logger != null)
+					logger.severe("Invalid confidence interval caclulation approach, type help to see valid abbreviation");
+				throw new InvalidSimulationParameterException("Invalid interval type");
+		}
+		
+		if (logger != null) logger.info("The approach for the calculation of confidence intervals has been changed to : " + intervalName);			
+	}
 	
 		
+	public String getAlgorithmName(){
+		
+		switch(algorithmID){		
+			case 0:
+				return "Sequential Probability Ratio Test";
+			case 1:
+				return "Gauss Confidence Interval Test";
+			case 2:
+				return "Chow Robbins Test";
+			case 3:
+				return "Azuma Test";
+			case 4:
+				return "Chernoff Confidence Interval Test";
+			case 5:
+				return "Gauss SSP Test";
+			case 6:
+				return "Darling Test";
+		}
+		return "";
+	}	
+		
+	public void setAlgorithmID(String algorithmName) throws InvalidSimulationParameterException {		
+		
+		switch (algorithmName){
+			case "SPR":
+				this.algorithmID = 0;
+				break;
+			case "GCI":
+				this.algorithmID = 1;
+				break;
+			case "CR":
+				this.algorithmID = 2;
+				break;
+			case "Azuma":
+				this.algorithmID = 3;
+				break;
+			case "CCI":
+				this.algorithmID = 4;
+				break;
+			case "GSSP":
+				this.algorithmID = 5;
+				break;
+			case "Darling":
+				this.algorithmID = 6;
+				break;
+				
+			default:	
+				if (logger != null)
+					logger.severe("Invalid algorithm, type help to see valid abbreviation");
+				throw new InvalidSimulationParameterException("Invalid algorithm");
+		}
+		
+		if (logger != null) logger.info("The algorithm used for hypothesis testing has been changed to : " + algorithmName);			
+	}
 	
-	
-	
+		
 	private void simulateAndCheckPROBQ(Integer intervalCalcs, Double realProbability, Boolean fixedNumber) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
 		
 	
@@ -675,6 +609,7 @@ public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNot
 
 		SampleGenerator generator;
 		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(intervalID, model, minNumberOfRuns, logger, root, confidenceLevel, halfIntervalWidth);
+		ArrayList<String> related = calc.getChecker().getAllRelatedPlaceAndTransitionIds();
 		
 		Integer n = 0;
 		while(n < calculations){
@@ -703,7 +638,7 @@ public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNot
 				
 					currentPlot = new MarkingPlot(maxTime);
 					//plots.add(currentPlot);
-					currentPlot.initialize(model);
+					currentPlot.initializeRelatedOnly(this.model, related);
 					
 					//simulation
 					while (currentTime <= maxTime)
@@ -769,7 +704,7 @@ public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNot
 				
 					currentPlot = new MarkingPlot(maxTime);
 					//plots.add(currentPlot);
-					currentPlot.initialize(model);
+					currentPlot.initializeRelatedOnly(this.model, related);
 					
 					//simulation
 					while (currentTime <= maxTime)
@@ -844,27 +779,10 @@ public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNot
 		System.out.println("Maximal number of simulation runs needed: " + maxRun);
 		if(fulfilled > 0 || notFulfilled > 0){
 			System.out.println("Average number of simulation runs needed: " + totalRuns/(fulfilled+notFulfilled) + "\n");
-			}else {System.out.println("There where no successfull runs" + "\n");}
-		
-		//plots.clear();
-			
-	/*	Properties parameters = new Properties();
-		
-		parameters.setProperty("numberOfRuns", fixedNumberOfRuns.toString());
-		parameters.setProperty("midpoint", midpoint.toString());
-		parameters.setProperty("lowerBorder", lower.toString());
-		parameters.setProperty("upperBorder", upper.toString());
-		parameters.setProperty("oneSidedIntervalWidth", halfwidth.toString());
-		
-		parameters.store(new FileOutputStream(results),"");*/
+			}else {System.out.println("There where no successfull runs" + "\n");}	
 	}
-
 		
-	
-	
 		
-	
-	
 	private void simulateAndTestPROB(Boolean checkLowerThan, Boolean invertPropertyAndThreshold, Boolean fixedNumber) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
 		
 		Testing testing;
@@ -876,8 +794,7 @@ public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNot
 		
 		testing.performTesting(algorithmID, getAlgorithmName());
 	}
-	
-		
+			
 
 	private Integer calcMinRun(Integer currRun, Integer minRun){
 		
@@ -896,15 +813,11 @@ public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNot
 			{maxRun = currRun;}
 		
 		return maxRun;
-	}
-	
+	}	
 
 	private double calcPercentage(Integer calc){
 		double curr =((double) calc) / calculations;
 		curr = curr*100;
 		return curr;
-	}
-		
-	
-	
+	}		
 }

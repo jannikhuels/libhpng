@@ -10,8 +10,10 @@ public class SimulationEvent {
 		eventType = SimulationEventType.no_event;
 	}
 
+	
 	public static enum SimulationEventType{immediate_transition, deterministic_transition, general_transition, place_boundary, guard_arcs_immediate, guard_arcs_continuous, guard_arcs_deterministic, place_internaltransition, no_event}
-		
+	
+	
 	public SimulationEventType getEventType() {
 		return eventType;
 	}
@@ -21,9 +23,6 @@ public class SimulationEvent {
 	
 	public ArrayList<Object> getRelatedObjects() {
 		return relatedObjects;
-	}
-	public void setRelatedObjects(ArrayList<Object> relatedObjects) {
-		this.relatedObjects = relatedObjects;
 	}
 	
 	public Double getOccurenceTime() {
@@ -36,10 +35,8 @@ public class SimulationEvent {
 	public Integer getPriority() {
 		return priority;
 	}
-	public void setPriority(Integer priority) {
-		this.priority = priority;
-	}
 
+	
 	private SimulationEventType eventType;
 	private ArrayList<Object> relatedObjects = new ArrayList<Object>();
 	private Double occurenceTime;

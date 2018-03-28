@@ -63,6 +63,7 @@ public class HPnGModel {
 				
 	}
 
+	
 	public ArrayList<Place> getPlaces() {
 		return places;
 	}
@@ -222,10 +223,12 @@ public class HPnGModel {
 						enabled = false;
 				}		
 			}
+
+			if (!reset && enabled && transition.getClass().equals(GeneralTransition.class) && !transition.getEnabled())
+				((GeneralTransition)transition).enableByPolicy(reset);
+			
 			
 			transition.setEnabled(enabled);
-			if (enabled && transition.getClass().equals(GeneralTransition.class))
-				((GeneralTransition)transition).enableByPolicy(reset);
 		}
 	}
 	
@@ -320,7 +323,7 @@ public class HPnGModel {
 					p.setChangeOfExactDrift(changeOfInFlux - changeOfOutFlux);
 					
 					
-					if((inFlux > outFlux) && p.checkUpperBoundary()){
+					if((inFlux > outFlux) && p.getCurrentFluidLevel() >= p.getUpperBoundary()){
 						//if upper boundary reached
 						Double timeToNextPriority = rateAdaption((ContinuousPlace)place, outFlux, ContinuousArcType.input, changeOfOutFlux);
 						p.setExactDrift(0.0);
@@ -331,7 +334,7 @@ public class HPnGModel {
 						
 						change = true;
 					
-					} else if ((outFlux > inFlux) && p.checkLowerBoundary()){
+					} else if ((outFlux > inFlux) && p.getCurrentFluidLevel() <= 0.0){
 						//lower boundary reached
 						Double timeToNextPriority = rateAdaption((ContinuousPlace)place, inFlux, ContinuousArcType.output, changeOfInFlux);
 						
@@ -380,8 +383,8 @@ public class HPnGModel {
 				else
 					fluid = level.doubleValue();
 				p.setCurrentFluidLevel(fluid);
-				p.checkUpperBoundary();
-				p.checkLowerBoundary();
+				//p.checkUpperBoundary();
+				//p.checkLowerBoundary();
 				
 			}
 		}

@@ -33,8 +33,6 @@ public class ChowRobbinsHypothesisTester extends HypothesisTester {
 	private Double requiredWidth;
 	private Double inverseType1Error;
 	
-
-	
 	
 	@Override
 	public Boolean doTesting(Integer currentRun, MarkingPlot plot) throws InvalidPropertyException{
