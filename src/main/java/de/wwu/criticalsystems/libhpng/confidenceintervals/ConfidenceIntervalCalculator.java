@@ -44,14 +44,19 @@ public class ConfidenceIntervalCalculator {
 		}
 		
 		
-	}
-	
+	}	
+
 	
 	
 	public Double getMidpoint() {
 		return midpoint;
 	}
-
+		
+	public PropertyChecker getChecker() {
+		return checker;
+	}
+	
+	
 	private Integer numberOfRuns=0;
 	private Integer minNumberOfRuns;
 	private Double midpoint;
@@ -60,18 +65,16 @@ public class ConfidenceIntervalCalculator {
 	private Double currentHalfIntervalWidth;
 	private Byte intervalID;
 	private ConfidenceInterval interval;
-	
+		
 	
 	public void calculateConfidenceInterval(Integer currentRun, MarkingPlot plot) throws InvalidPropertyException{
 		
 		numberOfRuns = interval.calculateMidpointAndHalfIntervalWidthForProperty(checker, currentRun, plot);
 		midpoint = interval.getMidpoint();
 		currentHalfIntervalWidth = interval.getCurrentHalfIntervalWidth();
-
 		
 	}
-	
-	
+		
 	public Boolean checkBound(){
 		
 		if (numberOfRuns < minNumberOfRuns)
@@ -85,22 +88,20 @@ public class ConfidenceIntervalCalculator {
 		return (currentHalfIntervalWidth  <= halfIntervalWidth);
 	}
 	
-	
-	public Double getLowerBorder(){
+		public Double getLowerBorder(){
 		return Math.max(0.0,(midpoint - currentHalfIntervalWidth));
 	}
-	
 	
 	public Double getUpperBorder(){
 		return Math.min(1.0,(midpoint + currentHalfIntervalWidth));
 	}
-
-
-
+	
 	public void resetResults() {
 		numberOfRuns  = 0;
 		currentHalfIntervalWidth  = 0.0;
 		midpoint = 0.0;
 	}
-	
+
+
+		
 }

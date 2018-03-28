@@ -21,17 +21,13 @@ public class XYLineGraph extends JFrame {
         this.chart = ChartFactory.createXYLineChart(title, xAxisName, yAxisName, data, PlotOrientation.VERTICAL, true, true, false);
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(750, 405));
-        setContentPane(chartPanel);
-        
+        setContentPane(chartPanel);        
 	}
 	
 	
 	private JFreeChart chart;
 	private XYSeriesCollection data = new XYSeriesCollection();
 	
-	public XYSeries getSeries(String seriesName) {
-		return data.getSeries(seriesName);
-	}
 	
 	public void addSeries(String seriesName){
 		data.addSeries(new XYSeries(seriesName));

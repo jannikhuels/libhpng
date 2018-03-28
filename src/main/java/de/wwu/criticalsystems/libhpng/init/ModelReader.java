@@ -10,12 +10,15 @@ public class ModelReader {
 	
 	public ModelReader() {}
 
+	
 	public void setLogger(Logger logger) {
 		this.logger = logger;
 	}
 	
+	
 	private HPnGModel model;
 	private Logger logger;
+	
 	
 	public HPnGModel readModel(String filePath) throws ModelNotReadableException{	
 		
@@ -56,5 +59,4 @@ public class ModelReader {
 		}
 	}	
 	
-
 }

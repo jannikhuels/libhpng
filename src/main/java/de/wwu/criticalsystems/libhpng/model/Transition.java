@@ -35,14 +35,13 @@ public abstract class Transition {
 	public ArrayList<Arc> getConnectedArcs() {
 		return connectedArcs;
 	}
-	public void setConnectedArcs(ArrayList<Arc> connectedArcs) {
-		this.connectedArcs = connectedArcs;
-	}
 
+	
 	private String id;
 	private Boolean enabled;
 	private ArrayList<Arc> connectedArcs = new ArrayList<Arc>();
 		
+	
 	public void fireTransition() throws InvalidRandomVariateGeneratorException{
 		
 		DiscretePlace place;		
@@ -51,7 +50,7 @@ public abstract class Transition {
 			if (arc.getClass().equals(DiscreteArc.class)){
 				place = (DiscretePlace)arc.getConnectedPlace();
 				
-				if (((DiscreteArc)arc).getDirection() == DiscreteArcType.input) 
+				if (((DiscreteArc)arc).getDirection().equals(DiscreteArcType.input)) 
 					//input for place = output for transition -> add tokens
 					place.setNumberOfTokens(place.getNumberOfTokens() + arc.getWeight().intValue());
 				else //output for place = input for transition -> reduce tokens

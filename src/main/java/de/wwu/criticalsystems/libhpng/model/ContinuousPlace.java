@@ -36,10 +36,11 @@ public class ContinuousPlace extends Place{
 		this.drift = new Double (placeToCopy.getDrift());
 		this.exactDrift = this.drift;
 		this.changeOfExactDrift = new Double(placeToCopy.getChangeOfExactDrift());
-		this.quanta = new Double(placeToCopy.getQuanta());
+		this.quantum = new Double(placeToCopy.getQuantum());
 		this.lastUpdate = new Double(placeToCopy.getLastUpdate());
 	}
 
+	
 	public Double getOriginalFluidLevel() {
 		return originalFluidLevel;
 	}	
@@ -66,10 +67,6 @@ public class ContinuousPlace extends Place{
 	public Double getDrift() {
 		return drift;
 	}
-	public void setDrift(Double drift) {
-		this.drift = drift;
-	}
-	
 
 	public Boolean getUpperBoundaryInfinity() {
 		return upperBoundaryInfinity;
@@ -82,23 +79,17 @@ public class ContinuousPlace extends Place{
 	public Boolean getUpperBoundaryReached() {
 		return upperBoundaryReached;
 	}
-	public void setUpperBoundaryReached(Boolean upperBoundaryReached) {
-		this.upperBoundaryReached = upperBoundaryReached;
-	}
 
 	public Boolean getLowerBoundaryReached() {
 		return lowerBoundaryReached;
 	}
-	public void setLowerBoundaryReached(Boolean lowerBoundaryReached) {
-		this.lowerBoundaryReached = lowerBoundaryReached;
-	}
 	
-	public Double getQuanta() {
-		return quanta;
+	public Double getQuantum() {
+		return quantum;
 	}
-
-	public void setQuanta(Double quanta) {
-		this.quanta = quanta;
+	@XmlAttribute (name = "quantum")
+	public void setQuantum(Double quantum) {
+		this.quantum = quantum;
 	}
 	
 	public Double getTimeToNextInternalTransition() {
@@ -144,6 +135,21 @@ public class ContinuousPlace extends Place{
 	}
 	
 	
+	private Double currentFluidLevel; 
+	private Double originalFluidLevel;
+	private Double upperBoundary = Double.POSITIVE_INFINITY;
+	private Double drift = 0.0;	
+	private Boolean upperBoundaryInfinity;
+	private Boolean upperBoundaryReached;
+	private Boolean lowerBoundaryReached;	
+	private Double exactFluidLevel;//x
+	private Double exactDrift = 0.0; // u
+	private Double changeOfExactDrift = 0.0; //mu
+	private Double quantum;
+	private Double timeToNextInternalTransition;
+	private Double lastUpdate = 0.0;
+	
+	
 	public void resetFluidLevel() {
 		this.currentFluidLevel = this.originalFluidLevel;
 		this.exactFluidLevel = this.originalFluidLevel;
@@ -162,6 +168,7 @@ public class ContinuousPlace extends Place{
 		return upperBoundaryReached;
 	}
 	
+	
 	public Boolean checkLowerBoundary(){	
 		
 		BigDecimal level = new BigDecimal(currentFluidLevel);
@@ -174,9 +181,7 @@ public class ContinuousPlace extends Place{
 		return lowerBoundaryReached;
 	}
 	
-	
-	
-	
+		
 	public void computeTimeToNextInternalTransition(ArrayList<Arc> arcs) {	
 		
 		if (upperBoundaryReached || lowerBoundaryReached){
@@ -190,7 +195,7 @@ public class ContinuousPlace extends Place{
 				if (arc.getConnectedPlace().getId().equals(this.getId()) && !arc.getClass().equals(GuardArc.class)){
 					if (arc.getConnectedTransition().getEnabled()) {
 						
-						if (((ContinuousArc)arc).getDirection() == ContinuousArcType.input){
+						if (((ContinuousArc)arc).getDirection().equals(ContinuousArcType.input)){
 							
 							if (arc.getConnectedTransition().getClass().equals(ContinuousTransition.class)){
 								inFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();								
@@ -226,12 +231,11 @@ public class ContinuousPlace extends Place{
 		} 
 		
 		if (changeOfExactDrift != 0.0)		
-			timeToNextInternalTransition = Math.sqrt(Math.abs((2 * quanta)/changeOfExactDrift));
+			timeToNextInternalTransition = Math.sqrt(Math.abs((2 * quantum)/changeOfExactDrift));
 		else		
 			timeToNextInternalTransition = Double.POSITIVE_INFINITY;		
 	}
 		
-
 	public void computeTimeToNextInternalTransitionFromExternal(ArrayList<Arc> arcs) {			
 		
 		if (upperBoundaryReached || lowerBoundaryReached){
@@ -245,7 +249,7 @@ public class ContinuousPlace extends Place{
 				if (arc.getConnectedPlace().getId().equals(this.getId()) && !arc.getClass().equals(GuardArc.class)){
 					if (arc.getConnectedTransition().getEnabled()) {
 						
-						if (((ContinuousArc)arc).getDirection() == ContinuousArcType.input){
+						if (((ContinuousArc)arc).getDirection().equals(ContinuousArcType.input)){
 							
 							if (arc.getConnectedTransition().getClass().equals(ContinuousTransition.class)){
 								inFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();								
@@ -284,8 +288,8 @@ public class ContinuousPlace extends Place{
 		if (changeOfExactDrift != 0.0){
 			
 			Double termB = Math.pow((drift - exactDrift) / changeOfExactDrift, 2.0);
-			Double termC = Math.sqrt(termB - 2.0*(currentFluidLevel - exactFluidLevel - quanta)/changeOfExactDrift);
-			Double termD = Math.sqrt(termB - 2.0*(currentFluidLevel - exactFluidLevel + quanta)/changeOfExactDrift);
+			Double termC = Math.sqrt(termB - 2.0*(currentFluidLevel - exactFluidLevel - quantum)/changeOfExactDrift);
+			Double termD = Math.sqrt(termB - 2.0*(currentFluidLevel - exactFluidLevel + quantum)/changeOfExactDrift);
 			Double termE = -1.0 * (drift - exactDrift) / changeOfExactDrift;
 					
 			Double s1 = termE + termC;
@@ -310,8 +314,7 @@ public class ContinuousPlace extends Place{
 			timeToNextInternalTransition = Double.POSITIVE_INFINITY; 
 		
 	}
-	
-	
+		
 	public void performInternalTransition(Double timePoint, Double previousDrift, Double previousChangeOfDrift, ArrayList<Arc> arcs){
 		
 		Double timeSinceLastInternalTransition = timePoint - lastUpdate;				
@@ -320,11 +323,15 @@ public class ContinuousPlace extends Place{
 		
 		BigDecimal level = new BigDecimal(fluid);
 		level = level.setScale(8,BigDecimal.ROUND_HALF_UP);
-		if (level.doubleValue() <= 0.0 ) 
+		if (level.doubleValue() <= 0.0){ 
 			fluid = 0.0;
-		else if (!upperBoundaryInfinity && level.doubleValue() == upperBoundary)
+			if (exactDrift < 0.0)
+				exactDrift = 0.0;
+		} else if (!upperBoundaryInfinity && upperBoundary.equals(level.doubleValue())){
 			fluid = upperBoundary;
-		else
+			if (exactDrift > 0.0)
+				exactDrift = 0.0;
+		} else
 			fluid = level.doubleValue();	
 		
 		setExactFluidLevel(fluid, timePoint);
@@ -332,29 +339,56 @@ public class ContinuousPlace extends Place{
 		
 		currentFluidLevel = exactFluidLevel;		
 		drift = exactDrift;			
-
 		
-		computeTimeToNextInternalTransition(arcs);
-				
+		computeTimeToNextInternalTransition(arcs);				
 	}
 	
-
-	private Double currentFluidLevel; 
-	private Double originalFluidLevel;
-	private Double upperBoundary;
-	private Double drift = 0.0;	
-	private Boolean upperBoundaryInfinity;
-	private Boolean upperBoundaryReached;
-	private Boolean lowerBoundaryReached;	
-	private Double exactFluidLevel;//x
-	private Double exactDrift = 0.0; // u
-	private Double changeOfExactDrift = 0.0; //mu
-	//TODO
-	private Double quanta = 5.0;
-	private Double timeToNextInternalTransition;
-	private Double lastUpdate = 0.0;
+	public Double getTimeTilExactFluidLevelHitsBoundary(Double boundary, Double timePoint){
 		
+			Double timeSinceLastInternalTransition = timePoint - lastUpdate;
+			Double fluid = exactFluidLevel + exactDrift * timeSinceLastInternalTransition + changeOfExactDrift/2.0 * Math.pow(timeSinceLastInternalTransition, 2.0);
+		
+			if ((!upperBoundaryInfinity && upperBoundaryReached && boundary.equals(upperBoundary)) || (lowerBoundaryReached && boundary == 0.0))
+				return Double.POSITIVE_INFINITY;
+			
+			if (exactDrift == 0.0 && fluid - boundary == 0.0)
+				return 0.0;
+			else if (exactDrift == 0.0)
+				return Double.POSITIVE_INFINITY;
+			
+			if (changeOfExactDrift == 0.0)
+				return ((boundary - fluid)/exactDrift);
+			
+			
+			Double termA = exactDrift / changeOfExactDrift;
+			Double termB = Math.sqrt(Math.pow(termA, 2.0) - 2.0*(fluid - boundary)/changeOfExactDrift);
+			Double termC = -1*termA;
+
+					
+			Double t1 = termC + termB;
+			Double t2 = termC - termB;
+			
+			
+			if (t1 <= 0.0 || Double.isNaN(t1))
+				t1 = Double.POSITIVE_INFINITY;
+			
+			if (t2 <= 0.0 || Double.isNaN(t2))
+				t2 = Double.POSITIVE_INFINITY;
+									
+			return Math.min(t1, t2);		
+	}	
 	
-	
-	
+	public Double getTimeTilCurrentFluidLevelHitsBoundary(Double boundary){		
+		
+		if ((!upperBoundaryInfinity && upperBoundaryReached && boundary.equals(upperBoundary)) || (lowerBoundaryReached && boundary == 0.0))
+			return Double.POSITIVE_INFINITY;
+		
+		if (drift == 0.0 && currentFluidLevel - boundary == 0.0)
+			return 0.0;
+		else if (drift == 0.0)
+			return Double.POSITIVE_INFINITY;		
+		
+		return ((boundary - currentFluidLevel)/drift);
+		
+	}
 }

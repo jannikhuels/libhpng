@@ -24,6 +24,7 @@ import de.wwu.criticalsystems.libhpng.simulation.SimulationHandler;
 
 public class ModelHandler {
 	
+	
 	public ModelHandler(){
 		createLogger();
 		simulationHandler = new SimulationHandler();
@@ -33,15 +34,8 @@ public class ModelHandler {
 
 	public HPnGModel getModel() {
 		return model;
-	}
-	
-	public Logger getLogger() {
-		return logger;
-	}
-	
-	public String getLoggerPath() {
-		return loggerPath;
-	}
+	}	
+
 	public void setLoggerPath(String loggerPath) {
 		this.loggerPath = loggerPath;
 		createLogger();
@@ -61,9 +55,6 @@ public class ModelHandler {
 		System.out.println("Please enter the model checking formula to check:");			
 		
 		try {
-			//InputStreamReader in = new InputStreamReader(System.in);
-		
-			
 			BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
 		
 			String formula = buffer.readLine();
@@ -150,32 +141,12 @@ public class ModelHandler {
 			System.out.println("An error occured while reading the model file. Please see the error log and recheck the model.");
 		} catch (InvalidRandomVariateGeneratorException e) {
 			System.out.println("An internal error occured while simulating. Please see the error log.");
+		} catch (InvalidPropertyException e) {
+			System.out.println("An internal error occured while simulating. Please see the error log.");
 		}    			
 	}
 	
-	
-    private void createLogger(){
-		
-		logger = Logger.getLogger("libHPnGLog");  
-	    FileHandler handler;  
-
-	    try {  
-
-	        //configure the logger with handler and formatter  
-	        handler = new FileHandler(loggerPath);  
-	        logger.addHandler(handler);
-	        SimpleFormatter formatter = new SimpleFormatter();  
-	        handler.setFormatter(formatter); 
-	        logger.setUseParentHandlers(false);
-
-
-	    } catch (SecurityException | IOException e) {  
-	        System.out.println("logger could not be initialized."); 
-	    }
-    }
-    
-    
-    
+      
     public void changeParameter(Byte parameter, Object value){
     	
     	try {
@@ -243,7 +214,6 @@ public class ModelHandler {
 	    }
     }
     
-    
    
     public void printParameters(){    	
 
@@ -287,5 +257,26 @@ public class ModelHandler {
 	public void storeParameters() {
 		simulationHandler.storeParameters();
 	}
+	
+	
+    private void createLogger(){
+		
+		logger = Logger.getLogger("libHPnGLog");  
+	    FileHandler handler;  
+
+	    try {  
+
+	        //configure the logger with handler and formatter  
+	        handler = new FileHandler(loggerPath);  
+	        logger.addHandler(handler);
+	        SimpleFormatter formatter = new SimpleFormatter();  
+	        handler.setFormatter(formatter); 
+	        logger.setUseParentHandlers(false);
+
+
+	    } catch (SecurityException | IOException e) {  
+	        System.out.println("logger could not be initialized."); 
+	    }
+    }
     	
 }

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HPnG>
+    <places>
+    <continuousPlace id="pcavailable" capacity="5000" infiniteCapacity="0" level="1000.0" quantum="0.1"/>
+    <continuousPlace id="pc_bound" capacity="5000" infiniteCapacity="0" level="1000.0" quantum="0.1"/>
+     <discretePlace id="pd_in1" marking="1"/>
+     <discretePlace id="pd_in2" marking="0"/>
+     <discretePlace id="pd_out" marking="0"/>
+     <discretePlace id="pd_outage" marking="0"/>
+     <discretePlace id="pd_power" marking="1"/>
+     
+  </places>
+  <transitions>   	
+     <dynamicContinuousTransition id="tc_filla" rateFunction="0.02*pc_bound" changeOfRateFunction="0.02*delta_pc_bound"/>
+     <dynamicContinuousTransition id="tc_fillb" rateFunction="0.02*pcavailable" changeOfRateFunction="0.02*delta_pcavailable"/>
+     <continuousTransition id="tc_in1"  rate="1000.0"/>
+     <continuousTransition id="tc_in2"  rate="400.0"/>
+     <continuousTransition id="tc_out"  rate="500.0"/>
+     <continuousTransition id="tc_outage"  rate="200.0"/>
+     <deterministicTransition id="td_in1in2" discTime="2.0" priority="1" weight="1.0E0"/>
+     <deterministicTransition id="td_in2out" discTime="8.0" priority="1" weight="1.0E0"/>
+     <deterministicTransition id="td_outin1" discTime="6.0" priority="1" weight="1.0E0"/>
+     <immediateTransition id="ti_in1" priority="0" weight="1.0E0"/>
+     <immediateTransition id="ti_in2" priority="0" weight="1.0E0"/>
+     <immediateTransition id="ti_out" priority="0" weight="1.0E0"/>
+     <generalTransition id="tg" cdf="uniform" priority="0" weight="1.0E0" policy="repeatdifferent">
+      <parameter name="a" value="0.0"/>
+      <parameter name="b" value="48.0"/>
+	</generalTransition>
+   </transitions>
+  <arcs>
+    <continuousArc id="ca1" fromNode="pc_bound" toNode="tc_filla" priority="1" share="1.0E0" weight="1.0E0"/>
+    <continuousArc id="ca2" fromNode="tc_filla" toNode="pcavailable" priority="1" share="1.0E0" weight="1.0E0"/>
+    <continuousArc id="ca3" fromNode="pcavailable" toNode="tc_fillb" priority="1" share="1.0E0" weight="1.0E0"/>  
+    <continuousArc id="ca4" fromNode="tc_fillb" toNode="pc_bound" priority="1" share="1.0E0" weight="1.0E0"/>
+    <continuousArc id="ca5" fromNode="tc_in1" toNode="pcavailable" priority="1" share="1.0E0" weight="1.0E0"/>
+    <continuousArc id="ca6" fromNode="tc_in2" toNode="pcavailable" priority="1" share="1.0E0" weight="1.0E0"/>
+    <continuousArc id="ca7" fromNode="pcavailable" toNode="tc_out" priority="1" share="1.0E0" weight="1.0E0"/>
+    <continuousArc id="ca8" fromNode="pcavailable" toNode="tc_outage" priority="1" share="1.0E0" weight="1.0E0"/>
+    <discreteArc fromNode="pd_in1" toNode="td_in1in2" id="da1" weight="1.0E0"/>
+	<discreteArc fromNode="td_in1in2" toNode="pd_in2" id="da2" weight="1.0E0"/>
+	<discreteArc fromNode="pd_in2" toNode="td_in2out" id="da3" weight="1.0E0"/>
+	<discreteArc fromNode="td_in2out" toNode="pd_out" id="da4" weight="1.0E0"/>
+	<discreteArc fromNode="pd_out" toNode="td_outin1" id="da5" weight="1.0E0"/>
+	<discreteArc fromNode="td_outin1" toNode="pd_in1" id="da6" weight="1.0E0"/>
+	<discreteArc fromNode="pd_in1" toNode="ti_in1" id="da7" weight="1.0E0"/>
+	<discreteArc fromNode="ti_in1" toNode="pd_outage" id="da8" weight="1.0E0"/>
+	<discreteArc fromNode="pd_in2" toNode="ti_in2" id="da9" weight="1.0E0"/>
+	<discreteArc fromNode="ti_in2" toNode="pd_outage" id="da10" weight="1.0E0"/>
+	<discreteArc fromNode="pd_out" toNode="ti_out" id="da11" weight="1.0E0"/>
+	<discreteArc fromNode="ti_out" toNode="pd_outage" id="da12" weight="1.0E0"/>
+	<discreteArc fromNode="pd_power" toNode="tg" id="da13" weight="1.0E0"/>
+	<guardArc fromNode="pd_in1" toNode="tc_in1" id="ga1" isInhibitor="0" weight="1.0E0"/>
+	<guardArc fromNode="pd_in2" toNode="tc_in2" id="ga2" isInhibitor="0" weight="1.0E0"/>
+	<guardArc fromNode="pd_out" toNode="tc_out" id="ga3" isInhibitor="0" weight="1.0E0"/>
+	<guardArc fromNode="pd_outage" toNode="tc_outage" id="ga4" isInhibitor="0" weight="1.0E0"/>
+    <guardArc fromNode="pd_power" toNode="ti_in1" id="ga5" isInhibitor="1" weight="1.0E0"/>
+    <guardArc fromNode="pd_power" toNode="ti_in2" id="ga6" isInhibitor="1" weight="1.0E0"/>
+	<guardArc fromNode="pd_power" toNode="ti_out" id="ga7" isInhibitor="1" weight="1.0E0"/>
+   </arcs>
+</HPnG>

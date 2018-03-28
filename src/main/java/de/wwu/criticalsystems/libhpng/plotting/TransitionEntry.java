@@ -7,14 +7,12 @@ public class TransitionEntry extends PlotEntry{
 		this.enabled = enabled;
 	}
 
+	
 	public Boolean getEnabled() {
 		return enabled;
 	}
 
-	public void setEnabled(Boolean enabled) {
-		this.enabled = enabled;
-	}	
-
+	
 	private Boolean enabled;
 
 }

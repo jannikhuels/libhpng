@@ -13,11 +13,13 @@ public class SampleGenerator {
 	
 	public SampleGenerator(){}
 	
-	private MRG31k3p stream;
 	
 	public MRG31k3p getStream() {
 		return stream;
 	}
+	
+	
+	private MRG31k3p stream;
 
 	
 	public void initializeRandomStream(){
@@ -37,7 +39,6 @@ public class SampleGenerator {
     	MRG31k3p.setPackageSeed(seeds);
     	stream = new MRG31k3p();
 	}
-
 	
 	public void sampleGeneralTransitions(HPnGModel model, Logger logger) throws InvalidDistributionParameterException, InvalidRandomVariateGeneratorException{
 
@@ -54,8 +55,7 @@ public class SampleGenerator {
     			break;
     	}		
 	}
-	
-	
+		
 	private RandomVariateGen setDistributionParameters(GeneralTransition transition, MRG31k3p stream, Logger logger) throws InvalidDistributionParameterException{
 	
 		RandomVariateGen distributionGenerator = null;
@@ -132,7 +132,5 @@ public class SampleGenerator {
 				break;
 		}
 		return distributionGenerator;
-	}
-	
-	
+	}	
 }

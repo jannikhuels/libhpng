@@ -7,12 +7,11 @@ public class DeterministicTransitionEntry extends TransitionEntry {
 		this.clock = clock;
 	}
 		
+	
 	public Double getClock() {
 		return clock;
 	}
-	public void setClock(Double clock) {
-		this.clock = clock;
-	}
+
 	
 	private Double clock;
 }

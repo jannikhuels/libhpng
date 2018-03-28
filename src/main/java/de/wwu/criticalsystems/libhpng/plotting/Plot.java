@@ -6,13 +6,12 @@ public abstract class Plot {
 	
 	public Plot() {};
 	
-	public ArrayList<PlotEntry> getEntries() {
-		return entries;
-	}
+
 	public void addEntry(PlotEntry entry) {
 		this.entries.add(entry);
 	}
 
+	
 	private ArrayList<PlotEntry> entries = new ArrayList<PlotEntry>();
 
 	
@@ -30,8 +29,7 @@ public abstract class Plot {
 		}
 		return previousEntry;
 	}
-	
-	
+		
 	public PlotEntry getNextEntryAfterGivenTime(Double time){	
 		
 		for (PlotEntry currentEntry : entries){

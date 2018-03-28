@@ -18,6 +18,7 @@
                                         <xs:attribute name="infiniteCapacity" type="xs:boolean"  use="required"></xs:attribute>
                                         <xs:attribute name="id" type="xs:token" use="required"></xs:attribute>
                                         <xs:attribute name="level" type="nonNegativeDouble" use="required"></xs:attribute>
+                                        <xs:attribute name="quantum" type="positiveDouble" use="required"></xs:attribute>
                                    	</xs:complexType>
                               	</xs:element>
                           	</xs:choice>
@@ -113,6 +114,8 @@
                                 <xs:element name="dynamicContinuousTransition" maxOccurs="unbounded">
                                		<xs:complexType>
                                     	<xs:attribute name="id" type="xs:token" use="required"></xs:attribute>
+                                    	<xs:attribute name="rateFunction" type="xs:token" use="required"></xs:attribute>
+                                    	<xs:attribute name="changeOfRateFunction" type="xs:token" use="required"></xs:attribute>
                                     </xs:complexType>
                              	</xs:element>
                       		</xs:choice>

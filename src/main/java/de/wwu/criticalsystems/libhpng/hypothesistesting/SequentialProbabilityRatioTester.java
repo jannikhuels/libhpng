@@ -59,6 +59,4 @@ public class SequentialProbabilityRatioTester extends HypothesisTester{
 		return resultAchieved;
 	}
 
-
-
 }

@@ -9,6 +9,49 @@ import de.wwu.criticalsystems.libhpng.simulation.PropertyChecker;
 
 public abstract class HypothesisTester {
 	
+	
+	public HypothesisTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws InvalidPropertyException{
+
+		checker = new PropertyChecker(root, model);
+		checker.setLogger(logger);	
+
+		this.checkLowerThan = checkLowerThan;
+		this.invertPropertyAndThreshold = invertPropertyAndThreshold;
+		this.minNumberOfRuns = minNumberOfRuns;	
+
+
+		boundary = this.checker.getProbBound(root);		
+		if (boundary < 0.0 || boundary > 1.0){
+			if (logger != null)
+				logger.severe("Property Error: the boundary node of the property root must be between 0.0 and 1.0");
+			throw new InvalidPropertyException("Property Error: the boundary node of the property root must be between 0.0 and 1.0");
+		}
+		if (invertPropertyAndThreshold)
+			boundary = 1 - boundary;
+			
+	}
+	
+	
+	public abstract Boolean doTesting(Integer currentRun, MarkingPlot plot) throws InvalidPropertyException;
+	
+		
+	public Boolean getResultAchieved() {
+		return resultAchieved;
+	}
+		
+	public Boolean getPropertyFulfilled() {
+		return propertyFulfilled;
+	}
+
+	public Boolean getTerminate(){
+		return terminate;
+	}
+	
+	public PropertyChecker getChecker() {
+		return checker;
+	}
+
+
 	protected Boolean resultAchieved = false;
 	protected Boolean propertyFulfilled;
 	protected Boolean checkLowerThan;
@@ -22,29 +65,12 @@ public abstract class HypothesisTester {
 	protected Boolean terminate = false;
 	
 	
-	public HypothesisTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws InvalidPropertyException{
-
-		checker = new PropertyChecker(root, model);
-		checker.setLogger(logger);	
-
-		this.checkLowerThan = checkLowerThan;
-		this.invertPropertyAndThreshold = invertPropertyAndThreshold;
-		this.minNumberOfRuns = minNumberOfRuns;	
-
-
-		boundary = this.checker.getProbBoundary(root);		
-		if (boundary < 0.0 || boundary > 1.0){
-			if (logger != null)
-				logger.severe("Property Error: the boundary node of the property root must be between 0.0 and 1.0");
-			throw new InvalidPropertyException("Property Error: the boundary node of the property root must be between 0.0 and 1.0");
-		}
-		if (invertPropertyAndThreshold)
-			boundary = 1 - boundary;
-			
+	public void resetResults() {
+		resultAchieved = false;
+		propertyFulfilled = false;
+		numberOfRuns = 0;
+		terminate = false;
 	}
-	
-	public abstract Boolean doTesting(Integer currentRun, MarkingPlot plot) throws InvalidPropertyException;
-	
 	
 	protected void checkPropertyForCurrentRun(Integer currentRun, MarkingPlot plot) throws InvalidPropertyException{
 		
@@ -60,27 +86,4 @@ public abstract class HypothesisTester {
 		numberOfRuns++;
 	}
 	
-	
-	public Boolean getResultAchieved() {
-		return resultAchieved;
-	}
-	
-	
-	public Boolean getPropertyFulfilled() {
-		return propertyFulfilled;
-	}
-
-
-	
-	public void resetResults() {
-		resultAchieved = false;
-		propertyFulfilled = false;
-		numberOfRuns = 0;
-		terminate = false;
-	}
-	
-	
-	public Boolean getTerminate(){
-		return terminate;
-	}
 }

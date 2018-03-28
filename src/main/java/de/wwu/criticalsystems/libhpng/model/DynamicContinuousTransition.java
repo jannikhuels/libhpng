@@ -1,8 +1,11 @@
 package de.wwu.criticalsystems.libhpng.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import javax.xml.bind.annotation.*;
-
+import org.mariuszgromada.math.mxparser.*;
 import de.wwu.criticalsystems.libhpng.errorhandling.ModelCopyingFailedException;
 
 @XmlRootElement( name = "dynamicContinuousTransition" )
@@ -10,9 +13,10 @@ public class DynamicContinuousTransition extends Transition{
 	
 	public DynamicContinuousTransition(){}
 
-	public DynamicContinuousTransition(String id, Boolean enabled, ArrayList<DynamicContinuousDependency> dependencies) {
+	public DynamicContinuousTransition(String id, Boolean enabled, Expression fluidExpression, Expression changeOfFluidExpressionString) {
 		super(id, enabled);
-		//this.dependencies = dependencies;
+		this.fluidExpression = new Expression(fluidExpression.getExpressionString());
+		this.changeOfFluidExpression = new Expression(changeOfFluidExpressionString.getExpressionString());		
 	}
 	
 	public DynamicContinuousTransition(DynamicContinuousTransition transitionToCopy) throws ModelCopyingFailedException {
@@ -20,15 +24,34 @@ public class DynamicContinuousTransition extends Transition{
 		this.currentFluid = new Double(transitionToCopy.getCurrentFluid());
 		this.currentChangeOfFluid = new Double (transitionToCopy.getCurrentChangeOfFluid());
 		this.adapted = new Boolean(transitionToCopy.getAdapted());
-		
-		//for(DynamicContinuousDependency currentDependencyToCopy : transitionToCopy.getDependencies()) {
-		//	this.dependencies.add(new DynamicContinuousDependency(currentDependencyToCopy, transitions));
-		//}
+		this.fluidExpression = new Expression(transitionToCopy.getFluidExpression().getExpressionString());
+		this.changeOfFluidExpression = new Expression(transitionToCopy.getChangeOfFluidExpression().getExpressionString());
 	}
 
-	//public ArrayList<DynamicContinuousDependency> getDependencies() {
-	//	return dependencies;
-	//}
+	
+	@XmlAttribute (name = "rateFunction")
+	public void setRateFunction(String rateFunction) {
+		this.fluidExpression = new Expression(rateFunction);
+	}
+
+	@XmlAttribute (name = "changeOfRateFunction")
+	public void setChangeOfRateFunction(String changeOfRateFunction) {
+		this.changeOfFluidExpression = new Expression(changeOfRateFunction);
+	}
+	
+	public Expression getFluidExpression() {
+		return fluidExpression;
+	}
+	public void setFluidExpression(Expression fluidExpression) {
+		this.fluidExpression = fluidExpression;
+	}
+
+	public Expression getChangeOfFluidExpression() {
+		return changeOfFluidExpression;
+	}
+	public void setChangeOfFluidExpression(Expression changeOfFluidExpression) {
+		this.changeOfFluidExpression = changeOfFluidExpression;
+	}	
 	
 	public Double getCurrentFluid() {
 		return currentFluid;
@@ -50,91 +73,97 @@ public class DynamicContinuousTransition extends Transition{
 	public void setAdapted(Boolean adapted) {
 		this.adapted = adapted;
 	}
-	
-	
-	
-	
-	
-	//TODO
-
-	public void computeCurrentFluidAndCurrentChangeOfFluid(ArrayList<Place> places){		
-			
-			//search for place id
-		
-		ContinuousPlace a = null;
-		ContinuousPlace b = null;
-		
-		Double c = 0.5;	
-		
-		Double p = 0.01;
-		
-		//Double totalCapacity = 10000.0;
-		//a =  c * totalCapacity;
-		//b = (1.0-c) * totalCapacity;
-		//Double i = 400.0;
-	
-	    for(Place place: places){
-	    	
-	        if(place.getClass().equals(ContinuousPlace.class) && place.getId().equals("a")){
-	        	//currentFluid =  0.1 * ((ContinuousPlace)place).getExactFluidLevel();
-	        	//currentChangeOfFluid = 0.1 * ((ContinuousPlace)place).getExactDrift();
-	        	//break;
-	        	a = (ContinuousPlace) place;
-	        }
-	        
-	        if(place.getClass().equals(ContinuousPlace.class) && place.getId().equals("b")){
-	        	b = (ContinuousPlace) place;
-	        }
-	    }
-	    
-	    if (this.getId().equals("out") && b!= null){
-	    	currentFluid =  p/(1.0-c) * b.getExactFluidLevel();
-	    	currentChangeOfFluid = p/(1.0-c) * b.getExactDrift();
-	    }
-	    
-	    if (this.getId().equals("in") && a!= null){
-	    	currentFluid =  p/c * a.getExactFluidLevel();
-	    	currentChangeOfFluid = p/c * a.getExactDrift();
-	    }
-
-	}
-	
-	
 
 
-
-/*//Differential equation
-	private Double computeU(Double[] q, Byte a, Double i, Double k, Double c){
-		
-		if (a==0)
-			return -1.0*i + k*(q[1]/c - q [0]/c);
-		else
-			return -1.0*k*(q[1]/c - q[0]/c);		
-	}
-	
-	
-	
-	//Differential equation
-	private Double computeMU(Double[] mq, Byte a, Double k, Double c){
-		
-		if (a==0)
-			return  k*(mq[1]/c - mq [0]/c);
-		else
-			return -1.0*k*(mq[1]/c - mq[0]/c);		
-	}
-	
-	*/
-
-
-	//@XmlElements({
-	//    @XmlElement(name="pid", type=DynamicContinuousDependency.class),
-	//})
-	//private ArrayList <DynamicContinuousDependency> dependencies = new ArrayList<DynamicContinuousDependency>();
-	
-	
 	private Double currentFluid;
 	private Double currentChangeOfFluid;
 	private Boolean adapted = false;
+	private Expression fluidExpression;
+	private Expression changeOfFluidExpression;
+	private HashMap<String, ContinuousPlace> placesForFluidExpression = new HashMap<String, ContinuousPlace>();
+	private HashMap<String, ContinuousPlace> placesForChangeOfFluidExpression = new HashMap<String, ContinuousPlace>();
+	private Integer numberOfEntries = null;
+	
+
+	public void computeCurrentFluidAndCurrentChangeOfFluid(ArrayList<Place> places){		
+			
+		if(numberOfEntries == null)
+			createHashMapsAndArguments(places);
+
+		if (numberOfEntries > 0){
+			
+			Entry<String, ContinuousPlace> pair = null;
+			
+		    Iterator<Entry<String, ContinuousPlace>> it = placesForFluidExpression.entrySet().iterator();		    
+		    while (it.hasNext()) {
+		    	pair = (Entry<String, ContinuousPlace>)it.next();
+				fluidExpression.setArgumentValue(pair.getKey(), getArgumentValue(pair.getKey(),pair.getValue()));	       
+		    }
+		
+	   
+		    it = placesForChangeOfFluidExpression.entrySet().iterator();		    
+		    while (it.hasNext()) {
+		    	pair = (Entry<String, ContinuousPlace>)it.next();
+		    	changeOfFluidExpression.setArgumentValue(pair.getKey(), getArgumentValue(pair.getKey(),pair.getValue()));
+		    }
+	    }
+	    
+	    currentFluid = fluidExpression.calculate();
+	    currentChangeOfFluid = changeOfFluidExpression.calculate();
+
+	}
+	
+	
+	private void createHashMapsAndArguments(ArrayList<Place> places){
+		
+		fluidExpression.removeAllArguments();
+		String[] missing = fluidExpression.getMissingUserDefinedArguments();
+		numberOfEntries = 0;
+		
+		for (int i=0;i < missing.length; i++){
+		
+		    for(Place place: places){
+		    	
+		        if(place.getClass().equals(ContinuousPlace.class) && (place.getId().equals(missing[i]) || ("delta_" + place.getId()).equals(missing[i]))){
+		        	
+		        	if (placesForFluidExpression.get(missing[i]) == null){
+		        		placesForFluidExpression.put(missing[i], (ContinuousPlace) place);		
+		        		numberOfEntries++;
+		        	}
+
+		        	fluidExpression.addArguments(new Argument (missing[i], getArgumentValue(missing[i],(ContinuousPlace) place)));
+		        }	        
+		    }
+		}	
+		
+		 	  
+		changeOfFluidExpression.removeAllArguments();
+		missing = changeOfFluidExpression.getMissingUserDefinedArguments();
+
+		for (int i=0;i < missing.length; i++){
+		
+		    for(Place place: places){
+		    	
+		        if(place.getClass().equals(ContinuousPlace.class) && (place.getId().equals(missing[i]) || ("delta_" + place.getId()).equals(missing[i]))){
+		        	
+		        	if (placesForChangeOfFluidExpression.get(missing[i]) == null){
+		        		placesForChangeOfFluidExpression.put(missing[i], (ContinuousPlace) place);		
+		        		numberOfEntries++;
+		        	}
+
+		        	changeOfFluidExpression.addArguments(new Argument (missing[i], getArgumentValue(missing[i],(ContinuousPlace) place)));
+		        }	        
+		    }
+		}	
+		
+	}
 		
 	
+	private Double getArgumentValue(String argument, ContinuousPlace p){
+    	
+    	if (("delta_" + p.getId()).equals(argument))
+    		return p.getDrift(); 
+    	else 
+    		return p.getCurrentFluidLevel();	
+	}
 }

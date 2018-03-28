@@ -15,14 +15,6 @@ public class ScoreConfidenceInterval extends ConfidenceInterval{
 		z = NormalDist.inverseF01(1.0 - alphaHalf);
 		
 	}
-
-
-	private Double lowerBoundary;
-	private Double upperBoundary;
-	private Double x;
-	private Double n;
-	private Double mean;
-	private Double z;
 	
 	
 	public Integer calculateMidpointAndHalfIntervalWidthForProperty(PropertyChecker checker, Integer currentRun, MarkingPlot plot) throws InvalidPropertyException {
@@ -47,8 +39,15 @@ public class ScoreConfidenceInterval extends ConfidenceInterval{
 		currentHalfIntervalWidth = 0.5* (upperBoundary - lowerBoundary);
 		midpoint =  mean*(n / (n + (z*z))) + 0.5*((z*z)/(n + (z*z)));
 			
-		return numberOfRuns;
-	
+		return numberOfRuns;	
 	}
+
+
+	private Double lowerBoundary;
+	private Double upperBoundary;
+	private Double x;
+	private Double n;
+	private Double mean;
+	private Double z;
 	
 }

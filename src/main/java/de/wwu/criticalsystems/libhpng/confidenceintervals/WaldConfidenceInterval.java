@@ -21,10 +21,10 @@ public class WaldConfidenceInterval extends ConfidenceInterval{
 	private Double n;
 	private Double mean;
 	
+	
 	public Integer calculateMidpointAndHalfIntervalWidthForProperty(PropertyChecker checker, Integer currentRun, MarkingPlot plot) throws InvalidPropertyException {
 		
-		checkPropertyForCurrentRun(checker, currentRun, plot);
-		
+		checkPropertyForCurrentRun(checker, currentRun, plot);		
 		
 		n = numberOfRuns.doubleValue();
 		mean = fulfilled.doubleValue() / n;
@@ -32,8 +32,8 @@ public class WaldConfidenceInterval extends ConfidenceInterval{
 		currentHalfIntervalWidth = z * Math.sqrt(mean * ( 1.0 - mean) / n);
 		midpoint = mean;
 		
-		return numberOfRuns;
-	
-		}
+		
+		return numberOfRuns;	
+	}
 	
 }

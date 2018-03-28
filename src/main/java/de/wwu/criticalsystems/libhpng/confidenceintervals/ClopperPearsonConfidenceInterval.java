@@ -21,6 +21,7 @@ public class ClopperPearsonConfidenceInterval extends ConfidenceInterval{
 	private Double x;
 	private Double n;
 	
+	
 	public Integer calculateMidpointAndHalfIntervalWidthForProperty(PropertyChecker checker, Integer currentRun, MarkingPlot plot) throws InvalidPropertyException {
 		
 		checkPropertyForCurrentRun(checker, currentRun, plot);
