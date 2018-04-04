@@ -363,7 +363,7 @@ public class Simulator {
 					
 
 					
-					if (((timeDelta >= 0.0 && timeDelta < Double.POSITIVE_INFINITY || (timeDeltaQ >= 0.0 && timeDeltaQ < Double.POSITIVE_INFINITY))) && !timeDelta.equals(timeDeltaQ) && (timeDelta < place.getTimeToNextInternalTransition() || timeDeltaQ < place.getTimeToNextInternalTransition())){
+					if (((timeDelta >= 0.0 && timeDelta < Double.POSITIVE_INFINITY) || (timeDeltaQ >= 0.0 && timeDeltaQ < Double.POSITIVE_INFINITY)) && !timeDelta.equals(timeDeltaQ) && (timeDelta < place.getTimeToNextInternalTransition() || timeDeltaQ < place.getTimeToNextInternalTransition())){
 						
 						if (timeDelta < 0.0)
 							timeDelta = Double.POSITIVE_INFINITY;
@@ -375,16 +375,16 @@ public class Simulator {
 
 						if (timeOfCurrentEvent < event.getOccurenceTime()){
 							
-							event.setEventType(SimulationEventType.place_internaltransition);							
+							event.setEventType(SimulationEventType.place_boundary);							
 							event.setFirstEventItem(place, 0);
 							event.setOccurenceTime(timeOfCurrentEvent);
 								
 						} else if (timeOfCurrentEvent.equals(event.getOccurenceTime())) {
 							
-							if (event.getEventType().equals(SimulationEventType.no_event)){							
-								event.setEventType(SimulationEventType.place_internaltransition);
+							if (event.getEventType().equals(SimulationEventType.no_event) || event.getEventType().equals(SimulationEventType.general_transition) || event.getEventType().equals(SimulationEventType.guard_arcs_deterministic) || event.getEventType().equals(SimulationEventType.guard_arcs_continuous)){													
+								event.setEventType(SimulationEventType.place_boundary);
 								event.setFirstEventItem(place, 0);							
-							} else if (event.getEventType().equals(SimulationEventType.place_internaltransition)){
+							} else if (event.getEventType().equals(SimulationEventType.place_boundary)){
 								event.getRelatedObjects().add(place);
 							}							
 						}	

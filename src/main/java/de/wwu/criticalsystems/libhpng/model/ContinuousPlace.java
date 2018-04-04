@@ -327,7 +327,7 @@ public class ContinuousPlace extends Place{
 			fluid = 0.0;
 			if (exactDrift < 0.0)
 				exactDrift = 0.0;
-		} else if (!upperBoundaryInfinity && upperBoundary.equals(level.doubleValue())){
+		} else if (!upperBoundaryInfinity && upperBoundary <= level.doubleValue()){
 			fluid = upperBoundary;
 			if (exactDrift > 0.0)
 				exactDrift = 0.0;
