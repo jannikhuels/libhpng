@@ -1,4 +1,4 @@
-package de.wwu.criticalsystems.libhpng.hypothesistesting;
+package de.wwu.criticalsystems.libhpng.simulation;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -8,17 +8,25 @@ import de.wwu.criticalsystems.libhpng.errorhandling.InvalidPropertyException;
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidRandomVariateGeneratorException;
 import de.wwu.criticalsystems.libhpng.errorhandling.ModelNotReadableException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
+import de.wwu.criticalsystems.libhpng.hypothesistesting.AzumaHypothesisTester;
+import de.wwu.criticalsystems.libhpng.hypothesistesting.ChernoffCIHypothesisTester;
+import de.wwu.criticalsystems.libhpng.hypothesistesting.ChowRobbinsHypothesisTester;
+import de.wwu.criticalsystems.libhpng.hypothesistesting.DarlingHypothesisTester;
+import de.wwu.criticalsystems.libhpng.hypothesistesting.GaussCIHypothesisTester;
+import de.wwu.criticalsystems.libhpng.hypothesistesting.GaussSSPHypothesisTester;
+import de.wwu.criticalsystems.libhpng.hypothesistesting.HypothesisTester;
+import de.wwu.criticalsystems.libhpng.hypothesistesting.SequentialProbabilityRatioTester;
+import de.wwu.criticalsystems.libhpng.model.GeneralTransition;
 import de.wwu.criticalsystems.libhpng.model.HPnGModel;
+import de.wwu.criticalsystems.libhpng.model.Transition;
 import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
-import de.wwu.criticalsystems.libhpng.simulation.SampleGenerator;
-import de.wwu.criticalsystems.libhpng.simulation.Simulator;
 
 
 
-public class Testing {
+public class SimulationForHypothesisTesting {
 	
 
-	public Testing (HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double correctnessIndifferenceLevel, Double powerIndifferenceLevel, Double guess, Double type1Error, Double type2Error, Boolean checkLowerThan, Boolean invertPropertyAndThreshold, Boolean printRunResults, Integer maxNumberOfRuns, Double currentTime, MarkingPlot currentPlot, Double maxTime, Simulator simulator, Boolean fixedNumber, Integer fixedNumberOfRuns, Integer testRuns) throws InvalidPropertyException, ModelNotReadableException, NullPointerException{
+	public SimulationForHypothesisTesting (HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double correctnessIndifferenceLevel, Double powerIndifferenceLevel, Double guess, Double type1Error, Double type2Error, Boolean checkLowerThan, Boolean invertPropertyAndThreshold, Boolean printRunResults, Integer maxNumberOfRuns, Double currentTime, MarkingPlot currentPlot, Double maxTime, Simulator simulator, Boolean fixedNumber, Integer fixedNumberOfRuns, Integer testRuns) throws InvalidPropertyException, ModelNotReadableException, NullPointerException{
 		
 		this.model = model;
 		this.minNumberOfRuns = minNumberOfRuns;
@@ -45,32 +53,36 @@ public class Testing {
 	}
 	
 	
-	private HPnGModel model;
-	private Integer minNumberOfRuns;
-	private Logger logger;
-	private SimpleNode root;
-	private Double correctnessIndifferenceLevel;
-	private Double powerIndifferenceLevel;
-	private Double type1Error;
-	private Double type2Error;
-	private Double guess;
-	private Boolean printRunResults;
-	private Boolean checkLowerThan;
-	private Boolean invertPropertyAndThreshold;
-	private Integer maxNumberOfRuns;
-	private Double currentTime;
-	private MarkingPlot currentPlot;
-	private Double maxTime;	
-	private Simulator simulator;
+	HPnGModel model;
+	Integer minNumberOfRuns;
+	Logger logger;
+	SimpleNode root;
+	Double correctnessIndifferenceLevel;
+	Double powerIndifferenceLevel;
+	Double type1Error;
+	Double type2Error;
+	Double guess;
+	Boolean printRunResults;
+	Boolean checkLowerThan;
+	Boolean invertPropertyAndThreshold;
+	Integer maxNumberOfRuns;
+	Double currentTime;
+	MarkingPlot currentPlot;
+	Double maxTime;	
+	Simulator simulator;
 	Boolean fixedNumber;
-	private Integer fixedNumberOfRuns;
-	private Integer testRuns;	
-	private Integer fulfilled;
-	private Integer notFulfilled;
-	private Integer noResult;
-	private Integer minRun;
-	private Integer maxRun;
-	private Integer totalRuns;
+	Integer fixedNumberOfRuns;
+	Integer testRuns;	
+	Integer fulfilled;
+	Integer notFulfilled;
+	Integer noResult;
+	Integer minRun;
+	Integer maxRun;
+	Integer totalRuns;
+	private Integer firings = 0;
+	Integer minFirings = Integer.MAX_VALUE;
+	Integer maxFirings = Integer.MIN_VALUE;
+	Integer thisrunsfirings;
 
 	
 	public void performTesting(Byte algorithmID, String algorithmName) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
@@ -81,7 +93,7 @@ public class Testing {
 		minRun = 0;
 		noResult = 0;
 		totalRuns = 0;
-		int run = 0;
+		Integer run = 0;
 				
 		HypothesisTester tester = null;
 		SampleGenerator generator;				
@@ -168,7 +180,18 @@ public class Testing {
 					
 					//simulation
 					while (currentTime <= maxTime)
-						currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);			
+						currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);		
+					
+					thisrunsfirings = 0;
+					for (Transition t: model.getTransitions()){
+						if (t.getClass().equals(GeneralTransition.class))
+							thisrunsfirings+=((GeneralTransition)t).getFirings();					
+					}
+					firings+=thisrunsfirings;
+					if (thisrunsfirings < minFirings)
+						minFirings = thisrunsfirings;
+					if (thisrunsfirings > maxFirings)
+						maxFirings = thisrunsfirings;
 					
 					tester.doTesting(run + 1, currentPlot);
 									
@@ -236,6 +259,17 @@ public class Testing {
 					while (currentTime <= maxTime)
 						currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);		
 					
+					thisrunsfirings = 0;
+					for (Transition t: model.getTransitions()){
+						if (t.getClass().equals(GeneralTransition.class))
+							thisrunsfirings+=((GeneralTransition)t).getFirings();					
+					}
+					firings+=thisrunsfirings;
+					if (thisrunsfirings < minFirings)
+						minFirings = thisrunsfirings;
+					if (thisrunsfirings > maxFirings)
+						maxFirings = thisrunsfirings;
+					
 					tester.doTesting(run + 1, currentPlot);
 					
 					if (printRunResults){
@@ -281,6 +315,10 @@ public class Testing {
 				
 				
 			}
+			
+			System.out.println("Mean number of random variables: " + (firings.doubleValue() / run.doubleValue()) + " (mininmum: " + minFirings + ", maximum: " + maxFirings + ")");
+
+			
 			tester.resetResults();
 			n++;
 		}

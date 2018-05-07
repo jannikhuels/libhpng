@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HPnG>
+    <places>  
+    <continuousPlace id="x" capacity="5" infiniteCapacity="0" level="1" quantum="0.1"/>
+  </places>
+  <transitions> 
+      <dynamicContinuousTransition id="in" rateFunction="1/x" changeOfRateFunction="-1/x*x"/>
+   </transitions>
+  <arcs>
+     <continuousArc id="ca1" fromNode="in" priority="1" share="1.0E0" toNode="x" weight="1.0E0"/>
+   </arcs>
+</HPnG>

@@ -9,8 +9,9 @@ import java.util.logging.Logger;
 import de.wwu.criticalsystems.libhpng.confidenceintervals.ConfidenceIntervalCalculator;
 import de.wwu.criticalsystems.libhpng.errorhandling.*;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
-import de.wwu.criticalsystems.libhpng.hypothesistesting.Testing;
+import de.wwu.criticalsystems.libhpng.model.GeneralTransition;
 import de.wwu.criticalsystems.libhpng.model.HPnGModel;
+import de.wwu.criticalsystems.libhpng.model.Transition;
 import de.wwu.criticalsystems.libhpng.plotting.ContinuousPlacesPlotter;
 import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
 
@@ -263,6 +264,11 @@ public class SimulationHandler {
 	
 	public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNotReadableException, InvalidRandomVariateGeneratorException, InvalidPropertyException{
 		
+		Integer firings = 0;
+		Integer minFirings = Integer.MAX_VALUE;
+		Integer maxFirings = Integer.MIN_VALUE;
+		Integer thisrunsfirings;
+		
 		this.maxTime = maxTime;
 		this.model = model;
 			
@@ -298,12 +304,27 @@ public class SimulationHandler {
 			while (currentTime <= maxTime)
 				currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);
 			
+			thisrunsfirings = 0;
+			for (Transition t: model.getTransitions()){
+				if (t.getClass().equals(GeneralTransition.class))
+					thisrunsfirings+=((GeneralTransition)t).getFirings();					
+			}
+			firings+=thisrunsfirings;
+			if (thisrunsfirings < minFirings)
+				minFirings = thisrunsfirings;
+			if (thisrunsfirings > maxFirings)
+				maxFirings = thisrunsfirings;
+			
 			if (printRunResults){
 				System.out.println(maxTime + " seconds: simulation run no." + (run+1) + " completed");			
 				model.printCurrentMarking(false, true);	
 			}
 			
 		}
+		
+				
+		System.out.println("Mean number of random variables: " + (firings.doubleValue() / fixedNumberOfRuns.doubleValue()) + " (mininmum: " + minFirings + ", maximum: " + maxFirings + ")");
+		
 			
 		ContinuousPlacesPlotter plotter = new ContinuousPlacesPlotter();
 		plotter.plotContinuousPlaces(model, plots, maxTime, confidenceLevel);
@@ -600,6 +621,10 @@ public class SimulationHandler {
 		Integer notEnoughRuns = 0;
 		Integer totalRuns = 0;
 		Integer run = 0;
+		Integer firings = 0;
+		Integer minFirings = Integer.MAX_VALUE;
+		Integer maxFirings = Integer.MIN_VALUE;
+		Integer thisrunsfirings;
 		
 		Double lower;
 		Double upper;
@@ -642,7 +667,18 @@ public class SimulationHandler {
 					
 					//simulation
 					while (currentTime <= maxTime)
-						currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);		
+						currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);	
+					
+					thisrunsfirings = 0;
+					for (Transition t: model.getTransitions()){
+						if (t.getClass().equals(GeneralTransition.class))
+							thisrunsfirings+=((GeneralTransition)t).getFirings();					
+					}
+					firings+=thisrunsfirings;
+					if (thisrunsfirings < minFirings)
+						minFirings = thisrunsfirings;
+					if (thisrunsfirings > maxFirings)
+						maxFirings = thisrunsfirings;
 					
 					calc.calculateConfidenceInterval(run+1, currentPlot);
 					
@@ -659,8 +695,8 @@ public class SimulationHandler {
 				upper = calc.getUpperBorder(); 
 				halfwidth = (upper - lower)/2.0;	
 				
-					
-				System.out.println(fixedNumberOfRuns + " runs simulated. Midpoint: " + midpoint + ".");
+									
+				System.out.println(run + " runs simulated. Midpoint: " + midpoint + ".");
 				System.out.println("Resulting confidence interval borders:" + lower + " & " + upper + " (one sided interval width = " + halfwidth+ ")");			
 		
 									
@@ -709,6 +745,20 @@ public class SimulationHandler {
 					while (currentTime <= maxTime)
 						currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);		
 					
+					
+					thisrunsfirings = 0;
+					for (Transition t: model.getTransitions()){
+						if (t.getClass().equals(GeneralTransition.class))
+							thisrunsfirings+=((GeneralTransition)t).getFirings();					
+					}
+					firings+=thisrunsfirings;
+					if (thisrunsfirings < minFirings)
+						minFirings = thisrunsfirings;
+					if (thisrunsfirings > maxFirings)
+						maxFirings = thisrunsfirings;
+				
+					
+					
 					calc.calculateConfidenceInterval(run+1, currentPlot);
 					
 					if (printRunResults){
@@ -724,6 +774,7 @@ public class SimulationHandler {
 				upper = calc.getUpperBorder(); 
 				halfwidth = (upper - lower)/2.0;	
 				
+
 				
 				if (logger != null)
 					logger.info("Simulation finished after " + run + " runs");		
@@ -762,9 +813,10 @@ public class SimulationHandler {
 					if (logger != null)
 						logger.info("Simulation results: Midpoint: " + midpoint + ". Resulting confidence interval borders:" + lower + " & " + upper + " (one sided interval width = " + halfwidth+ ")");
 						
-				}				
-							
+				}								
 			}
+			
+			System.out.println("Mean number of random variables: " + (firings.doubleValue() / run.doubleValue()) + " (mininmum: " + minFirings + ", maximum: " + maxFirings + ")");
 	
 			calc.resetResults();
 			n++;			
@@ -784,12 +836,12 @@ public class SimulationHandler {
 		
 	private void simulateAndTestPROB(Boolean checkLowerThan, Boolean invertPropertyAndThreshold, Boolean fixedNumber) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
 		
-		Testing testing;
+		SimulationForHypothesisTesting testing;
 		
 		if (fixedNumber)
-			testing = new Testing(model, minNumberOfRuns, logger, root, correctnessIndifferenceLevel, powerIndifferenceLevel, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold, printRunResults, 0, currentTime, currentPlot, maxTime, simulator, true, fixedNumberOfRuns, testRuns);
+			testing = new SimulationForHypothesisTesting(model, minNumberOfRuns, logger, root, correctnessIndifferenceLevel, powerIndifferenceLevel, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold, printRunResults, 0, currentTime, currentPlot, maxTime, simulator, true, fixedNumberOfRuns, testRuns);
 		else		
-			testing = new Testing(model, minNumberOfRuns, logger, root, correctnessIndifferenceLevel, powerIndifferenceLevel, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold, printRunResults, maxNumberOfRuns, currentTime, currentPlot, maxTime, simulator, false, 0, testRuns);
+			testing = new SimulationForHypothesisTesting(model, minNumberOfRuns, logger, root, correctnessIndifferenceLevel, powerIndifferenceLevel, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold, printRunResults, maxNumberOfRuns, currentTime, currentPlot, maxTime, simulator, false, 0, testRuns);
 		
 		testing.performTesting(algorithmID, getAlgorithmName());
 	}

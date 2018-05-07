@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <HPnG>
     <places>
-    <continuousPlace id="pcavailable" capacity="5000" infiniteCapacity="0" level="1000.0" quantum="0.001"/>
-    <continuousPlace id="pcbound" capacity="5000" infiniteCapacity="0" level="1000.0" quantum="0.001"/>
+    <continuousPlace id="pcavailable" capacity="5000" infiniteCapacity="0" level="1000.0" quantum="0.1"/>
+    <continuousPlace id="pcbound" capacity="5000" infiniteCapacity="0" level="1000.0" quantum="0.1"/>
      <discretePlace id="pd_in1" marking="1"/>
      <discretePlace id="pd_in2" marking="0"/>
      <discretePlace id="pd_out" marking="0"/>
      <discretePlace id="pd_outage" marking="0"/>
      <discretePlace id="pd_power" marking="1"/>
-     
+     <discretePlace id="pd_repair" marking="0"/>
   </places>
   <transitions>   	
      <dynamicContinuousTransition id="tc_filla" rateFunction="0.02*pcbound" changeOfRateFunction="0.02*delta_pcbound"/>
@@ -23,9 +23,12 @@
      <immediateTransition id="ti_in1" priority="0" weight="1.0E0"/>
      <immediateTransition id="ti_in2" priority="0" weight="1.0E0"/>
      <immediateTransition id="ti_out" priority="0" weight="1.0E0"/>
-     <generalTransition id="tg" cdf="uniform" priority="0" weight="1.0E0" policy="repeatdifferent">
-      <parameter name="a" value="51.0"/>      
-      <parameter name="b" value="52.0"/>    
+     <generalTransition id="tg" cdf="exp" priority="0" weight="1.0E0" policy="repeatdifferent">
+      <parameter name="lambda" value="0.5"/>       
+	</generalTransition>
+	<generalTransition id="tg2" cdf="uniform" priority="0" weight="1.0E0" policy="repeatdifferent">
+      <parameter name="a" value="0.0"/>      
+      <parameter name="b" value="6.0"/>    
 	</generalTransition>
    </transitions>
   <arcs>
@@ -50,6 +53,11 @@
 	<discreteArc fromNode="pd_out" toNode="ti_out" id="da11" weight="1.0E0"/>
 	<discreteArc fromNode="ti_out" toNode="pd_outage" id="da12" weight="1.0E0"/>
 	<discreteArc fromNode="pd_power" toNode="tg" id="da13" weight="1.0E0"/>
+	<discreteArc fromNode="tg" toNode="pd_repair" id="da14" weight="1.0E0"/>
+	<discreteArc fromNode="pd_repair" toNode="tg2" id="da15" weight="1.0E0"/>
+	<discreteArc fromNode="tg2" toNode="pd_power" id="da16" weight="1.0E0"/>
+	<discreteArc fromNode="pd_outage" toNode="tg2" id="da17" weight="1.0E0"/>
+	<discreteArc fromNode="tg2" toNode="pd_in1" id="da18" weight="1.0E0"/>
 	<guardArc fromNode="pd_in1" toNode="tc_in1" id="ga1" isInhibitor="0" weight="1.0E0"/>
 	<guardArc fromNode="pd_in2" toNode="tc_in2" id="ga2" isInhibitor="0" weight="1.0E0"/>
 	<guardArc fromNode="pd_out" toNode="tc_out" id="ga3" isInhibitor="0" weight="1.0E0"/>
