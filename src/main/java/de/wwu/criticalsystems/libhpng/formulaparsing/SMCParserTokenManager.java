@@ -576,15 +576,18 @@ static protected SimpleCharStream input_stream;
 static private final int[] jjrounds = new int[16];
 static private final int[] jjstateSet = new int[32];
 static protected char curChar;
-/** Constructor. */
-public SMCParserTokenManager(SimpleCharStream stream){
+/** Constructor. 
+ * @throws ParseException */
+public SMCParserTokenManager(SimpleCharStream stream) throws ParseException{
    if (input_stream != null)
-      throw new TokenMgrError("ERROR: Second call to constructor of static lexer. You must use ReInit() to initialize the static variables.", TokenMgrError.STATIC_LEXER_ERROR);
+	   throw new ParseException("ERROR: Second call to constructor of static lexer. You must use ReInit() to initialize the static variables.");
+	   //throw new TokenMgrError("ERROR: Second call to constructor of static lexer. You must use ReInit() to initialize the static variables.", TokenMgrError.STATIC_LEXER_ERROR);
    input_stream = stream;
 }
 
-/** Constructor. */
-public SMCParserTokenManager(SimpleCharStream stream, int lexState){
+/** Constructor. 
+ * @throws ParseException */
+public SMCParserTokenManager(SimpleCharStream stream, int lexState) throws ParseException{
    this(stream);
    SwitchTo(lexState);
 }
@@ -605,18 +608,21 @@ static private void ReInitRounds()
       jjrounds[i] = 0x80000000;
 }
 
-/** Reinitialise parser. */
-static public void ReInit(SimpleCharStream stream, int lexState)
+/** Reinitialise parser. 
+ * @throws ParseException */
+static public void ReInit(SimpleCharStream stream, int lexState) throws ParseException
 {
    ReInit(stream);
    SwitchTo(lexState);
 }
 
-/** Switch to specified lex state. */
-static public void SwitchTo(int lexState)
+/** Switch to specified lex state. 
+ * @throws ParseException */
+static public void SwitchTo(int lexState) throws ParseException
 {
    if (lexState >= 1 || lexState < 0)
-      throw new TokenMgrError("Error: Ignoring invalid lexical state : " + lexState + ". State unchanged.", TokenMgrError.INVALID_LEXICAL_STATE);
+	   throw new ParseException("Error: Ignoring invalid lexical state : " + lexState + ". State unchanged.");
+     // throw new TokenMgrError("Error: Ignoring invalid lexical state : " + lexState + ". State unchanged.", TokenMgrError.INVALID_LEXICAL_STATE);
    else
       curLexState = lexState;
 }
@@ -652,8 +658,9 @@ static int jjround;
 static int jjmatchedPos;
 static int jjmatchedKind;
 
-/** Get the next Token. */
-public static Token getNextToken() 
+/** Get the next Token. 
+ * @throws ParseException */
+public static Token getNextToken() throws ParseException
 {
   Token matchedToken;
   int curPos = 0;
@@ -696,12 +703,10 @@ public static Token getNextToken()
    }
    int error_line = SimpleCharStream.getEndLine();
    int error_column = SimpleCharStream.getEndColumn();
-   String error_after = null;
    boolean EOFSeen = false;
    try { SimpleCharStream.readChar(); SimpleCharStream.backup(1); }
    catch (java.io.IOException e1) {
       EOFSeen = true;
-      error_after = curPos <= 1 ? "" : SimpleCharStream.GetImage();
       if (curChar == '\n' || curChar == '\r') {
          error_line++;
          error_column = 0;
@@ -711,9 +716,10 @@ public static Token getNextToken()
    }
    if (!EOFSeen) {
       SimpleCharStream.backup(1);
-      error_after = curPos <= 1 ? "" : SimpleCharStream.GetImage();
    }
-   throw new TokenMgrError(EOFSeen, curLexState, error_line, error_column, error_after, curChar, TokenMgrError.LEXICAL_ERROR);
+   //throw new TokenMgrError(EOFSeen, curLexState, error_line, error_column, error_after, curChar, TokenMgrError.LEXICAL_ERROR);
+   System.out.println("Lexical error at line " +  error_line + ", column " +  error_column + ".");
+   throw new ParseException("Lexical error at line " +  error_line + ", column " +  error_column + ".");
   }
 }
 

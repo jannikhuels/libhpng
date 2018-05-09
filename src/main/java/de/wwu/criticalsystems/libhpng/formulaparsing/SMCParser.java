@@ -857,12 +857,14 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
       jj_la1_1 = new int[] {0x0,0x0,0x0,};
    }
 
-  /** Constructor with InputStream. */
-  public SMCParser(java.io.InputStream stream) {
+  /** Constructor with InputStream. 
+ * @throws ParseException */
+  public SMCParser(java.io.InputStream stream) throws ParseException {
      this(stream, null);
   }
-  /** Constructor with InputStream and supplied encoding */
-  public SMCParser(java.io.InputStream stream, String encoding) {
+  /** Constructor with InputStream and supplied encoding 
+ * @throws ParseException */
+  public SMCParser(java.io.InputStream stream, String encoding) throws ParseException {
     if (jj_initialized_once) {
       System.out.println("ERROR: Second call to constructor of static parser.  ");
       System.out.println("       You must either use ReInit() or set the JavaCC option STATIC to false");
@@ -893,8 +895,9 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
     for (int i = 0; i < 3; i++) jj_la1[i] = -1;
   }
 
-  /** Constructor. */
-  public SMCParser(java.io.Reader stream) {
+  /** Constructor. 
+ * @throws ParseException */
+  public SMCParser(java.io.Reader stream) throws ParseException {
     if (jj_initialized_once) {
       System.out.println("ERROR: Second call to constructor of static parser. ");
       System.out.println("       You must either use ReInit() or set the JavaCC option STATIC to false");
@@ -962,8 +965,9 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
   }
 
 
-/** Get the next Token. */
-  static final public Token getNextToken() {
+/** Get the next Token. 
+ * @throws ParseException */
+  static final public Token getNextToken() throws ParseException {
     if (token.next != null) token = token.next;
     else token = token.next = SMCParserTokenManager.getNextToken();
     jj_ntk = -1;
@@ -971,8 +975,10 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
     return token;
   }
 
-/** Get the specific Token. */
-  static final public Token getToken(int index) {
+/** Get the specific Token. 
+ * @throws ParseException 
+*/
+  static final public Token getToken(int index) throws ParseException {
     Token t = token;
     for (int i = 0; i < index; i++) {
       if (t.next != null) t = t.next;
@@ -981,7 +987,7 @@ public class SMCParser/*@bgen(jjtree)*/implements SMCParserTreeConstants, SMCPar
     return t;
   }
 
-  static private int jj_ntk() {
+  static private int jj_ntk() throws ParseException {
     if ((jj_nt=token.next) == null)
       return (jj_ntk = (token.next=SMCParserTokenManager.getNextToken()).kind);
     else

@@ -110,8 +110,7 @@ public class ModelHandler {
 		
 		} catch (ModelNotReadableException e) {		
 			if (logger != null) 
-				logger.severe("The model could not be read in.");
-			System.out.println("An error occured while reading the model file. Please see the error log and recheck the model.");
+				logger.severe("The model could not be read in.");			
 		}			
 	}
 	

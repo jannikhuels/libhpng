@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HPnG>
+    <places>
+    <continuousPlace id="a" capacity="20000" infiniteCapacity="0" level="5000.0" quantum="300.0"/>
+    <continuousPlace id="b" capacity="20000" infiniteCapacity="0" level="5000.0" quantum="50.0"/>
+  </places>
+  <transitions>   	
+     <continuousTransition id="i1"  rate="100.0"/>
+      <dynamicContinuousTransition id="out" rateFunction="0.02*b" changeOfRateFunction="0.02*delta_b"/>
+     <dynamicContinuousTransition id="in" rateFunction="0.02*a" changeOfRateFunction="0.02*delta_a"/>
+     <dynamicContinuousTransition id="test" rateFunction="0.05*a" changeOfRateFunction="0.001">
+        <pid coef="1">i1</pid>
+        </dynamicContinuousTransition>
+   </transitions>
+  <arcs>
+    <continuousArc id="ca1" fromNode="b" priority="1" share="1.0E0" toNode="out" weight="1.0E0"/>
+    <continuousArc id="ca2" fromNode="out" priority="1" share="1.0E0" toNode="a" weight="1.0E0"/>
+    <continuousArc id="ca3" fromNode="a" priority="1" share="1.0E0" toNode="in" weight="1.0E0"/>  
+    <continuousArc id="ca4" fromNode="in" priority="1" share="1.0E0" toNode="b" weight="1.0E0"/>
+    <continuousArc id="ca5" fromNode="a" priority="1" share="1.0E0" toNode="test" weight="1.0E0"/>    
+   </arcs>
+</HPnG>

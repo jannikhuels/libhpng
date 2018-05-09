@@ -13,19 +13,24 @@ public class DynamicContinuousTransition extends Transition{
 	
 	public DynamicContinuousTransition(){}
 
-	public DynamicContinuousTransition(String id, Boolean enabled, Expression fluidExpression, Expression changeOfFluidExpressionString) {
+	public DynamicContinuousTransition(String id, Boolean enabled, Expression fluidExpression, Expression changeOfFluidExpressionString, ArrayList<DynamicContinuousDependency> dependencies) {
 		super(id, enabled);
 		this.fluidExpression = new Expression(fluidExpression.getExpressionString());
 		this.changeOfFluidExpression = new Expression(changeOfFluidExpressionString.getExpressionString());		
+		this.dependencies = dependencies;
 	}
 	
-	public DynamicContinuousTransition(DynamicContinuousTransition transitionToCopy) throws ModelCopyingFailedException {
+	public DynamicContinuousTransition(DynamicContinuousTransition transitionToCopy, ArrayList<Transition> transitions) throws ModelCopyingFailedException {
 		super(new String (transitionToCopy.getId()), new Boolean (transitionToCopy.getEnabled()));
 		this.currentFluid = new Double(transitionToCopy.getCurrentFluid());
 		this.currentChangeOfFluid = new Double (transitionToCopy.getCurrentChangeOfFluid());
 		this.adapted = new Boolean(transitionToCopy.getAdapted());
 		this.fluidExpression = new Expression(transitionToCopy.getFluidExpression().getExpressionString());
 		this.changeOfFluidExpression = new Expression(transitionToCopy.getChangeOfFluidExpression().getExpressionString());
+		
+		for(DynamicContinuousDependency currentDependencyToCopy : transitionToCopy.getDependencies()) {
+			this.dependencies.add(new DynamicContinuousDependency(currentDependencyToCopy, transitions));
+		}
 	}
 
 	
@@ -52,6 +57,10 @@ public class DynamicContinuousTransition extends Transition{
 	public void setChangeOfFluidExpression(Expression changeOfFluidExpression) {
 		this.changeOfFluidExpression = changeOfFluidExpression;
 	}	
+
+	public ArrayList<DynamicContinuousDependency> getDependencies() {
+		return dependencies;
+	}
 	
 	public Double getCurrentFluid() {
 		return currentFluid;
@@ -74,7 +83,10 @@ public class DynamicContinuousTransition extends Transition{
 		this.adapted = adapted;
 	}
 
-
+	@XmlElements({
+	    @XmlElement(name="pid", type=DynamicContinuousDependency.class),
+	})
+	private ArrayList <DynamicContinuousDependency> dependencies = new ArrayList<DynamicContinuousDependency>();	
 	private Double currentFluid;
 	private Double currentChangeOfFluid;
 	private Boolean adapted = false;
@@ -85,32 +97,43 @@ public class DynamicContinuousTransition extends Transition{
 	private Integer numberOfEntries = null;
 	
 
-	public void computeCurrentFluidAndCurrentChangeOfFluid(ArrayList<Place> places){		
-			
-		if(numberOfEntries == null)
-			createHashMapsAndArguments(places);
-
-		if (numberOfEntries > 0){
-			
-			Entry<String, ContinuousPlace> pair = null;
-			
-		    Iterator<Entry<String, ContinuousPlace>> it = placesForFluidExpression.entrySet().iterator();		    
-		    while (it.hasNext()) {
-		    	pair = (Entry<String, ContinuousPlace>)it.next();
-				fluidExpression.setArgumentValue(pair.getKey(), getArgumentValue(pair.getKey(),pair.getValue()));	       
-		    }
+	public void computeCurrentFluidAndCurrentChangeOfFluid(ArrayList<Place> places){	
 		
-	   
-		    it = placesForChangeOfFluidExpression.entrySet().iterator();		    
-		    while (it.hasNext()) {
-		    	pair = (Entry<String, ContinuousPlace>)it.next();
-		    	changeOfFluidExpression.setArgumentValue(pair.getKey(), getArgumentValue(pair.getKey(),pair.getValue()));
-		    }
-	    }
-	    
-	    currentFluid = fluidExpression.calculate();
-	    currentChangeOfFluid = changeOfFluidExpression.calculate();
+		currentFluid = 0.0;
+		currentChangeOfFluid = 0.0;
+		
+		if (fluidExpression != null){
+			
+			if(numberOfEntries == null)
+				createHashMapsAndArguments(places);
 
+			if (numberOfEntries > 0){
+				
+				Entry<String, ContinuousPlace> pair = null;
+				
+			    Iterator<Entry<String, ContinuousPlace>> it = placesForFluidExpression.entrySet().iterator();		    
+			    while (it.hasNext()) {
+			    	pair = (Entry<String, ContinuousPlace>)it.next();
+					fluidExpression.setArgumentValue(pair.getKey(), getArgumentValue(pair.getKey(),pair.getValue()));	       
+			    }
+				   
+			    it = placesForChangeOfFluidExpression.entrySet().iterator();		    
+			    while (it.hasNext()) {
+			    	pair = (Entry<String, ContinuousPlace>)it.next();
+			    	changeOfFluidExpression.setArgumentValue(pair.getKey(), getArgumentValue(pair.getKey(),pair.getValue()));
+			    }
+			    
+			    currentFluid = fluidExpression.calculate();
+			    currentChangeOfFluid = changeOfFluidExpression.calculate();
+			}
+		}
+	    	    
+
+		for (int i = 0; i < dependencies.size(); i++){
+			if (dependencies.get(i).getTransition().getEnabled()){
+				currentFluid+= (dependencies.get(i).getTransition().getCurrentFluid() * (dependencies.get(i).getCoefficient()));						
+			}
+		}	
 	}
 	
 	

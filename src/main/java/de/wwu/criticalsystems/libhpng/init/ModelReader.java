@@ -28,7 +28,7 @@ public class ModelReader {
 	    	File xmlFile = new File(filePath);	    	
 	    	if (!xmlFile.exists()){
 	    		if (logger != null) logger.severe("The model file could not be found.");
-	    		System.out.println("File '" + filePath + "' not found");
+	    		System.out.println("An error occured while reading the model file: File '" + filePath + "' not found");
 				throw new ModelNotReadableException("File '" + filePath + "' not found");
 	    	}
 	    		
@@ -48,13 +48,16 @@ public class ModelReader {
 			
 		} catch (JAXBException e) {
 			if (logger != null) logger.severe("The XML file could not be read in by JAXB.");
+			System.out.println("An error occured while reading the model file. Please see the error log and recheck the model.");
 			throw new ModelNotReadableException(e.getLocalizedMessage());
 			
 		} catch(InvalidModelConnectionException e) {
+			System.out.println("An error occured while reading the model file. Please see the error log and recheck the model.");
 			throw new ModelNotReadableException(e.getLocalizedMessage());
 			
 		} catch (XmlNotValidException e) {
 			if (logger != null) logger.severe("The XML file does not fulfill the XML Schema definition: " + e.getLocalizedMessage());
+			System.out.println("An error occured while reading the model file. Please see the error log and recheck the model.");
 			throw new ModelNotReadableException(e.getLocalizedMessage());				
 		}
 	}	

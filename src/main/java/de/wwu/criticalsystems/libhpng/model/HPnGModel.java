@@ -41,8 +41,12 @@ public class HPnGModel {
 				transitions.add(new GeneralTransition((GeneralTransition)currentTransitionToCopy));
 			else if (currentTransitionToCopy.getClass().equals(ContinuousTransition.class))
 				transitions.add(new ContinuousTransition((ContinuousTransition)currentTransitionToCopy));
-			else if (currentTransitionToCopy.getClass().equals(DynamicContinuousTransition.class))
-				transitions.add(new DynamicContinuousTransition((DynamicContinuousTransition)currentTransitionToCopy));
+		}
+		
+		for(Transition currentTransitionToCopy : modelToCopy.getTransitions()) {
+			
+			if (currentTransitionToCopy.getClass().equals(DynamicContinuousTransition.class))
+				transitions.add(new DynamicContinuousTransition((DynamicContinuousTransition)currentTransitionToCopy, transitions));
 		}
 		
 		

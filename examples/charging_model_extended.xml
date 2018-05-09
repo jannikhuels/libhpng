@@ -23,7 +23,7 @@
     <discretePlace id="cr1_place" marking="0"/>
     <discretePlace id="cr2_place" marking="0"/>
     <discretePlace id="cr3_place" marking="0"/>
-    <continuousPlace capacity="90000" id="battery" level="0" infiniteCapacity="0"/>
+    <continuousPlace capacity="90000" id="battery" level="0" infiniteCapacity="0" quantum="1.0"/>
   </places>
   <transitions>
   <generalTransition cdf="uniform" id="tts" priority="0" weight="1.0E0" policy="repeatdifferent">
