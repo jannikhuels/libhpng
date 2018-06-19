@@ -71,23 +71,24 @@ public class SampleGenerator {
 				distributionGenerator = DistributionSetting.setDistributionMuSigma(transition, stream, (byte)1, logger);
 				break;
 			case halfnormal: 
-				distributionGenerator = DistributionSetting.setDistributionMuSigma(transition, stream, (byte)2, logger);
+				distributionGenerator = DistributionSetting.setHalfNormalDistribution(transition, stream, logger);
 				break;
 			case lognormal:
-				distributionGenerator = DistributionSetting.setDistributionMuSigma(transition, stream, (byte)3, logger);
+				distributionGenerator = DistributionSetting.setDistributionMuSigma(transition, stream, (byte)2, logger);
 				break;
 			case inversenormal:
 				distributionGenerator = DistributionSetting.setInverseNormalDistribution(transition, stream, logger);
 				break;			
 			case beta:
-				distributionGenerator = DistributionSetting.setBetaDistribution(transition, stream, logger);
+				distributionGenerator = DistributionSetting.setDistributionAlphaBeta(transition, stream, (byte)3, logger);
 				break;
 			case cauchy:
 				distributionGenerator = DistributionSetting.setDistributionAlphaBeta(transition, stream, (byte)0, logger);
 				break;
 			case chi:
-				distributionGenerator = DistributionSetting.setChiDistribution(transition, stream, logger);
-				break;
+				if (logger != null)
+					logger.severe("Invalid distribution for General Transition " + transition.getId() + ": Chi distribution not supported in this version.");
+				throw new InvalidDistributionParameterException("Invalid distribution for General Transition " + transition.getId() + ": Chi distribution not supported in this version.");
 			case chisquare:
 				distributionGenerator = DistributionSetting.setDistributionN(transition, stream, (byte)0, logger);
 				break;
@@ -98,14 +99,16 @@ public class SampleGenerator {
 				distributionGenerator = DistributionSetting.setFisherFDistribution(transition, stream, logger);
 				break;
 			case frechet:
-				distributionGenerator = DistributionSetting.setFrechetDistribution(transition, stream, logger);
-				break;
+				if (logger != null)
+					logger.severe("Invalid distribution for General Transition " + transition.getId() + ": Frechet distribution not supported in this version.");
+				throw new InvalidDistributionParameterException("Invalid distribution for General Transition " + transition.getId() + ": Frechet distribution not supported in this version.");
 			case gamma:
-				distributionGenerator = DistributionSetting.setDistributionAlphaLambda(transition, stream, (byte)0, logger);
+				distributionGenerator = DistributionSetting.setDistributionAlphaBeta(transition, stream, (byte)4, logger);
 				break;
 			case gumbel:
-				distributionGenerator = DistributionSetting.setGumbelDistribution(transition, stream, logger);
-				break;
+				if (logger != null)
+					logger.severe("Invalid distribution for General Transition " + transition.getId() + ": Gumbel distribution not supported in this version.");
+				throw new InvalidDistributionParameterException("Invalid distribution for General Transition " + transition.getId() + ": Gumbel distribution not supported in this version.");
 			case inversegamma:
 				distributionGenerator = DistributionSetting.setDistributionAlphaBeta(transition, stream, (byte)1, logger);
 				break;
@@ -113,13 +116,14 @@ public class SampleGenerator {
 				distributionGenerator = DistributionSetting.setLaplaceDistribution(transition, stream, logger);
 				break;
 			case logistic:
-				distributionGenerator = DistributionSetting.setDistributionAlphaLambda(transition, stream, (byte)1, logger);
+				distributionGenerator = DistributionSetting.setLogisticDistribution(transition, stream, logger);
 				break;
 			case loglogistic:
-				distributionGenerator = DistributionSetting.setDistributionAlphaBeta(transition, stream, (byte)2, logger);
-				break;
+				if (logger != null)
+					logger.severe("Invalid distribution for General Transition " + transition.getId() + ": Loglogistic distribution not supported in this version.");
+				throw new InvalidDistributionParameterException("Invalid distribution for General Transition " + transition.getId() + ": Loglogistic distribution not supported in this version.");
 			case pareto:
-				distributionGenerator = DistributionSetting.setDistributionAlphaBeta(transition, stream, (byte)3, logger);
+				distributionGenerator = DistributionSetting.setDistributionAlphaBeta(transition, stream, (byte)2, logger);
 				break;
 			case rayleigh:
 				distributionGenerator = DistributionSetting.setRayleighDistribution(transition, stream, logger);
@@ -128,8 +132,11 @@ public class SampleGenerator {
 				distributionGenerator = DistributionSetting.setDistributionN(transition, stream, (byte)1, logger);
 				break;
 			case weibull:
-				distributionGenerator = DistributionSetting.setWeibullDistribution(transition, stream, logger);
+				distributionGenerator = DistributionSetting.setDistributionAlphaBeta(transition, stream, (byte)5, logger);
 				break;
+
+		default:
+			break;
 		}
 		return distributionGenerator;
 	}	

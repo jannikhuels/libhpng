@@ -62,17 +62,13 @@
 								      			<xs:enumeration value="lognormal"/>
 												<xs:enumeration value="beta"/>
 								      			<xs:enumeration value="chauchy"/>
-								      			<xs:enumeration value="chi"/>
 								      			<xs:enumeration value="chisquare"/>
 								      			<xs:enumeration value="exp"/>
 												<xs:enumeration value="fisherf"/>
-								    		  	<xs:enumeration value="frechet"/>
 								 		     	<xs:enumeration value="gamma"/>
-								     		 	<xs:enumeration value="gumbel"/>
 										      	<xs:enumeration value="inversegamma"/>
 										      	<xs:enumeration value="laplace"/>
 								     		 	<xs:enumeration value="logistic"/>
-												<xs:enumeration value="loglogistic"/>
 								     		 	<xs:enumeration value="pareto"/>
 										      	<xs:enumeration value="rayleigh"/>
 								      			<xs:enumeration value="student"/>

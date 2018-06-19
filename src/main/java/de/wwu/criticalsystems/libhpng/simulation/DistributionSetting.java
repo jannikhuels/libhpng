@@ -44,11 +44,8 @@ public class DistributionSetting {
 					FoldedNormalGen generator1 = new FoldedNormalGen(stream, mu, sigma);
 					return generator1;
 				case 2:
-					HalfNormalGen generator2 = new HalfNormalGen(stream, mu, sigma);
+					LognormalGen generator2 = new LognormalGen(stream, mu, sigma);
 					return generator2;
-				case 3:
-					LognormalGen generator3 = new LognormalGen(stream, mu, sigma);
-					return generator3;
 			}
 
 		} else if (sigma <= 0.0){
@@ -102,12 +99,19 @@ public class DistributionSetting {
 					InverseGammaGen generator1 = new InverseGammaGen(stream, alpha, beta);
 					return generator1;
 				case 2:
-					LoglogisticGen generator2 = new LoglogisticGen(stream, alpha, beta);
+					ParetoGen generator2 = new ParetoGen(stream, alpha, beta);
 					return generator2;
 				case 3:
-					ParetoGen generator3 = new ParetoGen(stream, alpha, beta);
+					BetaGen generator3 = new BetaGen(stream, alpha, beta);
 					return generator3;
+				case 4:
+					GammaGen generator4 = new GammaGen(stream, alpha, beta);
+					return generator4;
+				case 5:
+					WeibullGen generator5 = new WeibullGen(stream, alpha, beta, 0.0);
+					return generator5;
 			}
+			
 		} else if (alpha <= 0.0 && type != 0){
 			if (logger != null)
 				logger.severe("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter alpha has to be greater than zero");
@@ -126,56 +130,7 @@ public class DistributionSetting {
 	}
 	
 	
-	//One of the following distributions with parameters alpha and beta
-	//gamma, logistic
-	public static RandomVariateGen setDistributionAlphaLambda(GeneralTransition transition, MRG31k3p stream, byte type, Logger logger) throws InvalidDistributionParameterException{
-					
-		Double alpha = 1.0;
-		Double lambda = 1.0;
-		Boolean alphaFound = false;
-		Boolean lambdaFound = false;
-		
-		for (CDFFunctionParameter parameter : transition.getParameters()){
-			switch (parameter.getName()){
-				case "alpha":
-					alpha = parameter.getValue();
-					alphaFound = true;
-					break;
-				case "lambda":
-					lambda = parameter.getValue();
-					lambdaFound = true;	
-					break;
-				default :
-					if (logger != null) 
-						logger.warning("Unknown distribution parameter " + parameter.getName() + " for General Transition " + transition.getId());										
-			}
-		}
-		
-		if (alphaFound && lambdaFound && (alpha > 0.0 || type == 1) && lambda > 0.0){
-			switch (type){
-				case 0 :
-					GammaGen generator0 = new GammaGen(stream, alpha, lambda);
-					return generator0;
-				case 1:
-					LogisticGen generator1 = new LogisticGen(stream, alpha, lambda);
-					return generator1;
-			}
-		} else if (alpha <= 0.0 && type != 1){
-			if (logger != null)
-				logger.severe("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter alpha has to be greater than zero");
-			throw new InvalidDistributionParameterException("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter alpha has to be greater than zero");
-		} else if (lambda <= 0.0){
-			if (logger != null)
-				logger.severe("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter lambda has to be greater than zero");
-			throw new InvalidDistributionParameterException("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter lambda has to be greater than zero");
-		} else {
-			if (logger != null)
-				logger.severe("Missing distribution parameter for General Transition " + transition.getId());
-			throw new InvalidDistributionParameterException("Missing distribution parameter for General Transition " + transition.getId());
-		}	
-		return null;
-	}
-	
+
 	
 	//One of the following distributions with (integer) parameter n
 	//chi square, student
@@ -264,107 +219,7 @@ public class DistributionSetting {
 			throw new InvalidDistributionParameterException("Missing distribution parameter for General Transition " + transition.getId());
 		}
 	}
-	
-	
-	//beta distribution with parameters alpha and beta within interval (a, b)
-	public static RandomVariateGen setBetaDistribution(GeneralTransition transition, MRG31k3p stream, Logger logger) throws InvalidDistributionParameterException{
-			
-		Double a = 0.0;
-		Double b = 1.0;
-		Double alpha = 1.0;
-		Double beta = 1.0;
-		Boolean aFound = false;
-		Boolean bFound = false;
-		Boolean alphaFound = false;
-		Boolean betaFound = false;
-		
-		for (CDFFunctionParameter parameter : transition.getParameters()){
-			switch (parameter.getName()){
-				case "a":
-					a = parameter.getValue();
-					aFound = true;
-					break;
-				case "b":
-					b = parameter.getValue();
-					bFound = true;	
-					break;
-				case "alpha":
-					alpha = parameter.getValue();
-					alphaFound = true;
-					break;
-				case "beta":
-					beta = parameter.getValue();
-					betaFound = true;	
-					break;
-				default :
-					if (logger != null) 
-						logger.warning("Unknown distribution parameter " + parameter.getName() + " for General Transition " + transition.getId());										
-			}
-		}
-		
-		if (aFound && bFound && alphaFound && betaFound && a < b && alpha > 0.0 && beta > 0.0){
-			BetaGen generator = new BetaGen(stream, alpha, beta, a, b);
-			return generator;
-		} else if (b<=a){
-			if (logger != null)
-				logger.severe("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter a has to be less than parameter b");
-			throw new InvalidDistributionParameterException("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter a has to be less than parameter b");
-		} else if (alpha <= 0.0){
-			if (logger != null)
-				logger.severe("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter alpha has to be greater than zero");
-			throw new InvalidDistributionParameterException("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter alpha has to be greater than zero");
-		} else if (beta <= 0.0){
-			if (logger != null)
-				logger.severe("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter beta has to be greater than zero");
-			throw new InvalidDistributionParameterException("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter beta has to be greater than zero");
-		} else {
-			if (logger != null)
-				logger.severe("Missing distribution parameter for General Transition " + transition.getId());
-			throw new InvalidDistributionParameterException("Missing distribution parameter for General Transition " + transition.getId());
-		} 
-	}
-	
-	
-	//chi distribution with (integer) parameter nu
-	public static RandomVariateGen setChiDistribution(GeneralTransition transition, MRG31k3p stream, Logger logger) throws InvalidDistributionParameterException{
-			
-		Integer nu = 1;
-		Boolean nuFound = false;	
-		
-		for (CDFFunctionParameter parameter : transition.getParameters()){
-			switch (parameter.getName()){
-				case "nu":
-					double nuDouble = parameter.getValue();
-					if (nuDouble == Math.floor(nuDouble)){
-						nu = (int) nuDouble;
-						nuFound = true;
-					} else{
-						if (logger != null) 
-							logger.severe("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter nu has to be an integer value");
-						throw new InvalidDistributionParameterException("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter nu has to be an integer value");
-					}
-					break;
-				default :
-					if (logger != null) 
-						logger.warning("Unknown distribution parameter " + parameter.getName() + " for General Transition " + transition.getId());					
-			}
-		}
-		
-		
-		if (nuFound && nu > 0){
-			ChiGen generator = new ChiGen(stream, nu);
-			return generator;
-		} else if (nu <= 0){
-			if (logger != null)
-				logger.severe("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter nu has to be greater than zero");
-			throw new InvalidDistributionParameterException("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter nu has to be greater than zero");
-		} else {
-			if (logger != null)
-				logger.severe("Missing distribution parameter for General Transition " + transition.getId());
-			throw new InvalidDistributionParameterException("Missing distribution parameter for General Transition " + transition.getId());
-		}
-	}
-	
+
 	
 	//exponential distribution with parameter lambda
 	public static RandomVariateGen setExpDistribution(GeneralTransition transition, MRG31k3p stream, Logger logger) throws InvalidDistributionParameterException{
@@ -458,30 +313,18 @@ public class DistributionSetting {
 		}
 	}
 	
-	
-	//Frechet distribution with parameters alpha, beta and delta
-	public static RandomVariateGen setFrechetDistribution(GeneralTransition transition, MRG31k3p stream, Logger logger) throws InvalidDistributionParameterException{
-				
-		Double alpha = 1.0;
-		Double beta = 1.0;
-		Double delta = 0.0;
-		Boolean alphaFound = false;
-		Boolean betaFound = false;
-		Boolean deltaFound = false;
+
+	//exponential distribution with parameter lambda
+	public static RandomVariateGen setHalfNormalDistribution(GeneralTransition transition, MRG31k3p stream, Logger logger) throws InvalidDistributionParameterException{
+			
+		Double sigma = 1.0;
+		Boolean sigmaFound = false;		
 		
 		for (CDFFunctionParameter parameter : transition.getParameters()){
 			switch (parameter.getName()){
-				case "alpha":
-					alpha = parameter.getValue();
-					alphaFound = true;
-					break;
-				case "beta":
-					beta = parameter.getValue();
-					betaFound = true;	
-					break;
-				case "delta":
-					delta = parameter.getValue();
-					deltaFound = true;
+				case "sigma":
+					sigma = parameter.getValue();
+					sigmaFound = true;						
 					break;
 				default :
 					if (logger != null) 
@@ -489,62 +332,20 @@ public class DistributionSetting {
 			}
 		}
 		
-		if (alphaFound && betaFound && deltaFound && alpha > 0.0 && beta > 0.0){
-			FrechetGen generator = new FrechetGen(stream, alpha, beta, delta);
-			return generator;					
-		} else if (alpha <= 0.0){
+			
+		if (sigmaFound && sigma > 0.0){
+			HalfNormalGen generator = new HalfNormalGen(stream, 0.0, sigma);
+			return generator;
+		} else if (sigma <= 0.0){
 			if (logger != null)
-				logger.severe("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter alpha has to be greater than zero");
-			throw new InvalidDistributionParameterException("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter alpha has to be greater than zero");
-		} else if (beta <= 0.0){
-			if (logger != null)
-				logger.severe("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter beta has to be greater than zero");
-			throw new InvalidDistributionParameterException("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter beta has to be greater than zero");
+				logger.severe("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter sigma has to be greater than zero");
+			throw new InvalidDistributionParameterException("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter sigma has to be greater than zero");
 		} else {
 			if (logger != null)
 				logger.severe("Missing distribution parameter for General Transition " + transition.getId());
 			throw new InvalidDistributionParameterException("Missing distribution parameter for General Transition " + transition.getId());
 		}
-	}
-	
-	
-	//Gumbel distribution with parameters alpha, beta and delta
-	public static RandomVariateGen setGumbelDistribution(GeneralTransition transition, MRG31k3p stream, Logger logger) throws InvalidDistributionParameterException{
-				
-		Double beta = 1.0;
-		Double delta = 0.0;
-		Boolean betaFound = false;
-		Boolean deltaFound = false;
-		
-		for (CDFFunctionParameter parameter : transition.getParameters()){
-			switch (parameter.getName()){
-				case "beta":
-					beta = parameter.getValue();
-					betaFound = true;	
-					break;
-				case "delta":
-					delta = parameter.getValue();
-					deltaFound = true;
-					break;
-				default :
-					if (logger != null) 
-						logger.warning("Unknown distribution parameter " + parameter.getName() + " for General Transition " + transition.getId());					
-			}
-		}
-		
-		if (betaFound && deltaFound && beta != 0.0){
-			GumbelGen generator = new GumbelGen(stream, beta, delta);
-			return generator;					
-		} else if (beta == 0.0) {
-			if (logger != null)
-				logger.severe("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter beta must not be zero");
-			throw new InvalidDistributionParameterException("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter beta must not be zero");
-		} else {
-			if (logger != null)
-				logger.severe("Missing distribution parameter for General Transition " + transition.getId());
-			throw new InvalidDistributionParameterException("Missing distribution parameter for General Transition " + transition.getId());
-		}
-	}
+	}	
 	
 	
 	//Inverse normal (inverse Gaussian) distribution with parameters mu and lambda:
@@ -632,17 +433,11 @@ public class DistributionSetting {
 	//Rayleigh distribution with parameter beta and lower boundary a
 	public static RandomVariateGen setRayleighDistribution(GeneralTransition transition, MRG31k3p stream, Logger logger) throws InvalidDistributionParameterException{
 			
-		Double a = 0.0;
 		Double beta = 1.0;
-		Boolean aFound = false;
 		Boolean betaFound = false;
 		
 		for (CDFFunctionParameter parameter : transition.getParameters()){
 			switch (parameter.getName()){
-				case "a":
-					a = parameter.getValue();
-					aFound = true;
-					break;
 				case "beta":
 					beta = parameter.getValue();
 					betaFound = true;	
@@ -653,13 +448,51 @@ public class DistributionSetting {
 			}
 		}
 		
-		if (aFound && betaFound && beta > 0.0){
-			RayleighGen generator = new RayleighGen(stream, a, beta);
+		if (betaFound && beta > 0.0){
+			RayleighGen generator = new RayleighGen(stream, 0.0, beta);
 			return generator;
 		} else if (beta < 0.0){
 			if (logger != null)
 				logger.severe("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter beta has to be greater than zero");	
 			throw new InvalidDistributionParameterException("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter beta has to be greater than zero");
+		} else {
+			if (logger != null)
+				logger.severe("Missing distribution parameter for General Transition " + transition.getId());
+			throw new InvalidDistributionParameterException("Missing distribution parameter for General Transition " + transition.getId());
+		}
+	}
+	
+	//Logistic distribution with parameters alpha and lambda
+	public static RandomVariateGen setLogisticDistribution(GeneralTransition transition, MRG31k3p stream, Logger logger) throws InvalidDistributionParameterException{
+					
+		Double mu = 1.0;
+		Double s = 1.0;
+		Boolean muFound = false;
+		Boolean sFound = false;
+		
+		for (CDFFunctionParameter parameter : transition.getParameters()){
+			switch (parameter.getName()){
+				case "mu":
+					mu = parameter.getValue();
+					muFound = true;
+					break;
+				case "s":
+					s = parameter.getValue();
+					sFound = true;	
+					break;
+				default :
+					if (logger != null) 
+						logger.warning("Unknown distribution parameter " + parameter.getName() + " for General Transition " + transition.getId());										
+			}
+		}
+		
+		if (muFound && sFound && s > 0.0){
+			LogisticGen generator1 = new LogisticGen(stream, mu, 1.0/s);
+			return generator1;
+		} else if (s <= 0.0){
+			if (logger != null)
+				logger.severe("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter s has to be greater than zero");
+			throw new InvalidDistributionParameterException("Invalid distribution parameter for General Transition " + transition.getId() + ": Parameter s has to be greater than zero");
 		} else {
 			if (logger != null)
 				logger.severe("Missing distribution parameter for General Transition " + transition.getId());
