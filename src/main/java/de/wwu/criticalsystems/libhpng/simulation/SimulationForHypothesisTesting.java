@@ -175,7 +175,6 @@ public class SimulationForHypothesisTesting {
 					}
 				
 					currentPlot = new MarkingPlot(maxTime);
-					//plots.add(currentPlot);
 					currentPlot.initializeRelatedOnly(this.model, related);
 					
 					//simulation
