@@ -10,13 +10,13 @@ import de.wwu.criticalsystems.libhpng.simulation.PropertyChecker;
 
 public class ConfidenceIntervalCalculator {
 	
-	public ConfidenceIntervalCalculator(Byte intervalID, HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double confidenceLevel, Double halfIntervalWidth) throws InvalidPropertyException {
+	public ConfidenceIntervalCalculator(Byte intervalID, HPnGModel model, Double time, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double confidenceLevel, Double halfIntervalWidth) throws InvalidPropertyException {
 		
 		this.minNumberOfRuns = minNumberOfRuns;
 		this.halfIntervalWidth = halfIntervalWidth;
 		this.intervalID = intervalID;
 		
-		checker = new PropertyChecker(root, model);
+		checker = new PropertyChecker(root, model, time);
 		checker.setLogger(logger);
 
 		

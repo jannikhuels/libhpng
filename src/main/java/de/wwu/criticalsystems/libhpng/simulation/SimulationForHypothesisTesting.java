@@ -1,6 +1,7 @@
 package de.wwu.criticalsystems.libhpng.simulation;
 
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidDistributionParameterException;
@@ -85,7 +86,7 @@ public class SimulationForHypothesisTesting {
 	Integer thisrunsfirings;
 
 	
-	public void performTesting(Byte algorithmID, String algorithmName) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
+	public Properties performTesting(Byte algorithmID, String algorithmName, Double time, Double boundary) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
 		
 		fulfilled = 0;
 		notFulfilled = 0;
@@ -106,31 +107,31 @@ public class SimulationForHypothesisTesting {
 		switch (algorithmID){
 		
 			case 0:
-				tester = new SequentialProbabilityRatioTester(model, minNumberOfRuns, logger, root, correctnessIndifferenceLevel, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold);
+				tester = new SequentialProbabilityRatioTester(model, time, boundary,  minNumberOfRuns, logger, root, correctnessIndifferenceLevel, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold);
 				break;
 				
 			case 1:
-				tester = new GaussCIHypothesisTester(model, minNumberOfRuns, logger, root, powerIndifferenceLevel, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold);
+				tester = new GaussCIHypothesisTester(model, time, boundary, minNumberOfRuns, logger, root, powerIndifferenceLevel, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold);
 				break;
 				
 			case 2:
-				tester = new ChowRobbinsHypothesisTester(model, minNumberOfRuns, logger, root, powerIndifferenceLevel, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold);
+				tester = new ChowRobbinsHypothesisTester(model,time, boundary, minNumberOfRuns, logger, root, powerIndifferenceLevel, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold);
 				break;
 				
 			case 3:
-				tester = new AzumaHypothesisTester(model, minNumberOfRuns, logger, root, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold);
+				tester = new AzumaHypothesisTester(model, time, boundary, minNumberOfRuns, logger, root, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold);
 				break;
 				
 			case 4:
-				tester = new ChernoffCIHypothesisTester(model, minNumberOfRuns, logger, root, powerIndifferenceLevel, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold);
+				tester = new ChernoffCIHypothesisTester(model, time, boundary, minNumberOfRuns, logger, root, powerIndifferenceLevel, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold);
 				break;
 			
 			case 5:
-				tester = new GaussSSPHypothesisTester(model, minNumberOfRuns, logger, root, correctnessIndifferenceLevel, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold);
+				tester = new GaussSSPHypothesisTester(model, time, boundary, minNumberOfRuns, logger, root, correctnessIndifferenceLevel, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold);
 				break;
 				
 			case 6:
-				tester = new DarlingHypothesisTester(model, minNumberOfRuns, logger, root, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold);
+				tester = new DarlingHypothesisTester(model, time, boundary, minNumberOfRuns, logger, root, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold);
 				break;
 		}
 		
@@ -334,7 +335,23 @@ public class SimulationForHypothesisTesting {
 		if(fulfilled > 0 || notFulfilled > 0)
 			System.out.println("Average number of simulation runs needed: " + averageRuns + "\n");
 		else 
-			System.out.println("There where no successfull runs" + "\n");		
+			System.out.println("There where no successfull runs" + "\n");
+
+		
+		Properties parameters = new Properties();
+		
+		parameters.setProperty("fulfilled", fulfilled.toString());
+		parameters.setProperty("notFulfilled", notFulfilled.toString());
+		parameters.setProperty("noResult", noResult.toString());
+		parameters.setProperty("testRuns", testRuns.toString());
+		parameters.setProperty("minRun", minRun.toString());
+		parameters.setProperty("maxRun", maxRun.toString());
+		parameters.setProperty("averageRuns", averageRuns.toString());
+		parameters.setProperty("fulfilledPercentage", fulfilledPercentage.toString());
+		parameters.setProperty("notFulfilledPercentage", notFulfilledPercentage.toString());
+		parameters.setProperty("noResultPercentage", noResultPercentage.toString());
+		
+		return parameters;	
 		
 	}			
 		

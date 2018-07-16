@@ -1,7 +1,10 @@
 package de.wwu.criticalsystems.libhpng.simulation;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -18,8 +21,9 @@ import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
 public class SimulationHandler {
 
 	
-	public SimulationHandler(){
-		loadParameters();
+	public SimulationHandler(String parameterFilePath) throws InvalidSimulationParameterException{
+		
+		loadParameters(parameterFilePath);
 	}
 	
 	
@@ -231,6 +235,8 @@ public class SimulationHandler {
 		this.logger = logger;
 	}
 	
+	public static enum ProbabilityOperator{confidenceinterval, hypothesisgreater, hypothesisgreaterequal, hypothesislower, hypothesislowerequal}
+	
 			
 	private Simulator simulator;
 	private Logger logger;
@@ -241,6 +247,7 @@ public class SimulationHandler {
 	private Double propertyTime;
 	private ArrayList<MarkingPlot> plots = new ArrayList<MarkingPlot>();
 	private MarkingPlot currentPlot;
+	private Double boundary;
 	
 	//simulation parameters
 	private Byte intervalID;
@@ -336,14 +343,15 @@ public class SimulationHandler {
 	}
 	
 	
-	public void simulateAndCheckProperty(HPnGModel model, SimpleNode root) throws InvalidPropertyException, ModelNotReadableException, InvalidRandomVariateGeneratorException{
+	public void simulateAndCheckProperty(HPnGModel model, SimpleNode root, Double time, ProbabilityOperator operator, Double boundary, File results) throws InvalidPropertyException, ModelNotReadableException, InvalidRandomVariateGeneratorException, FileNotFoundException, IOException{
 		
 		final long timeStart = System.currentTimeMillis();
 	     		
 		this.model = model;
 		this.root = root;
-		this.maxTime = PropertyChecker.getMaxTimeForSimulation(root);
-		this.propertyTime = PropertyChecker.getTimeFromRoot(root);
+		this.maxTime = PropertyChecker.getMaxTimeForSimulation(root, time);
+		this.propertyTime = time;
+		this.boundary = boundary;
 		
 		
 		ArrayList<FluidProperty> fluidProperyList = new ArrayList<FluidProperty>();
@@ -353,37 +361,39 @@ public class SimulationHandler {
 		simulator = new DynamicSimulator(model, maxTime, fluidProperyList);
 		simulator.setLogger(logger);
 		
-		String prob = "";
-		try {
-			prob = PropertyChecker.getProbertyKind(root);
-		} catch (InvalidPropertyException e) {		
-			if (logger != null)
-				logger.severe(e.getLocalizedMessage());
-			throw new InvalidPropertyException(e.getLocalizedMessage());
-		}
+//		String prob = "";
+//		try {
+//			prob = PropertyChecker.getProbertyKind(root);
+//		} catch (InvalidPropertyException e) {		
+//			if (logger != null)
+//				logger.severe(e.getLocalizedMessage());
+//			throw new InvalidPropertyException(e.getLocalizedMessage());
+//		}
 	
+		Properties parameters = new Properties();
+		
 			
 		try {
-			switch (prob){
-				case "PROBQ":
+			switch (operator){
+				case confidenceinterval:
 					//property check with confidence interval calculation
-					simulateAndCheckPROBQ(calculations, realProbability, simulationWithFixedNumberOfRuns);
+					parameters = simulateAndCheckPROBQ(calculations, realProbability, simulationWithFixedNumberOfRuns);
 					break;
-				case "PROBGE":
+				case hypothesisgreaterequal:
 					//property check with hypothesis testing	
-					simulateAndTestPROB( true, true, simulationWithFixedNumberOfRuns);	
+					parameters = simulateAndTestPROB(true, true, simulationWithFixedNumberOfRuns);	
 					break;
-				case "PROBL":
+				case hypothesislower:
 					//property check with hypothesis testing	
-					simulateAndTestPROB(true,false, simulationWithFixedNumberOfRuns);			
+					parameters = simulateAndTestPROB(true, false, simulationWithFixedNumberOfRuns);			
 					break;
-				case "PROBLE":
+				case hypothesislowerequal:
 					//property check with hypothesis testing	
-					simulateAndTestPROB(false,true, simulationWithFixedNumberOfRuns);	
+					parameters = simulateAndTestPROB(false, true, simulationWithFixedNumberOfRuns);	
 					break;
-				case "PROBG":
+				case hypothesisgreater:
 					//property check with hypothesis testing	
-					simulateAndTestPROB( false, false, simulationWithFixedNumberOfRuns);			
+					parameters = simulateAndTestPROB(false, false, simulationWithFixedNumberOfRuns);			
 					break;
 			}
 			
@@ -402,17 +412,24 @@ public class SimulationHandler {
 		}
 		
 		final long timeEnd = System.currentTimeMillis(); 
-		System.out.printf("Time needed: " + "%,.2f" + "  ms.%n" ,(double)(timeEnd - timeStart));
+		Long timeNeeded = (timeEnd - timeStart);
+		System.out.printf("Time needed: " + "%,.2f" + "  ms.%n" ,timeNeeded.doubleValue());
+		
+		parameters.setProperty("Time", timeNeeded.toString());
+		parameters.store(new FileOutputStream(results),"");
 
 	}
 	
 	
-	public void loadParameters(){		
+	
+
+	
+	public void loadParameters(String parameterFilePath){		
 		
 
 		try {	
 			Properties parameters = new Properties();
-			parameters.load(new FileInputStream("libhpng_parameters.cfg"));
+			parameters.load(new FileInputStream(parameterFilePath));
 			
 			
 			intervalID = Byte.parseByte(parameters.getProperty("intervalID"));
@@ -611,11 +628,11 @@ public class SimulationHandler {
 	}
 	
 		
-	private void simulateAndCheckPROBQ(Integer intervalCalcs, Double realProbability, Boolean fixedNumber) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
+	private Properties simulateAndCheckPROBQ(Integer intervalCalcs, Double realProbability, Boolean fixedNumber) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
 		
 	
-		Integer fulfilled = 0;
-		Integer notFulfilled = 0;
+		Integer coverage = 0;
+		Integer noCoverage = 0;
 		Integer maxRun = 0;
 		Integer minRun = 0;
 		Integer notEnoughRuns = 0;
@@ -630,10 +647,15 @@ public class SimulationHandler {
 		Double upper;
 		Double midpoint;
 		Double halfwidth;
+		
+		Double coveragePercentage;
+		Double noCoveragePercentage;
+		Double notEnoughRunsPercentage;
+		Integer averageRuns;
 	
 
 		SampleGenerator generator;
-		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(intervalID, model, minNumberOfRuns, logger, root, confidenceLevel, halfIntervalWidth);
+		ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(intervalID, model, this.propertyTime, minNumberOfRuns, logger, root, confidenceLevel, halfIntervalWidth);
 		ArrayList<String> related = calc.getChecker().getAllRelatedPlaceAndTransitionIds();
 		
 		Integer n = 0;
@@ -702,14 +724,14 @@ public class SimulationHandler {
 									
 				if (lower <= realProbability && realProbability <= upper){
 					System.out.println("The real probability lies within the interval.");
-					fulfilled ++;
+					coverage ++;
 					maxRun = calcMaxRun(run, maxRun);
 					minRun = calcMinRun(run, minRun);
 					totalRuns += run;
 
 				}else{
 					System.out.println("The real probability does not lie within the interval.");
-					notFulfilled ++;
+					noCoverage ++;
 					maxRun = calcMaxRun(run, maxRun);
 					minRun = calcMinRun(run, minRun);
 					totalRuns += run;
@@ -796,14 +818,14 @@ public class SimulationHandler {
 										
 					if (lower <= realProbability && realProbability <= upper){
 						System.out.println("The real probability lies within the interval.");
-						fulfilled ++;
+						coverage ++;
 						maxRun = calcMaxRun(run, maxRun);
 						minRun = calcMinRun(run, minRun);
 						totalRuns += run;
 	
 					}else{
 						System.out.println("The real probability does not lie within the interval.");
-						notFulfilled ++;
+						noCoverage ++;
 						maxRun = calcMaxRun(run, maxRun);
 						minRun = calcMinRun(run, minRun);
 						totalRuns += run;
@@ -819,22 +841,46 @@ public class SimulationHandler {
 			System.out.println("Mean number of random variables: " + (firings.doubleValue() / run.doubleValue()) + " (mininmum: " + minFirings + ", maximum: " + maxFirings + ")");
 	
 			calc.resetResults();
-			n++;			
+			n++;		
 						
+			
 		}
 		
-		System.out.println("\n" + "The real probability lies within the interval in: " + calcPercentage(fulfilled) + "% (" + fulfilled + ") of " + calculations +" calculations"  );
-		System.out.println("The real probability does not lie within the interval in: " + calcPercentage(notFulfilled) + "% (" + notFulfilled + ") of " + calculations +" calculations"  );
+		
+		coveragePercentage = calcPercentage(coverage);
+		noCoveragePercentage = calcPercentage(noCoverage);
+		notEnoughRunsPercentage = calcPercentage(notEnoughRuns);
+		averageRuns = totalRuns/(coverage+noCoverage + notEnoughRuns);
+		
+		System.out.println("\n" + "The real probability lies within the interval in: " + calcPercentage(coverage) + "% (" + coverage + ") of " + calculations +" calculations"  );
+		System.out.println("The real probability does not lie within the interval in: " + calcPercentage(noCoverage) + "% (" + noCoverage + ") of " + calculations +" calculations"  );
 		System.out.println("The maximum number of " + maxNumberOfRuns + " runs has been achieved in: " + calcPercentage(notEnoughRuns) + "% (" + notEnoughRuns + ") of " + calculations +" calculations" + "\n");
 		System.out.println("Minimal number of simulation runs needed: " + minRun) ;
 		System.out.println("Maximal number of simulation runs needed: " + maxRun);
-		if(fulfilled > 0 || notFulfilled > 0){
-			System.out.println("Average number of simulation runs needed: " + totalRuns/(fulfilled+notFulfilled) + "\n");
+		if(coverage > 0 || noCoverage > 0){
+			System.out.println("Average number of simulation runs needed: " + totalRuns/(coverage+noCoverage) + "\n");
 			}else {System.out.println("There where no successfull runs" + "\n");}	
+		
+		
+		Properties parameters = new Properties();
+		
+		
+		parameters.setProperty("Coverage", coverage.toString());
+		parameters.setProperty("noCoverage", noCoverage.toString());
+		parameters.setProperty("notEnoughRuns", notEnoughRuns.toString());
+		parameters.setProperty("calculations", calculations.toString());
+		parameters.setProperty("minRun", minRun.toString());
+		parameters.setProperty("maxRun", maxRun.toString());
+		parameters.setProperty("averageRuns", averageRuns.toString());
+		parameters.setProperty("CoveragePercentage", coveragePercentage.toString());
+		parameters.setProperty("noCoveragePercentage", noCoveragePercentage.toString());
+		parameters.setProperty("notEnoughRunsPercentage", notEnoughRunsPercentage.toString());
+		
+		return parameters;
 	}
 		
 		
-	private void simulateAndTestPROB(Boolean checkLowerThan, Boolean invertPropertyAndThreshold, Boolean fixedNumber) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
+	private Properties simulateAndTestPROB(Boolean checkLowerThan, Boolean invertPropertyAndThreshold, Boolean fixedNumber) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException{
 		
 		SimulationForHypothesisTesting testing;
 		
@@ -843,7 +889,7 @@ public class SimulationHandler {
 		else		
 			testing = new SimulationForHypothesisTesting(model, minNumberOfRuns, logger, root, correctnessIndifferenceLevel, powerIndifferenceLevel, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold, printRunResults, maxNumberOfRuns, currentTime, currentPlot, maxTime, simulator, false, 0, testRuns);
 		
-		testing.performTesting(algorithmID, getAlgorithmName());
+		return testing.performTesting(algorithmID, getAlgorithmName(), this.propertyTime, this.boundary);
 	}
 			
 

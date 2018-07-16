@@ -9,9 +9,9 @@ import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
 
 public class SequentialProbabilityRatioTester extends HypothesisTester{
 	
-	public SequentialProbabilityRatioTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double correctnessIndifferenceLevel, Double type1Error, Double type2Error, Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws InvalidPropertyException{
+	public SequentialProbabilityRatioTester(HPnGModel model, Double time, Double boundary, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double correctnessIndifferenceLevel, Double type1Error, Double type2Error, Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws InvalidPropertyException{
 		
-		super(model, minNumberOfRuns, logger, root, checkLowerThan, invertPropertyAndThreshold);
+		super(model, time, boundary, minNumberOfRuns, logger, root, checkLowerThan, invertPropertyAndThreshold);
 				
 		A = (1.0 - type1Error) / type1Error;
 		B = type1Error / (1.0 - type1Error);

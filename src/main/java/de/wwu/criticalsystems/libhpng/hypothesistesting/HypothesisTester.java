@@ -10,9 +10,9 @@ import de.wwu.criticalsystems.libhpng.simulation.PropertyChecker;
 public abstract class HypothesisTester {
 	
 	
-	public HypothesisTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws InvalidPropertyException{
+	public HypothesisTester(HPnGModel model, Double time, Double boundary, Integer minNumberOfRuns, Logger logger, SimpleNode root, Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws InvalidPropertyException{
 
-		checker = new PropertyChecker(root, model);
+		checker = new PropertyChecker(root, model, time);
 		checker.setLogger(logger);	
 
 		this.checkLowerThan = checkLowerThan;
@@ -20,14 +20,14 @@ public abstract class HypothesisTester {
 		this.minNumberOfRuns = minNumberOfRuns;	
 
 
-		boundary = this.checker.getProbBound(root);		
+		this.boundary = boundary;	
 		if (boundary < 0.0 || boundary > 1.0){
 			if (logger != null)
 				logger.severe("Property Error: the boundary node of the property root must be between 0.0 and 1.0");
 			throw new InvalidPropertyException("Property Error: the boundary node of the property root must be between 0.0 and 1.0");
 		}
 		if (invertPropertyAndThreshold)
-			boundary = 1 - boundary;
+			this.boundary = 1 - boundary;
 			
 	}
 	

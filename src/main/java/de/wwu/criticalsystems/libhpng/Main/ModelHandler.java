@@ -2,6 +2,8 @@ package de.wwu.criticalsystems.libhpng.Main;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,14 +22,19 @@ import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.init.ModelReader;
 import de.wwu.criticalsystems.libhpng.model.HPnGModel;
 import de.wwu.criticalsystems.libhpng.simulation.SimulationHandler;
+import de.wwu.criticalsystems.libhpng.simulation.SimulationHandler.ProbabilityOperator;
 
 
 public class ModelHandler {
 	
 	
-	public ModelHandler(){
+	public ModelHandler() {
 		createLogger();
-		simulationHandler = new SimulationHandler();
+		try {
+			simulationHandler = new SimulationHandler("libhpng_parameters.cfg");
+		} catch (InvalidSimulationParameterException e) {
+			System.out.println("An error occured while simulating due to an incorrect simulation parameter. Please see the error log and recheck the parameter file.");
+		}
 		simulationHandler.setLogger(logger);
 	}
 	
@@ -89,6 +96,37 @@ public class ModelHandler {
 	}
 	
 	
+	private SimpleNode readFormula(String formula) throws InvalidPropertyException {
+		
+		String formulaEOF = formula + "\n";
+		try {
+
+			InputStream stream = new ByteArrayInputStream(formulaEOF.getBytes(StandardCharsets.UTF_8));
+			
+			 if (parser == null) 
+				 parser = new SMCParser(stream);
+			 else 
+				 SMCParser.ReInit(stream);
+			 
+			SimpleNode root = SMCParser.Input();
+		
+			if (logger != null) 
+				logger.info("The following formula has been parsed successfully: " + formula);
+			
+			return root;
+			
+		} catch (ParseException e) {
+			
+			//System.out.println("The formula could not be parsed. Please see the error log.");
+			if (logger != null) 
+				logger.severe("The formula could not be parsed: " + e.getLocalizedMessage());	
+			
+			throw new InvalidPropertyException ("The formula could not be parsed: " + e.getLocalizedMessage());
+			
+		}		
+	}
+	
+	
 	public void readModel(String xmlPath){
 		
 		try {    			
@@ -115,16 +153,56 @@ public class ModelHandler {
 	}
 	
 	
-	public void checkFormula(SimpleNode root){
+	public void checkFormula(SimpleNode root) {
 	
     	try {
-			simulationHandler.simulateAndCheckProperty(model, root);
+
+    		Double time = getTimeFromRoot(root);
+    		SimpleNode child = null;
+
+    		ProbabilityOperator operator = getPropertyKind(root); 	  
+    		
+    		Double boundary = 0.0;    		
+    		if (!operator.equals(ProbabilityOperator.confidenceinterval)) {
+    			boundary = getProbBound(root);
+    			 child =  (SimpleNode)root.jjtGetChild(1).jjtGetChild(1);
+    		} else
+    			child =  (SimpleNode)root.jjtGetChild(1).jjtGetChild(0);
+    		
+    		File results = new File("results.cfg");
+    		
+			simulationHandler.simulateAndCheckProperty(model, child, time, operator, boundary, results);
+			
 		} catch (InvalidPropertyException e) {
 			System.out.println("The formula to check is invalid. Please see the error log.");
 		} catch (ModelNotReadableException e) {
 			System.out.println("An error occured while simulating due to an incorrect model file. Please see the error log and recheck the model.");
 		} catch (InvalidRandomVariateGeneratorException e) {
 			System.out.println("An internal error occured while simulating. Please see the error log.");
+		} catch (FileNotFoundException e) {
+			System.out.println("An internal error occured while writing to output file. Please see the error log.");
+		} catch (IOException e) {
+			System.out.println("An internal error occured while writing to output file. Please see the error log.");
+		}    			
+	}	
+	
+	
+	public void checkFormula(String formula, Double time, Double boundary, ProbabilityOperator operator){
+		
+    	try {
+    		SimpleNode root = readFormula(formula);
+    		File results = new File("results.cfg");
+			simulationHandler.simulateAndCheckProperty(model, root , time, operator, boundary, results);
+		} catch (InvalidPropertyException e) {
+			System.out.println("The formula to check is invalid. Please see the error log.");
+		} catch (ModelNotReadableException e) {
+			System.out.println("An error occured while simulating due to an incorrect model file. Please see the error log and recheck the model.");
+		} catch (InvalidRandomVariateGeneratorException e) {
+			System.out.println("An internal error occured while simulating. Please see the error log.");
+		} catch (FileNotFoundException e) {
+			System.out.println("An internal error occured while writing to output file. Please see the error log.");
+		} catch (IOException e) {
+			System.out.println("An internal error occured while writing to output file. Please see the error log.");
 		}    			
 	}	
 	
@@ -249,7 +327,7 @@ public class ModelHandler {
 
 
 	public void loadParameters() {
-		simulationHandler.loadParameters();
+		simulationHandler.loadParameters("libhpng_parameters.cfg");
 	}
 
 
@@ -277,5 +355,44 @@ public class ModelHandler {
 	        System.out.println("logger could not be initialized."); 
 	    }
     }
+    
+    
+    
+    
+	private  Double getTimeFromRoot(SimpleNode propertyRoot) throws InvalidPropertyException{
+		
+		for (int i=0;i < propertyRoot.jjtGetNumChildren(); i++){
+			if (propertyRoot.jjtGetChild(i).toString().equals("TIME"))
+				return Double.parseDouble(((SimpleNode)propertyRoot.jjtGetChild(i).jjtGetChild(0)).jjtGetValue().toString());
+		}		
+		throw new InvalidPropertyException("Property Error: the time of the property node '" + propertyRoot.toString() + "' could not be identified");    
+	}
+	
+	private  ProbabilityOperator getPropertyKind(SimpleNode root) throws InvalidPropertyException{
+		for (int i=0;i < root.jjtGetNumChildren(); i++){
+			if (root.jjtGetChild(i).toString().equals("PROBQ"))
+				return ProbabilityOperator.confidenceinterval;
+			if (root.jjtGetChild(i).toString().equals("PROBGE"))
+				return ProbabilityOperator.hypothesisgreaterequal;
+			if (root.jjtGetChild(i).toString().equals("PROBL"))
+				return ProbabilityOperator.hypothesislower;
+			if (root.jjtGetChild(i).toString().equals("PROBLE"))
+				return ProbabilityOperator.hypothesislowerequal;
+			if (root.jjtGetChild(i).toString().equals("PROBG"))
+				return ProbabilityOperator.hypothesisgreater;
+		}
+		throw new InvalidPropertyException("Property Error: the kind of property (P=?, P>=x, P<=x, P<x, P>x) could not be identified");	
+	}
+	
+	private  Double getProbBound(SimpleNode root) throws InvalidPropertyException{
+		for (int i=0;i < root.jjtGetNumChildren(); i++){
+			if (root.jjtGetChild(i).toString().equals("PROBGE") || root.jjtGetChild(i).toString().equals("PROBL") || root.jjtGetChild(i).toString().equals("PROBLE") || root.jjtGetChild(i).toString().equals("PROBG"))
+				return Double.parseDouble(((SimpleNode)root.jjtGetChild(i).jjtGetChild(0)).jjtGetValue().toString());
+				
+		}
+		if (logger != null)
+			logger.severe("Property Error: the boundary node of the property root could not be identified");
+		throw new InvalidPropertyException("Property Error: the boundary node of the property root could not be identified");
+	}
     	
 }

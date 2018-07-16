@@ -9,9 +9,9 @@ import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
 public class ChernoffCIHypothesisTester extends HypothesisTester{
 	
 
-	public ChernoffCIHypothesisTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double powerIndifferenceLevel, Double type1Error, Double type2Error, Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws InvalidPropertyException{
+	public ChernoffCIHypothesisTester(HPnGModel model, Double time, Double boundary, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double powerIndifferenceLevel, Double type1Error, Double type2Error, Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws InvalidPropertyException{
 
-		super(model, minNumberOfRuns, logger, root, checkLowerThan, invertPropertyAndThreshold);
+		super(model, time, boundary, minNumberOfRuns, logger, root, checkLowerThan, invertPropertyAndThreshold);
 
 		calcNumberOfRuns = (2.0 * Math.sqrt(Math.log(type2Error)*Math.log(type1Error)) - Math.log(type1Error * type2Error)) / (2.0 * Math.pow(powerIndifferenceLevel, 2.0));		
 		epsilon = Math.sqrt((1.0 / (2.0 * calcNumberOfRuns)) * Math.log(2.0 / type1Error));

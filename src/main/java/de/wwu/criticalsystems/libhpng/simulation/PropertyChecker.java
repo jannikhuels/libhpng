@@ -12,19 +12,11 @@ import de.wwu.criticalsystems.libhpng.plotting.*;
 public class PropertyChecker {
 	
 	
-	public PropertyChecker(SimpleNode root, HPnGModel model) throws InvalidPropertyException{
+	public PropertyChecker(SimpleNode root, HPnGModel model, Double time) throws InvalidPropertyException{
 
 		this.model = model;
-
-		try {
-			time = getTimeFromRoot(root);			
-		} catch (InvalidPropertyException e){
-			if (logger != null)
-				logger.severe(e.getLocalizedMessage());
-			throw e;    
-		}
-		
-		propertyRoot = getPropertyRoot(root);		
+		this.time = time;		
+		propertyRoot = root;
 	}
 	
 
@@ -42,38 +34,15 @@ public class PropertyChecker {
 	private SimpleNode propertyRoot;
 	
 	
-	public static Double getMaxTimeForSimulation(SimpleNode propertyRoot) throws InvalidPropertyException{
+	public static Double getMaxTimeForSimulation(SimpleNode propertyRoot, Double time) throws InvalidPropertyException{
 		
-		Double maxTime = getTimeFromRoot(propertyRoot);
+		Double maxTime = time;
 		Double untilTime = checkForUntil(propertyRoot, maxTime);
 		
 		return untilTime;
 	}	
 	
-	public static Double getTimeFromRoot(SimpleNode propertyRoot) throws InvalidPropertyException{
 		
-		for (int i=0;i < propertyRoot.jjtGetNumChildren(); i++){
-			if (propertyRoot.jjtGetChild(i).toString().equals("TIME"))
-				return Double.parseDouble(((SimpleNode)propertyRoot.jjtGetChild(i).jjtGetChild(0)).jjtGetValue().toString());
-		}		
-		throw new InvalidPropertyException("Property Error: the time of the property node '" + propertyRoot.toString() + "' could not be identified");    
-	}
-		
-	public static String getProbertyKind(SimpleNode root) throws InvalidPropertyException{
-		for (int i=0;i < root.jjtGetNumChildren(); i++){
-			if (root.jjtGetChild(i).toString().equals("PROBQ"))
-				return "PROBQ";
-			if (root.jjtGetChild(i).toString().equals("PROBGE"))
-				return "PROBGE";
-			if (root.jjtGetChild(i).toString().equals("PROBL"))
-				return "PROBL";
-			if (root.jjtGetChild(i).toString().equals("PROBLE"))
-				return "PROBLE";
-			if (root.jjtGetChild(i).toString().equals("PROBG"))
-				return "PROBG";
-		}
-		throw new InvalidPropertyException("Property Error: the kind of property (P=?, P>=x, P<=x, P<x, P>x) could not be identified");	
-	}		
 	
 	public static Double getPropertyBoundary(SimpleNode atomic, String type, Logger logger) throws InvalidPropertyException {
 		
@@ -138,16 +107,7 @@ public class PropertyChecker {
 		return fluidProperties;
 	}
 	
-	public Double getProbBound(SimpleNode root) throws InvalidPropertyException{
-		for (int i=0;i < root.jjtGetNumChildren(); i++){
-			if (root.jjtGetChild(i).toString().equals("PROBGE") || root.jjtGetChild(i).toString().equals("PROBL") || root.jjtGetChild(i).toString().equals("PROBLE") || root.jjtGetChild(i).toString().equals("PROBG"))
-				return Double.parseDouble(((SimpleNode)root.jjtGetChild(i).jjtGetChild(0)).jjtGetValue().toString());
-				
-		}
-		if (logger != null)
-			logger.severe("Property Error: the boundary node of the property root could not be identified");
-		throw new InvalidPropertyException("Property Error: the boundary node of the property root could not be identified");
-	}
+
 	
 	
 	public Boolean checkProperty(MarkingPlot plot) throws InvalidPropertyException{	
@@ -1043,7 +1003,7 @@ public class PropertyChecker {
 		throw new InvalidPropertyException("Property Error: the comparison '" + compare + "' could not be identified");
 	}
 		
-	private SimpleNode getPropertyRoot(SimpleNode root) throws InvalidPropertyException{
+	/*private SimpleNode getPropertyRoot(SimpleNode root) throws InvalidPropertyException{
 		
 		for (int i=0;i < root.jjtGetNumChildren(); i++){
 			if (root.jjtGetChild(i).toString().equals("PROBGE") || root.jjtGetChild(i).toString().equals("PROBL") || root.jjtGetChild(i).toString().equals("PROBLE") || root.jjtGetChild(i).toString().equals("PROBG"))
@@ -1055,7 +1015,7 @@ public class PropertyChecker {
 			logger.severe("Property Error: the property root could not be identified");
 		throw new InvalidPropertyException("Property Error: the property root could not be identified");
 	
-	}
+	}*/
 		
 	private String getPropertyID(SimpleNode atomic) throws InvalidPropertyException{
 		

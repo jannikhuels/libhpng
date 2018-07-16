@@ -9,9 +9,9 @@ import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
 public class AzumaHypothesisTester extends HypothesisTester{
 	
 	
-	public AzumaHypothesisTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double guess, Double type1Error, Double type2Error, Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws InvalidPropertyException{
+	public AzumaHypothesisTester(HPnGModel model, Double time, Double boundary, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double guess, Double type1Error, Double type2Error, Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws InvalidPropertyException{
 		
-		super(model, minNumberOfRuns, logger, root, checkLowerThan, invertPropertyAndThreshold);
+		super(model, time, boundary, minNumberOfRuns, logger, root, checkLowerThan, invertPropertyAndThreshold);
 		
 		a = (0.25 - 0.144* Math.pow(type1Error, 0.15)) * Math.sqrt((guess / 0.0243) ); 
 		b = 0.75;

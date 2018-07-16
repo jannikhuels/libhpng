@@ -10,9 +10,9 @@ import umontreal.ssj.probdist.NormalDist;
 public class GaussCIHypothesisTester extends HypothesisTester{
 
 	
-	public GaussCIHypothesisTester(HPnGModel model, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double powerIndifferenceLevel, Double type1Error, Double type2Error, Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws InvalidPropertyException{
+	public GaussCIHypothesisTester(HPnGModel model, Double time, Double boundary, Integer minNumberOfRuns, Logger logger, SimpleNode root, Double powerIndifferenceLevel, Double type1Error, Double type2Error, Boolean checkLowerThan, Boolean invertPropertyAndThreshold) throws InvalidPropertyException{
 
-		super(model, minNumberOfRuns, logger, root, checkLowerThan, invertPropertyAndThreshold);
+		super(model, time, boundary, minNumberOfRuns, logger, root, checkLowerThan, invertPropertyAndThreshold);
 		
 		NormalDist normalDist = new NormalDist();		
 		Double inverseOneMinusType1Error = normalDist.inverseF(1 - type1Error);
