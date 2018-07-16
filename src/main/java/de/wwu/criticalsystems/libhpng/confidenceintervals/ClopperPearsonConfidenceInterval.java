@@ -34,7 +34,7 @@ public class ClopperPearsonConfidenceInterval extends ConfidenceInterval{
 		else
 			beta_low = BetaDist.inverseF(x, n - x+ 1.0, alphaHalf);
 		
-		if (fulfilled == numberOfRuns)
+		if (fulfilled.equals(numberOfRuns))
 			beta_upp = 1.0;
 		else
 			beta_upp  = BetaDist.inverseF(x + 1, n - x, 1.0 - alphaHalf);
