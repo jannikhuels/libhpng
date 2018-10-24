@@ -109,7 +109,7 @@ public class Commands implements CommandMarker {
 		handler.changeParameter((byte)15, realProbability);
 	}
 	
-	@CliCommand(value = "change numberofcalculations", help = "Change the number of calculations of confidence intervalsr")
+	@CliCommand(value = "change numberofcalculations", help = "Change the number of calculations of confidence intervals")
 	public void ChangeNumberOfCalculations(
 			@CliOption(key = { "n" }, mandatory = true, help = "The new number of calculations") final Integer calculations){
 		

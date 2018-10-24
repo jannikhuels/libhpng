@@ -29,6 +29,7 @@ public class XMLReader {
 	
 	public HPnGModel readXmlIntoModel(File xmlFile) throws JAXBException, XmlNotValidException {
 		
+			//TODO ggf. raus nehmen
 			validateAgainstSchema(xmlFile);
 		
 			HPnGModel model=null;
