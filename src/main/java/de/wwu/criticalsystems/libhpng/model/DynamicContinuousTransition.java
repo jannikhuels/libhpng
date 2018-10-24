@@ -97,7 +97,6 @@ public class DynamicContinuousTransition extends Transition{
 	private Integer numberOfEntries = null;
 	
 
-	//TODO Diese Funktion hart coden mit folgendem Code
 	public void computeCurrentFluidAndCurrentChangeOfFluid(ArrayList<Place> places){			
 		
 		
