@@ -11,7 +11,7 @@ public class PromptProvider extends DefaultPromptProvider {
 
 	@Override
 	public String getPrompt() {
-		return "libhpng>";
+		return "HYPEG>";
 	}
 
 	

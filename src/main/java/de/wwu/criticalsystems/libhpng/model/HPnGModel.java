@@ -327,7 +327,7 @@ public class HPnGModel {
 					p.setChangeOfExactDrift(changeOfInFlux - changeOfOutFlux);
 					
 					
-					if((inFlux > outFlux) && p.getCurrentFluidLevel() >= p.getUpperBoundary()){
+					if((inFlux > outFlux) && p.getCurrentFluidLevel() >= p.getUpperBoundary() && !p.getUpperBoundaryInfinity()){
 						//if upper boundary reached
 						Double timeToNextPriority = rateAdaption((ContinuousPlace)place, outFlux, ContinuousArcType.input, changeOfOutFlux);
 						p.setExactDrift(0.0);

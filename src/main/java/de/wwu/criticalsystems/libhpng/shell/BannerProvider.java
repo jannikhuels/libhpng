@@ -12,7 +12,7 @@ public class BannerProvider extends DefaultBannerProvider  {
 	@Override
 	public String getBanner() {
 		StringBuffer buf = new StringBuffer();
-		buf.append("Welcome to libhpng!");
+		buf.append("Welcome to HYPEG!");
 		return buf.toString();
 	}
 
@@ -23,6 +23,6 @@ public class BannerProvider extends DefaultBannerProvider  {
 	
 	@Override
 	public String getProviderName() {
-		return "libhpng";
+		return "HYPEG";
 	}
 }
