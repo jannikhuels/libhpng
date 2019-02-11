@@ -369,7 +369,7 @@ public class Simulator {
 							timeDelta = Double.POSITIVE_INFINITY;
 						
 						if (timeDeltaQ < 0.0)
-							timeDelta = Double.POSITIVE_INFINITY;
+							timeDeltaQ = Double.POSITIVE_INFINITY;
 						
 						timeOfCurrentEvent = currentTime + Math.min(timeDelta, timeDeltaQ);
 
@@ -439,7 +439,6 @@ public class Simulator {
 				}					
 			}	
 		}
-		
 	}
 	
 	private Transition conflictResolutionByTransitionWeight(){

@@ -223,9 +223,10 @@ public class DistributionSetting {
 	
 	//exponential distribution with parameter lambda
 	public static RandomVariateGen setExpDistribution(GeneralTransition transition, MRG31k3p stream, Logger logger) throws InvalidDistributionParameterException{
-			
+		
 		Double lambda = 1.0;
-		Boolean lambdaFound = false;		
+		Boolean lambdaFound = false;
+		Boolean meanFound = false;
 		
 		for (CDFFunctionParameter parameter : transition.getParameters()){
 			switch (parameter.getName()){
@@ -233,6 +234,10 @@ public class DistributionSetting {
 					lambda = parameter.getValue();
 					lambdaFound = true;						
 					break;
+				case "mean":
+					lambda = 1.0 / parameter.getValue();
+					meanFound = true;						
+					break;	
 				default :
 					if (logger != null) 
 						logger.warning("Unknown distribution parameter " + parameter.getName() + " for General Transition " + transition.getId());					
@@ -240,7 +245,7 @@ public class DistributionSetting {
 		}
 		
 			
-		if (lambdaFound && lambda > 0.0){
+		if ((lambdaFound || meanFound) && lambda > 0.0){
 			ExponentialGen generator = new ExponentialGen(stream, lambda);
 			return generator;
 		} else if (lambda <= 0.0){
