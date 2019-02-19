@@ -125,7 +125,11 @@ public class DynamicContinuousTransition extends Transition{
 			    }
 			    
 			    currentFluid = fluidExpression.calculate();
+			    if (currentFluid.isNaN())
+			    	currentFluid = 0.0;
 			    currentChangeOfFluid = changeOfFluidExpression.calculate();
+			    if (currentChangeOfFluid.isNaN())
+			    	currentChangeOfFluid = 0.0;
 			}
 		}
 	    	    

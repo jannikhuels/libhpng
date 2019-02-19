@@ -45,6 +45,7 @@
 										      				<xs:enumeration value="n"/>
 										 					<xs:enumeration value="a"/>
 															<xs:enumeration value="b"/>
+															<xs:enumeration value="mean"/>
 														</xs:restriction></xs:simpleType>
 													</xs:attribute>
                                                     <xs:attribute name="value" type="xs:double" use="required"></xs:attribute>
@@ -164,7 +165,6 @@
              	</xs:sequence>
           	</xs:complexType>
   		</xs:element>
-
 		<xs:simpleType name="nonNegativeDouble">
 	  		<xs:restriction base="xs:double">
 	    		<xs:minInclusive value="0.0"/>

@@ -417,7 +417,7 @@ public class HPnGModel {
 		
 		for (Place place: places){
 			if (place.getClass().equals(ContinuousPlace.class))
-				System.out.print("    " + place.getId() + ": " + ((ContinuousPlace)place).getCurrentFluidLevel());
+				System.out.print("    " + place.getId() + ": " + ((ContinuousPlace)place).getExactFluidLevel() + " (" + ((ContinuousPlace)place).getExactDrift() + ")");
 			 else 
 				System.out.print("    " + place.getId() + ": " + ((DiscretePlace)place).getNumberOfTokens());
 		}

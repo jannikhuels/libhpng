@@ -31,7 +31,7 @@ public class CDFFunctionParameter {
 	@XmlAttribute(name = "value")
 	public void setValue(Double value) {
 		this.value = value;
-	}
+	}	
 	
 	private String name;
 	private Double value;

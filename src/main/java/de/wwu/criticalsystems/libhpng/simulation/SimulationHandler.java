@@ -361,14 +361,6 @@ public class SimulationHandler {
 		simulator = new DynamicSimulator(model, maxTime, fluidProperyList);
 		simulator.setLogger(logger);
 		
-//		String prob = "";
-//		try {
-//			prob = PropertyChecker.getProbertyKind(root);
-//		} catch (InvalidPropertyException e) {		
-//			if (logger != null)
-//				logger.severe(e.getLocalizedMessage());
-//			throw new InvalidPropertyException(e.getLocalizedMessage());
-//		}
 	
 		Properties parameters = new Properties();
 		
@@ -670,9 +662,9 @@ public class SimulationHandler {
 			
 			if (fixedNumber){				
 				
-				for (run = 0; run < fixedNumberOfRuns; run++){
-					
-					if (printRunResults)
+				for (run = 0; run < fixedNumberOfRuns; run++){					
+							
+					if (printRunResults || ((run+1) % 100 == 0))
 						System.out.println("Starting simulation run no." + (run+1));
 					
 					currentTime = 0.0;
@@ -749,7 +741,7 @@ public class SimulationHandler {
 				run = 0;
 				while (!calc.checkBound() && run < maxNumberOfRuns){
 					
-					if (printRunResults)
+					if (printRunResults || ((run+1) % 100 == 0))
 						System.out.println("Starting simulation run no." + (run+1));
 					
 					currentTime = 0.0;

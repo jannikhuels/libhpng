@@ -162,7 +162,7 @@ public class SimulationForHypothesisTesting {
 		
 			
 			if (fixedNumber){				
-				
+				firings = 0;
 				for (run = 0; run < fixedNumberOfRuns; run++){
 					
 					if (printRunResults) System.out.println("Starting simulation run no." + (run+1));
@@ -238,6 +238,7 @@ public class SimulationForHypothesisTesting {
 			}else{
 
 				run = 0;
+				firings = 0;
 				while (!tester.getResultAchieved() && run < maxNumberOfRuns && !tester.getTerminate()){
 					
 					if (printRunResults)
