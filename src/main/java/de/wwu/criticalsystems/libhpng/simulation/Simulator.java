@@ -419,13 +419,13 @@ public class Simulator {
 						
 						timeOfCurrentEvent = currentTime + place.getTimeToNextInternalTransition();
 
-						if (timeOfCurrentEvent < event.getOccurenceTime()){
+						if (timeOfCurrentEvent < event.getOccurenceTime() && timeOfCurrentEvent >= currentTime){
 							
 							event.setEventType(SimulationEventType.place_internaltransition);							
 							event.setFirstEventItem(place, 0);
 							event.setOccurenceTime(timeOfCurrentEvent);
 								
-						} else if (timeOfCurrentEvent.equals(event.getOccurenceTime())) {
+						} else if (timeOfCurrentEvent.equals(event.getOccurenceTime()) && timeOfCurrentEvent >= currentTime) {
 							
 							if (event.getEventType().equals(SimulationEventType.no_event)){							
 								event.setEventType(SimulationEventType.place_internaltransition);

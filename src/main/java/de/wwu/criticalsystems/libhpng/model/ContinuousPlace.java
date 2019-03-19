@@ -184,6 +184,8 @@ public class ContinuousPlace extends Place{
 		
 	public void computeTimeToNextInternalTransition(ArrayList<Arc> arcs) {	
 		
+		timeToNextInternalTransition = Double.POSITIVE_INFINITY;
+		
 		if (upperBoundaryReached || lowerBoundaryReached){
 			
 			Double inFlux = 0.0;					
@@ -217,17 +219,16 @@ public class ContinuousPlace extends Place{
 			}
 
 				
-			if (upperBoundaryReached && changeOfOutFlux > changeOfInFlux){
+			if (upperBoundaryReached && changeOfOutFlux > changeOfInFlux)				
+				timeToNextInternalTransition = (inFlux - outFlux) / (changeOfOutFlux - changeOfInFlux);		
+			
+			else if (lowerBoundaryReached && changeOfInFlux > changeOfOutFlux)				
+				timeToNextInternalTransition = (outFlux - inFlux) / (changeOfInFlux - changeOfOutFlux);				
 				
-				timeToNextInternalTransition = (inFlux - outFlux) / (changeOfOutFlux - changeOfInFlux);
-				return;
-				
-			} else if (lowerBoundaryReached && changeOfInFlux > changeOfOutFlux){
-				
-				timeToNextInternalTransition = (outFlux - inFlux) / (changeOfInFlux - changeOfOutFlux);
-				return;
-				
-			}
+			if (timeToNextInternalTransition < 0.0)
+				timeToNextInternalTransition = Double.POSITIVE_INFINITY;
+			
+			return;
 		} 
 		
 		if (changeOfExactDrift != 0.0)		
@@ -236,7 +237,9 @@ public class ContinuousPlace extends Place{
 			timeToNextInternalTransition = Double.POSITIVE_INFINITY;		
 	}
 		
-	public void computeTimeToNextInternalTransitionFromExternal(ArrayList<Arc> arcs) {			
+	public void computeTimeToNextInternalTransitionFromExternal(ArrayList<Arc> arcs) {		
+		
+		timeToNextInternalTransition = Double.POSITIVE_INFINITY;
 		
 		if (upperBoundaryReached || lowerBoundaryReached){
 			
@@ -269,19 +272,18 @@ public class ContinuousPlace extends Place{
 					}
 				}
 			}
-
+	
+			
+			if (upperBoundaryReached && changeOfOutFlux > changeOfInFlux)				
+				timeToNextInternalTransition = (inFlux - outFlux) / (changeOfOutFlux - changeOfInFlux);		
+			
+			else if (lowerBoundaryReached && changeOfInFlux > changeOfOutFlux)				
+				timeToNextInternalTransition = (outFlux - inFlux) / (changeOfInFlux - changeOfOutFlux);				
 				
-			if (upperBoundaryReached && changeOfOutFlux > changeOfInFlux){
-				
-				timeToNextInternalTransition = (inFlux - outFlux) / (changeOfOutFlux - changeOfInFlux);
-				return;
-				
-			} else if (lowerBoundaryReached && changeOfInFlux > changeOfOutFlux){
-				
-				timeToNextInternalTransition = (outFlux - inFlux) / (changeOfInFlux - changeOfOutFlux);
-				return;
-				
-			}
+			if (timeToNextInternalTransition < 0.0)
+				timeToNextInternalTransition = Double.POSITIVE_INFINITY;
+			
+			return;
 		} 
 		
 		
@@ -312,6 +314,10 @@ public class ContinuousPlace extends Place{
 			timeToNextInternalTransition =  Math.min(Math.min(s1,  s2), Math.min(s3, s4));
 		} else
 			timeToNextInternalTransition = Double.POSITIVE_INFINITY; 
+	
+			
+		if (timeToNextInternalTransition < 0.0)
+			timeToNextInternalTransition = Double.POSITIVE_INFINITY;
 		
 	}
 		
