@@ -129,7 +129,7 @@ public class Simulator {
 					upperBoundary = place.getUpperBoundaryReached();
 				
 							
-				place.performInternalTransition(event.getOccurenceTime(), place.getExactDrift(), place.getChangeOfExactDrift(), model.getArcs());	
+				place.performInternalTransition(event.getOccurenceTime(), place.getExactDrift(), place.getChangeOfExactDrift(), model.getArcs(), false);	
 				
 				if (printRunResults)
 					System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " has performed an internal transition");

@@ -19,7 +19,7 @@ public class ContinuousPlace extends Place{
 		this.originalFluidLevel = originalFluidLevel;
 		this.upperBoundary = upperBoundary;
 		this.drift = drift;
-		this.upperBoundaryInfinity = upperBoundaryInfinity;
+		this.upperBoundaryInfinity = upperBoundaryInfinity;		
 	}	
 	
 
@@ -38,6 +38,7 @@ public class ContinuousPlace extends Place{
 		this.changeOfExactDrift = new Double(placeToCopy.getChangeOfExactDrift());
 		this.quantum = new Double(placeToCopy.getQuantum());
 		this.lastUpdate = new Double(placeToCopy.getLastUpdate());
+		this.timeToNextInternalTransition = new Double(placeToCopy.getTimeToNextInternalTransition());
 	}
 
 	
@@ -93,6 +94,8 @@ public class ContinuousPlace extends Place{
 	}
 	
 	public Double getTimeToNextInternalTransition() {
+		if (timeToNextInternalTransition == null)
+			return Double.POSITIVE_INFINITY;
 		return timeToNextInternalTransition;
 	}
 
@@ -219,13 +222,18 @@ public class ContinuousPlace extends Place{
 			}
 
 				
-			if (upperBoundaryReached && changeOfOutFlux > changeOfInFlux)				
+			if (inFlux.equals(outFlux) && changeOfExactDrift != 0.0)
+				timeToNextInternalTransition = Math.sqrt(Math.abs((2 * quantum)/changeOfExactDrift));
+				
+			else if (upperBoundaryReached && changeOfOutFlux > changeOfInFlux )				
 				timeToNextInternalTransition = (inFlux - outFlux) / (changeOfOutFlux - changeOfInFlux);		
 			
 			else if (lowerBoundaryReached && changeOfInFlux > changeOfOutFlux)				
-				timeToNextInternalTransition = (outFlux - inFlux) / (changeOfInFlux - changeOfOutFlux);				
+				timeToNextInternalTransition = (outFlux - inFlux) / (changeOfInFlux - changeOfOutFlux);	
+			
+
 				
-			if (timeToNextInternalTransition < 0.0)
+			if (timeToNextInternalTransition <= 0.0)
 				timeToNextInternalTransition = Double.POSITIVE_INFINITY;
 			
 			return;
@@ -321,9 +329,13 @@ public class ContinuousPlace extends Place{
 		
 	}
 		
-	public void performInternalTransition(Double timePoint, Double previousDrift, Double previousChangeOfDrift, ArrayList<Arc> arcs){
+	public void performInternalTransition(Double timePoint, Double previousDrift, Double previousChangeOfDrift, ArrayList<Arc> arcs, Boolean adapted){
 		
-		Double timeSinceLastInternalTransition = timePoint - lastUpdate;				
+		Double timeSinceLastInternalTransition = timePoint - lastUpdate;	
+		Double oldTimeToNextInternalTransition = null;
+		if (!(timeToNextInternalTransition == null)) 
+			oldTimeToNextInternalTransition = timeToNextInternalTransition - timeSinceLastInternalTransition;	
+		
 		Double fluid = exactFluidLevel;			
 		fluid += previousDrift * timeSinceLastInternalTransition + previousChangeOfDrift/2.0 * Math.pow(timeSinceLastInternalTransition, 2.0);
 		
@@ -346,7 +358,15 @@ public class ContinuousPlace extends Place{
 		currentFluidLevel = exactFluidLevel;		
 		drift = exactDrift;			
 		
-		computeTimeToNextInternalTransition(arcs);				
+			
+		computeTimeToNextInternalTransition(arcs);
+		
+		if (adapted && !(timeToNextInternalTransition == null)) {			
+			if (!(oldTimeToNextInternalTransition == null) && oldTimeToNextInternalTransition < timeToNextInternalTransition && oldTimeToNextInternalTransition > 0.0) {
+				timeToNextInternalTransition = oldTimeToNextInternalTransition;
+			}
+		}
+
 	}
 	
 	public Double getTimeTilExactFluidLevelHitsBoundary(Double boundary, Double timePoint){
