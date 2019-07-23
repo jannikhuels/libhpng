@@ -2,17 +2,19 @@
 <HPnG>
   <places>
     <!--Heated Tank-->
-    <continuousPlace id="H" capacity="0" infiniteCapacity="1" level="100.2" quantum="1.0"/>  <!-- level = H_init + shift= 0 + shift -->
+    <continuousPlace id="H" capacity="0" infiniteCapacity="1" level="100.0" quantum="1.0"/>  <!-- level = H_init + shift= 0 + shift -->
     <!--Pump 1-->
     <discretePlace id="P1_On" marking="1"/>
     <discretePlace id="P1_Off" marking="0"/>
     <discretePlace id="P1_SOn" marking="0"/>
     <discretePlace id="P1_SOff" marking="0"/>
+    <discretePlace id="P1_switch" marking="0"/>
     <!--Pump 2-->
     <discretePlace id="P2_On" marking="0"/>
     <discretePlace id="P2_Off" marking="1"/>
     <discretePlace id="P2_SOn" marking="0"/>
     <discretePlace id="P2_SOff" marking="0"/>
+    <discretePlace id="P2_switch" marking="0"/>
     <!--Pump Counter-->
     <discretePlace id="Pump_On" marking="0"/>
     <discretePlace id="Pump_Off" marking="0"/>
@@ -24,6 +26,7 @@
     <discretePlace id="V_Off" marking="0"/>
     <discretePlace id="V_SOn" marking="0"/>
     <discretePlace id="V_SOff" marking="0"/>
+    <discretePlace id="Valve_switch" marking="0"/>
     <!--Valve Counter-->
     <discretePlace id="Valve_On" marking="1"/>
     <discretePlace id="Valve_Off" marking="0"/>
@@ -32,7 +35,7 @@
     <discretePlace id="Decrease" marking="0"/>
     <discretePlace id="Increase" marking="0"/>
   </places>
-  <transitions>   	
+  <transitions> 	
     <!--Heated Tank-->
 	<continuousTransition id="H_in1"  rate="0.6"/><!--rate = q -->
 	<continuousTransition id="H_in2"  rate="1.2"/><!--rate = 2*q -->
@@ -49,9 +52,11 @@
     </generalTransition>
     <generalTransition id="P1_Off_SOff" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
       <parameter name="mean" value="438"/>
-    </generalTransition>    
-    <immediateTransition id="P1_Off_On" priority="0" weight="1.0"/>
-    <immediateTransition id="P1_On_Off" priority="0" weight="1.0"/>
+    </generalTransition>
+    <immediateTransition id="P1_Off_On" priority="0" weight="9.0"/>
+    <immediateTransition id="P1_On_Off" priority="0" weight="9.0"/>
+    <immediateTransition id="P1_fail_Off" priority="0" weight="1.0"/>
+    <immediateTransition id="P1_fail_On" priority="0" weight="1.0"/>
     <!--Pump 2-->
     <generalTransition id="P2_On_SOn" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
       <parameter name="mean" value="350"/>
@@ -65,8 +70,10 @@
    <generalTransition id="P2_Off_SOff" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
       <parameter name="mean" value="350"/>
     </generalTransition>
-    <immediateTransition id="P2_Off_On" priority="0" weight="1.0"/>
-    <immediateTransition id="P2_On_Off" priority="0" weight="1.0"/>
+    <immediateTransition id="P2_Off_On" priority="0" weight="9.0"/>
+    <immediateTransition id="P2_On_Off" priority="0" weight="9.0"/>
+    <immediateTransition id="P2_fail_Off" priority="0" weight="1.0"/>
+    <immediateTransition id="P2_fail_On" priority="0" weight="1.0"/>
     <!--Pump Counter-->
     <immediateTransition id="Add_Pump1" priority="0" weight="1.0"/>
     <immediateTransition id="Add_Pump2" priority="0" weight="1.0"/>
@@ -85,8 +92,10 @@
    <generalTransition id="V_Off_SOff" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
       <parameter name="mean" value="640"/>
     </generalTransition>
-    <immediateTransition id="V_Off_On" priority="0" weight="1.0"/>
-    <immediateTransition id="V_On_Off" priority="0" weight="1.0"/>
+    <immediateTransition id="V_Off_On" priority="0" weight="9.0"/>
+    <immediateTransition id="V_On_Off" priority="0" weight="9.0"/>
+    <immediateTransition id="Valve_fail_Off" priority="0" weight="1.0"/>
+    <immediateTransition id="Valve_fail_On" priority="0" weight="1.0"/>   
     <!--Controller-->   
    <immediateTransition id="Normal_Decrease" priority="0" weight="1.0"/>
    <immediateTransition id="Normal_Increase" priority="0" weight="1.0"/>
@@ -114,8 +123,18 @@
     <discreteArc id="da_P1OffOn_P1On" fromNode="P1_Off_On" toNode="P1_On" weight="1.0"/>
     <discreteArc id="da_P1On_P1OnOff" fromNode="P1_On" toNode="P1_On_Off" weight="1.0"/>
     <discreteArc id="da_P1OnOff_P1Off" fromNode="P1_On_Off" toNode="P1_Off" weight="1.0"/>
-    <guardArc id="ga_Increase_P1OffOn" fromNode="Increase" toNode="P1_Off_On" isInhibitor="0" weight="1.0"/>
-    <guardArc id="ga_Decrease_P1OnOff" fromNode="Decrease" toNode="P1_On_Off" isInhibitor="0" weight="1.0"/>
+    <discreteArc id="da_IncreaseDecrease_P1switch" fromNode="Increase_Decrease" toNode="P1_switch" weight="1.0"/>
+    <discreteArc id="da_DecreaseIncrease_P1switch" fromNode="Decrease_Increase" toNode="P1_switch" weight="1.0"/>
+    <discreteArc id="da_NormalIncrease_P1switch" fromNode="Normal_Increase" toNode="P1_switch" weight="1.0"/>
+    <discreteArc id="da_NormalDecrease_P1switch" fromNode="Normal_Decrease" toNode="P1_switch" weight="1.0"/>
+    <discreteArc id="da_P1switch_P1failOff" fromNode="P1_switch" toNode="P1_fail_Off" weight="1.0"/>
+	<discreteArc id="da_P1switch_P1failOn" fromNode="P1_switch" toNode="P1_fail_On" weight="1.0"/>    
+	<discreteArc id="da_P1switch_P1OffOn" fromNode="P1_switch" toNode="P1_Off_On" weight="1.0"/>
+	<discreteArc id="da_P1switch_P1OnOff" fromNode="P1_switch" toNode="P1_On_Off" weight="1.0"/>    
+	<discreteArc id="da_P1failOff_P1On" fromNode="P1_fail_Off" toNode="P1_On" weight="1.0"/>       
+	<discreteArc id="da_P1On_P1failOff" fromNode="P1_On" toNode="P1_fail_Off" weight="1.0"/>  
+	<discreteArc id="da_P1failOn_P1Off" fromNode="P1_fail_On" toNode="P1_Off" weight="1.0"/>       
+	<discreteArc id="da_P1Off_P1failOn" fromNode="P1_Off" toNode="P1_fail_On" weight="1.0"/> 
     <!--Pump 2-->
     <discreteArc id="da_P2On_P2OnSOn" fromNode="P2_On" toNode="P2_On_SOn" weight="1.0"/>
     <discreteArc id="da_P2OnSOn_P2SOn" fromNode="P2_On_SOn" toNode="P2_SOn" weight="1.0"/>
@@ -129,8 +148,18 @@
     <discreteArc id="da_P2OffOn_P2On" fromNode="P2_Off_On" toNode="P2_On" weight="1.0"/>
     <discreteArc id="da_P2On_P2OnOff" fromNode="P2_On" toNode="P2_On_Off" weight="1.0"/>
     <discreteArc id="da_P2OnOff_P2Off" fromNode="P2_On_Off" toNode="P2_Off" weight="1.0"/>
-    <guardArc id="ga_Increase_P2OffOn" fromNode="Increase" toNode="P2_Off_On" isInhibitor="0" weight="1.0"/>
-    <guardArc id="ga_Decrease_P2OnOff" fromNode="Decrease" toNode="P2_On_Off" isInhibitor="0" weight="1.0"/>
+    <discreteArc id="da_IncreaseDecrease_P2switch" fromNode="Increase_Decrease" toNode="P2_switch" weight="1.0"/>
+    <discreteArc id="da_DecreaseIncrease_P2switch" fromNode="Decrease_Increase" toNode="P2_switch" weight="1.0"/>
+    <discreteArc id="da_NormalIncrease_P2switch" fromNode="Normal_Increase" toNode="P2_switch" weight="1.0"/>
+    <discreteArc id="da_NormalDecrease_P2switch" fromNode="Normal_Decrease" toNode="P2_switch" weight="1.0"/>
+    <discreteArc id="da_P2switch_P2failOff" fromNode="P2_switch" toNode="P2_fail_Off" weight="1.0"/>
+	<discreteArc id="da_P2switch_P2failOn" fromNode="P2_switch" toNode="P2_fail_On" weight="1.0"/>    
+	<discreteArc id="da_P2switch_P2OffOn" fromNode="P2_switch" toNode="P2_Off_On" weight="1.0"/>
+	<discreteArc id="da_P2switch_P2OnOff" fromNode="P2_switch" toNode="P2_On_Off" weight="1.0"/>     
+	<discreteArc id="da_P2failOff_P2On" fromNode="P2_fail_Off" toNode="P2_On" weight="1.0"/>       
+	<discreteArc id="da_P2On_P2failOff" fromNode="P2_On" toNode="P2_fail_Off" weight="1.0"/>  
+	<discreteArc id="da_P2failOn_P2Off" fromNode="P2_fail_On" toNode="P2_Off" weight="1.0"/>       
+	<discreteArc id="da_P2Off_P2failOn" fromNode="P2_Off" toNode="P2_fail_On" weight="1.0"/> 
     <!--Pump Counter-->   
     <discreteArc id="da_P1OnSOff_PumpOff" fromNode="P1_On_SOff" toNode="Pump_Off" weight="1.0"/>
     <discreteArc id="da_P1OnOff_PumpOff" fromNode="P1_On_Off" toNode="Pump_Off" weight="1.0"/>
@@ -165,8 +194,18 @@
     <discreteArc id="da_VOffOn_VOn" fromNode="V_Off_On" toNode="V_On" weight="1.0"/>
     <discreteArc id="da_VOn_VOnOff" fromNode="V_On" toNode="V_On_Off" weight="1.0"/>
     <discreteArc id="da_VOnOff_VOff" fromNode="V_On_Off" toNode="V_Off" weight="1.0"/> 
-    <guardArc id="ga_Increase_VOnOff" fromNode="Increase" toNode="V_On_Off" isInhibitor="0" weight="1.0"/>
-    <guardArc id="ga_Decrease_VOffOn" fromNode="Decrease" toNode="V_Off_On" isInhibitor="0" weight="1.0"/>
+    <discreteArc id="da_IncreaseDecrease_Valveswitch" fromNode="Increase_Decrease" toNode="Valve_switch" weight="1.0"/>
+    <discreteArc id="da_DecreaseIncrease_Valveswitch" fromNode="Decrease_Increase" toNode="Valve_switch" weight="1.0"/>
+    <discreteArc id="da_NormalIncrease_Valveswitch" fromNode="Normal_Increase" toNode="Valve_switch" weight="1.0"/>
+    <discreteArc id="da_NormalDecrease_Valveswitch" fromNode="Normal_Decrease" toNode="Valve_switch" weight="1.0"/>   
+    <discreteArc id="da_Valveswitch_ValvefailOff" fromNode="Valve_switch" toNode="Valve_fail_Off" weight="1.0"/>
+	<discreteArc id="da_Valveswitch_ValvefailOn" fromNode="Valve_switch" toNode="Valve_fail_On" weight="1.0"/>    
+	<discreteArc id="da_Valveswitch_VOffOn" fromNode="Valve_switch" toNode="V_Off_On" weight="1.0"/>
+	<discreteArc id="da_Valveswitch_VOnOff" fromNode="Valve_switch" toNode="V_On_Off" weight="1.0"/>      
+	<discreteArc id="da_ValvefailOff_VOn" fromNode="Valve_fail_Off" toNode="V_On" weight="1.0"/>       
+	<discreteArc id="da_VOn_ValvefailOff" fromNode="V_On" toNode="Valve_fail_Off" weight="1.0"/>  
+	<discreteArc id="da_ValvefailOn_VOff" fromNode="Valve_fail_On" toNode="V_Off" weight="1.0"/>       
+	<discreteArc id="da_VOff_ValvefailOn" fromNode="V_Off" toNode="Valve_fail_On" weight="1.0"/> 
     <!--Valve Counter-->   
     <discreteArc id="da_VOnOff_ValveOff" fromNode="V_On_Off" toNode="Valve_Off" weight="1.0"/>  
     <discreteArc id="da_VOnSOff_ValveOff" fromNode="V_On_SOff" toNode="Valve_Off" weight="1.0"/> 

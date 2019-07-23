@@ -2,9 +2,9 @@
 <HPnG>
   <places>
   	<!--Temperature-->
-    <continuousPlace id="T" capacity="0" infiniteCapacity="1" level="15.67" quantum="1.0"/> <!-- level = x_{T,0} = 15 2/3-->
+    <continuousPlace id="T" capacity="110" infiniteCapacity="0" level="15.6667" quantum="10.0"/> <!-- level = x_{T,0} = 15 2/3-->
     <!--Heated Tank-->
-    <continuousPlace id="H" capacity="0" infiniteCapacity="1" level="100.2" quantum="1.0"/>  <!-- level = H_init + shift= 0 + shift -->
+    <continuousPlace id="H" capacity="0" infiniteCapacity="1" level="100.0" quantum="1.0"/>  <!-- level = H_init + shift= 0 + shift -->
     <!--Pump 1-->
     <discretePlace id="P1_On" marking="1"/>
     <discretePlace id="P1_Off" marking="0"/>
@@ -36,69 +36,69 @@
   </places>
   <transitions> 
   	<!--Temperature-->
-    <dynamicContinuousTransition id="T_in1" rateFunction="10.0/(H-100.0)" changeOfRateFunction="-10.0*delta_H/((H-100.0)*(H-100.0))"/>
-    	<!--rate = (T_in*q+E_in)/x_{H,t} = (15*0.6+1)/(H-shift) -->
-    	<!--change of rate = -(T_in*q+E_in)*x_{H,t}'/x_{H,t}^2 = -1*(15*0.6+1)*delta_H/((H-shift)*(H-shift)) -->
+    <dynamicContinuousTransition id="T_in1" rateFunction="10.0/(H-97.0)" changeOfRateFunction="-10.0*delta_H/((H-97.0)*(H-97.0))"/>
+    	<!--rate = (T_in*q+E_in)/(x_{H,t}-H_Dryout) = (15*0.6+1)/(H-shift+3) -->
+    	<!--change of rate = -(T_in*q+E_in)*x_{H,t}'/x_{H,t}^2 = -1*(15*0.6+1)*delta_H/((H-shift+3)*(H-shift+3)) -->
     	<!---->
-    <dynamicContinuousTransition id="T_in2" rateFunction="2.0*(15.0*0.6+1.0)/H" changeOfRateFunction="-20.0*delta_H/((H-100.0)*(H-100.0))"/>
-        <!--rate = 2*(T_in*q+E_in)/x_{H,t} = 2*(15*0.6+1)/(H-shift) -->
-    	<!--change of rate = -2(T_in*q+E_in)*x_{H,t}'/x_{H,t}^2 = -2*(15*0.6+1)*delta_H/((H-shift)*(H-shift)) -->
+    <dynamicContinuousTransition id="T_in2" rateFunction="20.0/(H-97.0)" changeOfRateFunction="-20.0*delta_H/((H-97.0)*(H-97.0))"/>
+        <!--rate = 2*(T_in*q+E_in)/(x_{H,t}-H_Dryout) = 2*(15*0.6+1)/(H-shift+3) -->
+    	<!--change of rate = -2(T_in*q+E_in)*x_{H,t}'/x_{H,t}^2 = -2*(15*0.6+1)*delta_H/((H-shift+3)*(H-shift+3)) -->
     	<!---->
-    <dynamicContinuousTransition id="T_in3" rateFunction="0.6*T/(H-100.0)" changeOfRateFunction="0.6*(delta_T*(H-100.0)-delta_H*T)/((H-100.0)*(H-100.0))"/>
-        <!--rate = q*x_{T,t}/x_{H,t} = 0.6*T/(H-shift) -->
-    	<!--change of rate = q*(x_{T,t}'*x_{H,t}-x_{H,t}'*x_{T,t})/x_{H,t}^2 = 0.6*(delta_T*(H-shift)-delta_H*T)/((H-shift)*(H-shift)) -->
+    <dynamicContinuousTransition id="T_in3" rateFunction="0.6*T/(H-97.0)" changeOfRateFunction="0.6*(delta_T*(H-97.0)-delta_H*T)/((H-97.0)*(H-97.0))"/>
+        <!--rate = q*x_{T,t}/(x_{H,t}-H_Dryout) = 0.6*T/(H-shift+3) -->
+    	<!--change of rate = q*(x_{T,t}'*x_{H,t}-x_{H,t}'*x_{T,t})/x_{H,t}^2 = 0.6*(delta_T*(H-shift+3)-delta_H*T)/((H-shift+3)*(H-shift+3)) -->
     	<!---->
-    <dynamicContinuousTransition id="T_in4" rateFunction="1.2*T/(H-100.0)" changeOfRateFunction="1.2*(delta_T*(H-100.0)-delta_H*T)/((H-100.0)*(H-100.0))"/>
-    	<!--rate = 2*q*x_{T,t}/x_{H,t} = 2*0.6*T/(H-shift) -->
-    	<!--change of rate = 2*q*(x_{T,t}'*x_{H,t}-x_{H,t}'*x_{T,t})/x_{H,t}^2 = 2*0.6*(delta_T*(H-shift)-delta_H*T)/((H-shift)*(H-shift)) -->
+    <dynamicContinuousTransition id="T_in4" rateFunction="1.2*T/(H-97.0)" changeOfRateFunction="1.2*(delta_T*(H-97.0)-delta_H*T)/((H-97.0)*(H-97.0))"/>
+    	<!--rate = 2*q*x_{T,t}/(x_{H,t}-H_Dryout) = 2*0.6*T/(H-shift+3) -->
+    	<!--change of rate = 2*q*(x_{T,t}'*x_{H,t}-x_{H,t}'*x_{T,t})/x_{H,t}^2 = 2*0.6*(delta_T*(H-shift+3)-delta_H*T)/((H-shift+3)*(H-shift+3)) -->
     	<!---->	
-    <dynamicContinuousTransition id="T_out1" rateFunction="0.6*T/(H-100.0)" changeOfRateFunction="0.6*(delta_T*(H-100.0)-delta_H*T)/((H-100.0)*(H-100.0))"/>
-        <!--rate = q*x_{T,t}/x_{H,t} = 0.6*T/(H-shift) -->
-    	<!--change of rate = q*(x_{T,t}'*x_{H,t}-x_{H,t}'*x_{T,t})/x_{H,t}^2 = 0.6*(delta_T*(H-shift)-delta_H*T)/((H-shift)*(H-shift)) -->
+    <dynamicContinuousTransition id="T_out1" rateFunction="0.6*T/(H-97.0)" changeOfRateFunction="0.6*(delta_T*(H-97.0)-delta_H*T)/((H-97.0)*(H-97.0))"/>
+        <!--rate = q*x_{T,t}/(x_{H,t}-H_Dryout) = 0.6*T/(H-shift+3) -->
+    	<!--change of rate = q*(x_{T,t}'*x_{H,t}-x_{H,t}'*x_{T,t})/x_{H,t}^2 = 0.6*(delta_T*(H-shift+3)-delta_H*T)/((H-shift+3)*(H-shift+3)) -->
     	<!---->
-    <dynamicContinuousTransition id="T_out2" rateFunction="1.2*T/(H-100.0)" changeOfRateFunction="1.2*(delta_T*(H-100.0)-delta_H*T)/((H-100.0)*(H-100.0))"/>
-    	<!--rate = 2*q*x_{T,t}/x_{H,t} = 2*0.6*T/(H-shift) -->
-    	<!--change of rate = 2*q*(x_{T,t}'*x_{H,t}-x_{H,t}'*x_{T,t})/x_{H,t}^2 = 2*0.6*(delta_T*(H-shift)-delta_H*T)/((H-shift)*(H-shift)) -->
+    <dynamicContinuousTransition id="T_out2" rateFunction="1.2*T/(H-97.0)" changeOfRateFunction="1.2*(delta_T*(H-97.0)-delta_H*T)/((H-97.0)*(H-97.0))"/>
+    	<!--rate = 2*q*x_{T,t}/(x_{H,t}-H_Dryout) = 2*0.6*T/(H-shift+3) -->
+    	<!--change of rate = 2*q*(x_{T,t}'*x_{H,t}-x_{H,t}'*x_{T,t})/x_{H,t}^2 = 2*0.6*(delta_T*(H-shift+3)-delta_H*T)/((H-shift+3)*(H-shift+3)) -->
     	<!---->
-   <dynamicContinuousTransition id="T_out3" rateFunction="10.0/(H-100.0)" changeOfRateFunction="-10.0*delta_H/((H-100.0)*(H-100.0))"/>
-    	<!--rate = (T_in*q+E_in)/x_{H,t} = (15*0.6+1)/(H-shift) -->
-    	<!--change of rate = -(T_in*q+E_in)*x_{H,t}'/x_{H,t}^2 = -1*(15*0.6+1)*delta_H/((H-shift)*(H-shift)) -->
+   <dynamicContinuousTransition id="T_out3" rateFunction="10.0/(H-97.0)" changeOfRateFunction="-10.0*delta_H/((H-97.0)*(H-97.0))"/>
+    	<!--rate = (T_in*q+E_in)/(x_{H,t}-H_Dryout) = (15*0.6+1)/(H-shift+3) -->
+    	<!--change of rate = -(T_in*q+E_in)*x_{H,t}'/x_{H,t}^2 = -1*(15*0.6+1)*delta_H/((H-shift+3)*(H-shift+3)) -->
     	<!---->
-    <dynamicContinuousTransition id="T_out4" rateFunction="2.0*(15.0*0.6+1.0)/H" changeOfRateFunction="-20.0*delta_H/((H-100.0)*(H-100.0))"/>
-        <!--rate = 2*(T_in*q+E_in)/x_{H,t} = 2*(15*0.6+1)/(H-shift) -->
-    	<!--change of rate = -2(T_in*q+E_in)*x_{H,t}'/x_{H,t}^2 = -2*(15*0.6+1)*delta_H/((H-shift)*(H-shift)) -->
-    	<!---->    	
+    <dynamicContinuousTransition id="T_out4" rateFunction="20.0/(H-97.0)" changeOfRateFunction="-20.0*delta_H/((H-97.0)*(H-97.0))"/>
+        <!--rate = 2*(T_in*q+E_in)/(x_{H,t}-H_Dryout) = 2*(15*0.6+1)/(H-shift+3) -->
+    	<!--change of rate = -2(T_in*q+E_in)*x_{H,t}'/x_{H,t}^2 = -2*(15*0.6+1)*delta_H/((H-shift+3)*(H-shift+3)) -->
+    	<!----> 
     <!--Heated Tank-->
 	<continuousTransition id="H_in1"  rate="0.6"/><!--rate = q -->
 	<continuousTransition id="H_in2"  rate="1.2"/><!--rate = 2*q -->
 	<continuousTransition id="H_out"  rate="0.6"/><!--rate = q -->
 	<!--Pump 1-->
   	<generalTransition id="P1_On_SOn" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="438"/>
+      <parameter name="mean" value="219"/><!--mean = 438/2 -->
     </generalTransition>
     <generalTransition id="P1_Off_SOn" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="438"/>
+      <parameter name="mean" value="21.9"/><!--mean = 438/20 -->
     </generalTransition>
     <generalTransition id="P1_On_SOff" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="438"/>
-    </generalTransition>
+      <parameter name="mean" value="219"/><!--mean = 438/2 -->
+    </generalTransition>  
     <generalTransition id="P1_Off_SOff" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="438"/>
+      <parameter name="mean" value="2.19"/> <!--mean = 438/200 -->
     </generalTransition>
     <immediateTransition id="P1_Off_On" priority="0" weight="1.0"/>
     <immediateTransition id="P1_On_Off" priority="0" weight="1.0"/>
     <!--Pump 2-->
     <generalTransition id="P2_On_SOn" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="350"/>
+      <parameter name="mean" value="17.5"/><!--mean = 350/20 -->
     </generalTransition>
     <generalTransition id="P2_Off_SOn" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="350"/>
+      <parameter name="mean" value="175"/><!--mean = 350/2 -->
     </generalTransition>
     <generalTransition id="P2_On_SOff" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="350"/>
+      <parameter name="mean" value="1.75"/><!--mean = 350/200 -->
     </generalTransition>
    <generalTransition id="P2_Off_SOff" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="350"/>
+      <parameter name="mean" value="175"/><!--mean = 350/2 -->
     </generalTransition>
     <immediateTransition id="P2_Off_On" priority="0" weight="1.0"/>
     <immediateTransition id="P2_On_Off" priority="0" weight="1.0"/>
@@ -109,16 +109,16 @@
     <immediateTransition id="Reduce_Pump2" priority="0" weight="1.0"/>
     <!--Valve-->
    <generalTransition id="V_On_SOn" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="640"/>
+      <parameter name="mean" value="320"/><!--mean = 640/2 -->
     </generalTransition>
     <generalTransition id="V_Off_SOn" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="640"/>
+      <parameter name="mean" value="32"/><!--mean = 640/20 -->
     </generalTransition>
     <generalTransition id="V_On_SOff" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="640"/>
+      <parameter name="mean" value="320"/><!--mean = 640/2 -->
     </generalTransition>
    <generalTransition id="V_Off_SOff" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="640"/>
+      <parameter name="mean" value="3.2"/><!--mean = 640/200 -->
     </generalTransition>
     <immediateTransition id="V_Off_On" priority="0" weight="1.0"/>
     <immediateTransition id="V_On_Off" priority="0" weight="1.0"/>

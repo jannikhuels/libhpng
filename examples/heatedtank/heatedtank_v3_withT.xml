@@ -1,18 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <HPnG>
   <places>
+  	<!--Temperature-->
+    <continuousPlace id="T" capacity="110" infiniteCapacity="0" level="15.6667" quantum="10.0"/> <!-- level = x_{T,0} = 15 2/3-->
     <!--Heated Tank-->
-    <continuousPlace id="H" capacity="0" infiniteCapacity="1" level="100.2" quantum="1.0"/>  <!-- level = H_init + shift= 0 + shift -->
+    <continuousPlace id="H" capacity="0" infiniteCapacity="1" level="100.0" quantum="1.0"/>  <!-- level = H_init + shift= 0 + shift -->
     <!--Pump 1-->
     <discretePlace id="P1_On" marking="1"/>
     <discretePlace id="P1_Off" marking="0"/>
     <discretePlace id="P1_SOn" marking="0"/>
     <discretePlace id="P1_SOff" marking="0"/>
+    <discretePlace id="P1_switchOn" marking="0"/>
+    <discretePlace id="P1_switchOff" marking="0"/>
     <!--Pump 2-->
     <discretePlace id="P2_On" marking="0"/>
     <discretePlace id="P2_Off" marking="1"/>
     <discretePlace id="P2_SOn" marking="0"/>
     <discretePlace id="P2_SOff" marking="0"/>
+    <discretePlace id="P2_switchOn" marking="0"/>
+    <discretePlace id="P2_switchOff" marking="0"/>
     <!--Pump Counter-->
     <discretePlace id="Pump_On" marking="0"/>
     <discretePlace id="Pump_Off" marking="0"/>
@@ -24,6 +30,8 @@
     <discretePlace id="V_Off" marking="0"/>
     <discretePlace id="V_SOn" marking="0"/>
     <discretePlace id="V_SOff" marking="0"/>
+    <discretePlace id="Valve_switchOn" marking="0"/>
+    <discretePlace id="Valve_switchOff" marking="0"/>
     <!--Valve Counter-->
     <discretePlace id="Valve_On" marking="1"/>
     <discretePlace id="Valve_Off" marking="0"/>
@@ -33,37 +41,70 @@
     <discretePlace id="Increase" marking="0"/>
   </places>
   <transitions> 
+  	<!--Temperature-->
+    <dynamicContinuousTransition id="T_in1" rateFunction="10.0/(H-97.0)" changeOfRateFunction="-10.0*delta_H/((H-97.0)*(H-97.0))"/>
+    	<!--rate = (T_in*q+E_in)/(x_{H,t}-H_Dryout) = (15*0.6+1)/(H-shift+3) -->
+    	<!--change of rate = -(T_in*q+E_in)*x_{H,t}'/x_{H,t}^2 = -1*(15*0.6+1)*delta_H/((H-shift+3)*(H-shift+3)) -->
+    	<!---->
+    <dynamicContinuousTransition id="T_in2" rateFunction="20.0/(H-97.0)" changeOfRateFunction="-20.0*delta_H/((H-97.0)*(H-97.0))"/>
+        <!--rate = 2*(T_in*q+E_in)/(x_{H,t}-H_Dryout) = 2*(15*0.6+1)/(H-shift+3) -->
+    	<!--change of rate = -2(T_in*q+E_in)*x_{H,t}'/x_{H,t}^2 = -2*(15*0.6+1)*delta_H/((H-shift+3)*(H-shift+3)) -->
+    	<!---->
+    <dynamicContinuousTransition id="T_in3" rateFunction="0.6*T/(H-97.0)" changeOfRateFunction="0.6*(delta_T*(H-97.0)-delta_H*T)/((H-97.0)*(H-97.0))"/>
+        <!--rate = q*x_{T,t}/(x_{H,t}-H_Dryout) = 0.6*T/(H-shift+3) -->
+    	<!--change of rate = q*(x_{T,t}'*x_{H,t}-x_{H,t}'*x_{T,t})/x_{H,t}^2 = 0.6*(delta_T*(H-shift+3)-delta_H*T)/((H-shift+3)*(H-shift+3)) -->
+    	<!---->
+    <dynamicContinuousTransition id="T_in4" rateFunction="1.2*T/(H-97.0)" changeOfRateFunction="1.2*(delta_T*(H-97.0)-delta_H*T)/((H-97.0)*(H-97.0))"/>
+    	<!--rate = 2*q*x_{T,t}/(x_{H,t}-H_Dryout) = 2*0.6*T/(H-shift+3) -->
+    	<!--change of rate = 2*q*(x_{T,t}'*x_{H,t}-x_{H,t}'*x_{T,t})/x_{H,t}^2 = 2*0.6*(delta_T*(H-shift+3)-delta_H*T)/((H-shift+3)*(H-shift+3)) -->
+    	<!---->	
+    <dynamicContinuousTransition id="T_out1" rateFunction="0.6*T/(H-97.0)" changeOfRateFunction="0.6*(delta_T*(H-97.0)-delta_H*T)/((H-97.0)*(H-97.0))"/>
+        <!--rate = q*x_{T,t}/(x_{H,t}-H_Dryout) = 0.6*T/(H-shift+3) -->
+    	<!--change of rate = q*(x_{T,t}'*x_{H,t}-x_{H,t}'*x_{T,t})/x_{H,t}^2 = 0.6*(delta_T*(H-shift+3)-delta_H*T)/((H-shift+3)*(H-shift+3)) -->
+    	<!---->
+    <dynamicContinuousTransition id="T_out2" rateFunction="1.2*T/(H-97.0)" changeOfRateFunction="1.2*(delta_T*(H-97.0)-delta_H*T)/((H-97.0)*(H-97.0))"/>
+    	<!--rate = 2*q*x_{T,t}/(x_{H,t}-H_Dryout) = 2*0.6*T/(H-shift+3) -->
+    	<!--change of rate = 2*q*(x_{T,t}'*x_{H,t}-x_{H,t}'*x_{T,t})/x_{H,t}^2 = 2*0.6*(delta_T*(H-shift+3)-delta_H*T)/((H-shift+3)*(H-shift+3)) -->
+    	<!---->
+   <dynamicContinuousTransition id="T_out3" rateFunction="10.0/(H-97.0)" changeOfRateFunction="-10.0*delta_H/((H-97.0)*(H-97.0))"/>
+    	<!--rate = (T_in*q+E_in)/(x_{H,t}-H_Dryout) = (15*0.6+1)/(H-shift+3) -->
+    	<!--change of rate = -(T_in*q+E_in)*x_{H,t}'/x_{H,t}^2 = -1*(15*0.6+1)*delta_H/((H-shift+3)*(H-shift+3)) -->
+    	<!---->
+    <dynamicContinuousTransition id="T_out4" rateFunction="20.0/(H-97.0)" changeOfRateFunction="-20.0*delta_H/((H-97.0)*(H-97.0))"/>
+        <!--rate = 2*(T_in*q+E_in)/(x_{H,t}-H_Dryout) = 2*(15*0.6+1)/(H-shift+3) -->
+    	<!--change of rate = -2(T_in*q+E_in)*x_{H,t}'/x_{H,t}^2 = -2*(15*0.6+1)*delta_H/((H-shift+3)*(H-shift+3)) -->
+    	<!----> 	
     <!--Heated Tank-->
 	<continuousTransition id="H_in1"  rate="0.6"/><!--rate = q -->
 	<continuousTransition id="H_in2"  rate="1.2"/><!--rate = 2*q -->
 	<continuousTransition id="H_out"  rate="0.6"/><!--rate = q -->
 	<!--Pump 1-->
   	<generalTransition id="P1_On_SOn" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="219"/><!--mean = 438/2 -->
+      <parameter name="mean" value="438"/>
     </generalTransition>
     <generalTransition id="P1_Off_SOn" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="21.9"/><!--mean = 438/20 -->
+      <parameter name="mean" value="438"/>
     </generalTransition>
     <generalTransition id="P1_On_SOff" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="219"/><!--mean = 438/2 -->
-    </generalTransition>  
+      <parameter name="mean" value="438"/>
+    </generalTransition>
     <generalTransition id="P1_Off_SOff" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="2.19"/> <!--mean = 438/200 -->
+      <parameter name="mean" value="438"/>
     </generalTransition>
     <immediateTransition id="P1_Off_On" priority="0" weight="1.0"/>
     <immediateTransition id="P1_On_Off" priority="0" weight="1.0"/>
     <!--Pump 2-->
     <generalTransition id="P2_On_SOn" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="17.5"/><!--mean = 350/20 -->
+      <parameter name="mean" value="350"/>
     </generalTransition>
     <generalTransition id="P2_Off_SOn" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="175"/><!--mean = 350/2 -->
+      <parameter name="mean" value="350"/>
     </generalTransition>
     <generalTransition id="P2_On_SOff" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="1.75"/><!--mean = 350/200 -->
+      <parameter name="mean" value="350"/>
     </generalTransition>
    <generalTransition id="P2_Off_SOff" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="175"/><!--mean = 350/2 -->
+      <parameter name="mean" value="350"/>
     </generalTransition>
     <immediateTransition id="P2_Off_On" priority="0" weight="1.0"/>
     <immediateTransition id="P2_On_Off" priority="0" weight="1.0"/>
@@ -74,26 +115,55 @@
     <immediateTransition id="Reduce_Pump2" priority="0" weight="1.0"/>
     <!--Valve-->
    <generalTransition id="V_On_SOn" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="320"/><!--mean = 640/2 -->
+      <parameter name="mean" value="640"/>
     </generalTransition>
     <generalTransition id="V_Off_SOn" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="32"/><!--mean = 640/20 -->
+      <parameter name="mean" value="640"/>
     </generalTransition>
     <generalTransition id="V_On_SOff" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="320"/><!--mean = 640/2 -->
+      <parameter name="mean" value="640"/>
     </generalTransition>
    <generalTransition id="V_Off_SOff" cdf="exp" priority="0" weight="1.0" policy="repeatdifferent">
-      <parameter name="mean" value="3.2"/><!--mean = 640/200 -->
+      <parameter name="mean" value="640"/>
     </generalTransition>
     <immediateTransition id="V_Off_On" priority="0" weight="1.0"/>
     <immediateTransition id="V_On_Off" priority="0" weight="1.0"/>
     <!--Controller-->   
-   <immediateTransition id="Normal_Decrease" priority="0" weight="1.0"/>
-   <immediateTransition id="Normal_Increase" priority="0" weight="1.0"/>
-   <immediateTransition id="Decrease_Increase" priority="0" weight="1.0"/>
-   <immediateTransition id="Increase_Decrease" priority="0" weight="1.0"/>
+   <immediateTransition id="Normal_Decrease" priority="0" weight="9.0"/>
+   <immediateTransition id="Normal_Increase" priority="0" weight="9.0"/>
+   <immediateTransition id="Decrease_Increase" priority="0" weight="9.0"/>
+   <immediateTransition id="Increase_Decrease" priority="0" weight="9.0"/>
+   <immediateTransition id="Normal_Decrease_fail" priority="0" weight="1.0"/>
+   <immediateTransition id="Normal_Increase_fail" priority="0" weight="1.0"/>
+   <immediateTransition id="Decrease_Increase_fail" priority="0" weight="1.0"/>
+   <immediateTransition id="Increase_Decrease_fail" priority="0" weight="1.0"/>   
   </transitions> 
   <arcs>
+    <!--Temperature-->
+    <continuousArc id="ca_Tin1_T" fromNode="T_in1" toNode="T" priority="1" share="1.0" weight="1.0"/>
+    <continuousArc id="ca_Tin2_T" fromNode="T_in2" toNode="T" priority="1" share="1.0" weight="1.0"/>
+    <continuousArc id="ca_Tin3_T" fromNode="T_in3" toNode="T" priority="1" share="1.0" weight="1.0"/>
+    <continuousArc id="ca_Tin4_T" fromNode="T_in4" toNode="T" priority="1" share="1.0" weight="1.0"/>
+    <continuousArc id="ca_T_Tout1" fromNode="T" toNode="T_out1" priority="1" share="1.0" weight="1.0"/>
+    <continuousArc id="ca_T_out2" fromNode="T" toNode="T_out2" priority="1" share="1.0" weight="1.0"/>
+    <continuousArc id="ca_T_Tout3" fromNode="T" toNode="T_out3" priority="1" share="1.0" weight="1.0"/>
+    <continuousArc id="ca_T_out4" fromNode="T" toNode="T_out4" priority="1" share="1.0" weight="1.0"/>
+    <guardArc id="ga_OnePump_Tin1" fromNode="One_Pump" toNode="T_in1" isInhibitor="0" weight="1.0"/>
+    <guardArc id="ga_TwoPumps_Tin2" fromNode="Two_Pumps" toNode="T_in2" isInhibitor="0" weight="1.0"/>
+    <guardArc id="ga_OnePump_Tin1" fromNode="One_Pump" toNode="T_in3" isInhibitor="0" weight="1.0"/>
+    <guardArc id="ga_TwoPumps_Tin4" fromNode="Two_Pumps" toNode="T_in4" isInhibitor="0" weight="1.0"/>
+    <guardArc id="ga_OnePump_Tout1" fromNode="One_Pump" toNode="T_out1" isInhibitor="0" weight="1.0"/>
+    <guardArc id="ga_TwoPumps_Tout2" fromNode="Two_Pumps" toNode="T_out2" isInhibitor="0" weight="1.0"/>
+    <guardArc id="ga_OnePump_Tout1" fromNode="One_Pump" toNode="T_out3" isInhibitor="0" weight="1.0"/>
+    <guardArc id="ga_TwoPumps_Tout4" fromNode="Two_Pumps" toNode="T_out4" isInhibitor="0" weight="1.0"/>
+    <guardArc id="ga_H_Tin1" fromNode="H" toNode="T_in1" isInhibitor="0" weight="100.0"/><!--weight = shift-->
+    <guardArc id="ga_H_Tin1" fromNode="H" toNode="T_in2" isInhibitor="0" weight="100.0"/><!--weight = shift-->
+    <guardArc id="ga_H_Tin1" fromNode="H" toNode="T_in3" isInhibitor="1" weight="100.0"/><!--weight = shift-->
+    <guardArc id="ga_H_Tin1" fromNode="H" toNode="T_in4" isInhibitor="1" weight="100.0"/><!--weight = shift-->
+    <guardArc id="ga_H_Tout1" fromNode="H" toNode="T_out1" isInhibitor="0" weight="100.0"/><!--weight = shift-->
+    <guardArc id="ga_H_Tout1" fromNode="H" toNode="T_out2" isInhibitor="0" weight="100.0"/><!--weight = shift-->
+    <guardArc id="ga_H_Tout1" fromNode="H" toNode="T_out3" isInhibitor="1" weight="100.0"/><!--weight = shift-->
+    <guardArc id="ga_H_Tout1" fromNode="H" toNode="T_out4" isInhibitor="1" weight="100.0"/><!--weight = shift-->
     <!--Heated Tank-->
     <continuousArc id="ca_Hin1_H" fromNode="H_in1" toNode="H" priority="1" share="1.0" weight="1.0"/>
     <continuousArc id="ca_Hin2_H" fromNode="H_in2" toNode="H" priority="1" share="1.0" weight="1.0"/>
@@ -114,8 +184,12 @@
     <discreteArc id="da_P1OffOn_P1On" fromNode="P1_Off_On" toNode="P1_On" weight="1.0"/>
     <discreteArc id="da_P1On_P1OnOff" fromNode="P1_On" toNode="P1_On_Off" weight="1.0"/>
     <discreteArc id="da_P1OnOff_P1Off" fromNode="P1_On_Off" toNode="P1_Off" weight="1.0"/>
-    <guardArc id="ga_Increase_P1OffOn" fromNode="Increase" toNode="P1_Off_On" isInhibitor="0" weight="1.0"/>
-    <guardArc id="ga_Decrease_P1OnOff" fromNode="Decrease" toNode="P1_On_Off" isInhibitor="0" weight="1.0"/>
+    <discreteArc id="da_IncreaseDecrease_P1switchOff" fromNode="Increase_Decrease" toNode="P1_switchOff" weight="1.0"/>
+    <discreteArc id="da_DecreaseIncrease_P1switchOn" fromNode="Decrease_Increase" toNode="P1_switchOn" weight="1.0"/>
+    <discreteArc id="da_NormalIncrease_P1switchOn" fromNode="Normal_Increase" toNode="P1_switchOn" weight="1.0"/>
+    <discreteArc id="da_NormalDecrease_P1switchOff" fromNode="Normal_Decrease" toNode="P1_switchOff" weight="1.0"/>
+	<discreteArc id="da_P1switchOn_P1OffOn" fromNode="P1_switchOn" toNode="P1_Off_On" weight="1.0"/>
+	<discreteArc id="da_P1switchOff_P1OnOff" fromNode="P1_switchOff" toNode="P1_On_Off" weight="1.0"/>    
     <!--Pump 2-->
     <discreteArc id="da_P2On_P2OnSOn" fromNode="P2_On" toNode="P2_On_SOn" weight="1.0"/>
     <discreteArc id="da_P2OnSOn_P2SOn" fromNode="P2_On_SOn" toNode="P2_SOn" weight="1.0"/>
@@ -129,8 +203,12 @@
     <discreteArc id="da_P2OffOn_P2On" fromNode="P2_Off_On" toNode="P2_On" weight="1.0"/>
     <discreteArc id="da_P2On_P2OnOff" fromNode="P2_On" toNode="P2_On_Off" weight="1.0"/>
     <discreteArc id="da_P2OnOff_P2Off" fromNode="P2_On_Off" toNode="P2_Off" weight="1.0"/>
-    <guardArc id="ga_Increase_P2OffOn" fromNode="Increase" toNode="P2_Off_On" isInhibitor="0" weight="1.0"/>
-    <guardArc id="ga_Decrease_P2OnOff" fromNode="Decrease" toNode="P2_On_Off" isInhibitor="0" weight="1.0"/>
+    <discreteArc id="da_IncreaseDecrease_P2switchOff" fromNode="Increase_Decrease" toNode="P2_switchOff" weight="1.0"/>
+    <discreteArc id="da_DecreaseIncrease_P2switchOn" fromNode="Decrease_Increase" toNode="P2_switchOn" weight="1.0"/>
+    <discreteArc id="da_NormalIncrease_P2switchOn" fromNode="Normal_Increase" toNode="P2_switchOn" weight="1.0"/>
+    <discreteArc id="da_NormalDecrease_P2switchOff" fromNode="Normal_Decrease" toNode="P2_switchOff" weight="1.0"/>
+	<discreteArc id="da_P2switchOn_P2OffOn" fromNode="P2_switchOn" toNode="P2_Off_On" weight="1.0"/>
+	<discreteArc id="da_P2switchOff_P2OnOff" fromNode="P2_switchOff" toNode="P2_On_Off" weight="1.0"/>    
     <!--Pump Counter-->   
     <discreteArc id="da_P1OnSOff_PumpOff" fromNode="P1_On_SOff" toNode="Pump_Off" weight="1.0"/>
     <discreteArc id="da_P1OnOff_PumpOff" fromNode="P1_On_Off" toNode="Pump_Off" weight="1.0"/>
@@ -165,8 +243,12 @@
     <discreteArc id="da_VOffOn_VOn" fromNode="V_Off_On" toNode="V_On" weight="1.0"/>
     <discreteArc id="da_VOn_VOnOff" fromNode="V_On" toNode="V_On_Off" weight="1.0"/>
     <discreteArc id="da_VOnOff_VOff" fromNode="V_On_Off" toNode="V_Off" weight="1.0"/> 
-    <guardArc id="ga_Increase_VOnOff" fromNode="Increase" toNode="V_On_Off" isInhibitor="0" weight="1.0"/>
-    <guardArc id="ga_Decrease_VOffOn" fromNode="Decrease" toNode="V_Off_On" isInhibitor="0" weight="1.0"/>
+    <discreteArc id="da_IncreaseDecrease_ValveswitchOn" fromNode="Increase_Decrease" toNode="Valve_switchOn" weight="1.0"/>
+    <discreteArc id="da_DecreaseIncrease_ValveswitchOff" fromNode="Decrease_Increase" toNode="Valve_switchOff" weight="1.0"/>
+    <discreteArc id="da_NormalIncrease_ValveswitchOff" fromNode="Normal_Increase" toNode="Valve_switchOff" weight="1.0"/>
+    <discreteArc id="da_NormalDecrease_ValveswitchOn" fromNode="Normal_Decrease" toNode="Valve_switchOn" weight="1.0"/> 
+	<discreteArc id="da_ValveswitchOn_VOffOn" fromNode="Valve_switchOn" toNode="V_Off_On" weight="1.0"/>
+	<discreteArc id="da_ValveswitchOff_VOnOff" fromNode="Valve_switchOff" toNode="V_On_Off" weight="1.0"/>      
     <!--Valve Counter-->   
     <discreteArc id="da_VOnOff_ValveOff" fromNode="V_On_Off" toNode="Valve_Off" weight="1.0"/>  
     <discreteArc id="da_VOnSOff_ValveOff" fromNode="V_On_SOff" toNode="Valve_Off" weight="1.0"/> 
@@ -185,9 +267,21 @@
     <discreteArc id="da_IncreaseDecrease_Decrease" fromNode="Increase_Decrease" toNode="Decrease" weight="1.0"/>
     <discreteArc id="da_Decrease_DecreaseIncrease" fromNode="Decrease" toNode="Decrease_Increase" weight="1.0"/>
     <discreteArc id="da_DecreaseIncrease_Increase" fromNode="Decrease_Increase" toNode="Increase" weight="1.0"/>
+    <discreteArc id="da_Normal_NormalDecreasefail" fromNode="Normal" toNode="Normal_Decrease_fail" weight="1.0"/>   
+    <discreteArc id="da_NormalDecreasefail_Decrease" fromNode="Normal_Decrease_fail" toNode="Decrease" weight="1.0"/>
+    <discreteArc id="da_Normal_NormalIncreasefail" fromNode="Normal" toNode="Normal_Increase_fail" weight="1.0"/>
+    <discreteArc id="da_NormalIncreasefail_Increase" fromNode="Normal_Increase_fail" toNode="Increase" weight="1.0"/>
+    <discreteArc id="da_Increase_IncreaseDecreasefail" fromNode="Increase" toNode="Increase_Decrease_fail" weight="1.0"/>   
+    <discreteArc id="da_IncreaseDecreasefail_Decrease" fromNode="Increase_Decrease_fail" toNode="Decrease" weight="1.0"/>
+    <discreteArc id="da_Decrease_DecreaseIncreasefail" fromNode="Decrease" toNode="Decrease_Increase_fail" weight="1.0"/>
+    <discreteArc id="da_DecreaseIncreasefail_Increase" fromNode="Decrease_Increase_fail" toNode="Increase" weight="1.0"/>
     <guardArc id="ga_H_NormalDecrease" fromNode="H" toNode="Normal_Decrease" isInhibitor="0" weight="101.0"/><!--weight = H_High + shift = 1 + shift-->
     <guardArc id="ga_H_NormalIncrease" fromNode="H" toNode="Normal_Increase" isInhibitor="1" weight="99.0"/><!--weight = H_Low + shift = -1 + shift -->
     <guardArc id="ga_H_IncreaseDecrease" fromNode="H" toNode="Increase_Decrease" isInhibitor="0" weight="101.0"/><!--weight = H_High + shift = 1 + shift-->
     <guardArc id="ga_H_DecreaseIncrease" fromNode="H" toNode="Decrease_Increase" isInhibitor="1" weight="99.0"/><!--weight = H_Low + shift = -1 + shift -->
+    <guardArc id="ga_H_NormalDecreasefail" fromNode="H" toNode="Normal_Decrease_fail" isInhibitor="0" weight="101.0"/><!--weight = H_High + shift = 1 + shift-->
+    <guardArc id="ga_H_NormalIncreasefail" fromNode="H" toNode="Normal_Increase_fail" isInhibitor="1" weight="99.0"/><!--weight = H_Low + shift = -1 + shift -->
+    <guardArc id="ga_H_IncreaseDecreasefail" fromNode="H" toNode="Increase_Decrease_fail" isInhibitor="0" weight="101.0"/><!--weight = H_High + shift = 1 + shift-->
+    <guardArc id="ga_H_DecreaseIncreasefail" fromNode="H" toNode="Decrease_Increase_fail" isInhibitor="1" weight="99.0"/><!--weight = H_Low + shift = -1 + shift -->
    </arcs>
 </HPnG>
