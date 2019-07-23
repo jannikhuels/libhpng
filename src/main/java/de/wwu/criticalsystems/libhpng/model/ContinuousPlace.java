@@ -203,7 +203,9 @@ public class ContinuousPlace extends Place{
 						if (((ContinuousArc)arc).getDirection().equals(ContinuousArcType.input)){
 							
 							if (arc.getConnectedTransition().getClass().equals(ContinuousTransition.class)){
-								inFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();								
+								inFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();
+								changeOfInFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentChangeOfFluid() * arc.getWeight();
+								
 							} else if (arc.getConnectedTransition().getClass().equals(DynamicContinuousTransition.class)){
 								inFlux += ((DynamicContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();
 								changeOfInFlux += ((DynamicContinuousTransition)arc.getConnectedTransition()).getCurrentChangeOfFluid() * arc.getWeight();
@@ -212,6 +214,7 @@ public class ContinuousPlace extends Place{
 						} else {									
 							if (arc.getConnectedTransition().getClass().equals(ContinuousTransition.class)){
 								outFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();
+								changeOfOutFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentChangeOfFluid() * arc.getWeight();
 							} else if (arc.getConnectedTransition().getClass().equals(DynamicContinuousTransition.class)){	
 								outFlux += ((DynamicContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();
 								changeOfOutFlux += ((DynamicContinuousTransition)arc.getConnectedTransition()).getCurrentChangeOfFluid() * arc.getWeight();

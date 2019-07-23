@@ -389,8 +389,8 @@ public class HPnGModel {
 				else
 					fluid = level.doubleValue();
 				p.setCurrentFluidLevel(fluid);
-				//p.checkUpperBoundary();
-				//p.checkLowerBoundary();
+				p.checkUpperBoundary();
+				p.checkLowerBoundary();
 				
 			}
 		}
@@ -419,7 +419,7 @@ public class HPnGModel {
 		
 		for (Place place: places){
 			if (place.getClass().equals(ContinuousPlace.class))
-				System.out.print("    " + place.getId() + ": " + ((ContinuousPlace)place).getExactFluidLevel() + " (" + ((ContinuousPlace)place).getExactDrift() + ")");
+				System.out.print("    " + place.getId() + ": " + ((ContinuousPlace)place).getCurrentFluidLevel() + " (" + ((ContinuousPlace)place).getDrift() + ")");
 			 else 
 				System.out.print("    " + place.getId() + ": " + ((DiscretePlace)place).getNumberOfTokens());
 		}

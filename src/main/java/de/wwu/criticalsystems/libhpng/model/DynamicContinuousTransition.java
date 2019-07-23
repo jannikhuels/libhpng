@@ -70,6 +70,8 @@ public class DynamicContinuousTransition extends Transition{
 	}
 	
 	public Double getCurrentChangeOfFluid() {
+		if (currentChangeOfFluid == null)
+			return 0.0;
 		return currentChangeOfFluid;
 	}
 	public void setCurrentChangeOfFluid(Double currentChangeOfFluid) {
