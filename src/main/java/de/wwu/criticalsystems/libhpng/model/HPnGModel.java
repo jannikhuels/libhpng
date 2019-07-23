@@ -117,7 +117,6 @@ public class HPnGModel {
 		} catch (InvalidRandomVariateGeneratorException e) {}
 		updateFluidRates(0.0);
 		setDynamicContinuousTransitionsBack();
-		//computeInitialInternalTransitions();		
 	}
 	
 	
@@ -689,18 +688,7 @@ public class HPnGModel {
 				((DynamicContinuousTransition)transition).computeCurrentFluidAndCurrentChangeOfFluid(this.places);						
 				
 		}
-	}
-	
-	
-	private void computeInitialInternalTransitions(){
-		
-		for(Place place: places){
-			
-			if (place.getClass().equals(ContinuousPlace.class))
-				((ContinuousPlace)place).computeTimeToNextInternalTransition(arcs);	
-						
-		}
-	}
+	}	
 	
 	
 	private Double computeTimeToNextPriority(Double flux, Double changeOfFlux, Double fluxRequired, Double changeOfFluxRequired) {
