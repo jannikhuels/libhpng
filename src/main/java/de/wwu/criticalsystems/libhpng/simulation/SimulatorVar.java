@@ -3,13 +3,11 @@ package de.wwu.criticalsystems.libhpng.simulation;
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidPropertyException;
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidRandomVariateGeneratorException;
 import de.wwu.criticalsystems.libhpng.model.*;
-import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
 import de.wwu.criticalsystems.libhpng.plotting.MarkingPlotVar;
 import de.wwu.criticalsystems.libhpng.simulation.SimulationEvent.SimulationEventType;
 import org.apache.commons.math3.ode.FirstOrderIntegrator;
-import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
+import org.apache.commons.math3.ode.nonstiff.*;
 
-import java.beans.Expression;
 import java.util.Collection;
 import java.util.Random;
 import java.util.logging.Logger;
@@ -21,7 +19,38 @@ public class SimulatorVar {
         this.model = model;
         this.maxTime = maxTime;
         this.simulationHandlerVar = simulationHandlerVar;
-        rungeKutta = new ClassicalRungeKuttaIntegrator(1.0e-1);
+
+        switch(simulationHandlerVar.getNumericSolverID()){
+            case 0:
+                integrator = new ClassicalRungeKuttaIntegrator(1.0e-1);
+                break;
+            case 1:
+                integrator= new EulerIntegrator(simulationHandlerVar.getFixedStepSize());
+                break;
+            case 2:
+                integrator = new MidpointIntegrator(simulationHandlerVar.getFixedStepSize());
+                break;
+            case 3:
+                integrator = new GillIntegrator(simulationHandlerVar.getFixedStepSize());
+                break;
+            case 4:
+                integrator = new ThreeEighthesIntegrator(simulationHandlerVar.getFixedStepSize());
+                break;
+            case 5:
+                integrator = new LutherIntegrator(simulationHandlerVar.getFixedStepSize());
+                break;
+            case 6:
+                integrator = new DormandPrince54Integrator(simulationHandlerVar.getMinStep(),simulationHandlerVar.getMaxStep(),simulationHandlerVar.getScalAbsoluteTolerance(), simulationHandlerVar.getScalRelativeTolerance());
+                break;
+            case 7:
+                integrator = new HighamHall54Integrator(simulationHandlerVar.getMinStep(),simulationHandlerVar.getMaxStep(),simulationHandlerVar.getScalAbsoluteTolerance(), simulationHandlerVar.getScalRelativeTolerance());
+                break;
+            case 8:
+                integrator = new DormandPrince853Integrator(simulationHandlerVar.getMinStep(),simulationHandlerVar.getMaxStep(),simulationHandlerVar.getScalAbsoluteTolerance(), simulationHandlerVar.getScalRelativeTolerance());
+                break;
+            case 9:
+                integrator = new GraggBulirschStoerIntegrator(simulationHandlerVar.getMinStep(),simulationHandlerVar.getMaxStep(),simulationHandlerVar.getScalAbsoluteTolerance(), simulationHandlerVar.getScalRelativeTolerance());
+        }
         ode = new ODESystem(model);
     }
 
@@ -35,31 +64,30 @@ public class SimulatorVar {
     protected HPnGModelVar model;
     protected Double maxTime;
     protected Logger logger;
-    protected FirstOrderIntegrator rungeKutta;
+    protected FirstOrderIntegrator integrator;
+    //protected FirstOrderIntegrator integrator;
     //TODO initialize
     protected SimulationHandlerVar simulationHandlerVar;
     protected ODESystem ode;
 
 
     public Double getAndCompleteNextEvent(Double currentTime, MarkingPlotVar currentPlot, Boolean printRunResults) throws InvalidRandomVariateGeneratorException, InvalidPropertyException {
-        rungeKutta.clearEventHandlers();
-        rungeKutta.clearStepHandlers();
+        integrator.clearEventHandlers();
+        integrator.clearStepHandlers();
         double[] result = new double[ode.getDimension()];
 
 //        model.updateFluidRates(false);
         getNextEvent(currentTime);
         System.out.println("time" + currentTime);
         ODEStepHandler stepHandler = new ODEStepHandler(ode, simulationHandlerVar);
-        rungeKutta.addStepHandler(stepHandler);
-        rungeKutta.integrate(ode, currentTime, ode.getCurrentFluidLevels(), event.getOccurenceTime(), result);
+        integrator.addStepHandler(stepHandler);
+        integrator.integrate(ode, currentTime, ode.getCurrentFluidLevels(), event.getOccurenceTime(), result);
         model.advanceMarking(event.getOccurenceTime());
         model.updateEnabling(false);//TODO richtig?
         //complete event and update model marking
         if (maxTime < event.getOccurenceTime() || event.getEventType().equals(SimulationEventType.no_event)) {
 //			if (maxTime- currentTime > 0.0)
 //				model.advanceMarking(maxTime- currentTime);
-//
-            model.updateEnabling(false);
             model.updateFluidRates(false);
             ode.updateODESystem();
             currentPlot.saveAll(maxTime);
@@ -284,7 +312,7 @@ public class SimulatorVar {
 
 
                     // create event that stops simulation if event occurs first
-                    rungeKutta.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, eventType, arc, ode, place.getId() + "-" + arc.getWeight()), 1.0e-2, 0.01, 10000);
+                    integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, eventType, arc, ode, place.getId() + "-" + arc.getWeight()), 1.0e-2, 0.01, 10000);
 
 
                 } else if (!arc.getClass().equals(GuardArc.class))
@@ -298,13 +326,13 @@ public class SimulatorVar {
                     ContinuousPlaceVar place = (ContinuousPlaceVar) p;
                     //upper bound
                     if (!place.getUpperBoundaryInfinity())
-                        rungeKutta.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_boundary, place, ode, place.getId() + "-" + place.getUpperBoundary()), 1.0e-2, 0.01, 10000);
+                        integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_boundary, place, ode, place.getId() + "-" + place.getUpperBoundary()), 1.0e-2, 0.01, 10000);
                     //lower bound
-                    rungeKutta.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_boundary, place, ode, place.getId()), 1.0e-3, 0.01, 10000);
+                    integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_boundary, place, ode, place.getId()), 1.0e-3, 0.01, 10000);
                     //TODO angucken wohin damit
                     String placeCondition = place.getRateAdaptionCondition().getExpressionString();
                     if (!placeCondition.equals(""))
-                        rungeKutta.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_internaltransition, place, ode, placeCondition), 1.0e-2, 0.01, 10000);
+                        integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_internaltransition, place, ode, placeCondition), 1.0e-2, 0.01, 10000);
 //						if (timeDelta == 0.0 && place.getCurrentFluidLevel() == 0.0)
 //							place.checkLowerBoundary();
 //						else if (timeDelta == 0.0)
@@ -317,7 +345,7 @@ public class SimulatorVar {
                 if (transition.getClass().equals(DynamicContinuousTransitionVar.class) || transition.getClass().equals(ContinuousTransitionVar.class)) {
                     Collection<String> events = ((FluidTransition) transition).getRateAdapationEvents().values();
                     for (String transitionEvent : events) {
-                        rungeKutta.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_internaltransition, transition, ode, transitionEvent), 1.0e-2, 0.01, 10000);
+                        integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_internaltransition, transition, ode, transitionEvent), 1.0e-2, 0.01, 10000);
                     }
                 }
 

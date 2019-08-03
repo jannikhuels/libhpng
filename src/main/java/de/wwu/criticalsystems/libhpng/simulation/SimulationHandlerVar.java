@@ -282,6 +282,12 @@ public class SimulationHandlerVar {
     private Integer maxNumberOfRuns;
     private Boolean simulationWithFixedNumberOfRuns;
     private Boolean printRunResults;
+    private int numericSolverID;
+    private double fixedStepSize;
+    private double minStep;
+    private double maxStep;
+    private double scalAbsoluteTolerance;
+    private double scalRelativeTolerance;
 
     public MarkingPlotVar getCurrentPlot() {
         return currentPlot;
@@ -348,6 +354,7 @@ public class SimulationHandlerVar {
 //				if(place.getClass().equals(ContinuousPlaceVar.class))
 //					System.out.println(((ContinuousPlaceVar)place).getCurrentFluidLevel());
 //			}
+
 
             thisrunsfirings = 0;
             for (Transition t : model.getTransitions()) {
@@ -481,6 +488,13 @@ public class SimulationHandlerVar {
             simulationWithFixedNumberOfRuns = Boolean.parseBoolean(parameters.getProperty("simulationWithFixedNumberOfRuns"));
             printRunResults = Boolean.parseBoolean(parameters.getProperty("printRunResults"));
 
+            numericSolverID = Integer.parseInt(parameters.getProperty("numericSolverID"));
+            fixedStepSize = Double.parseDouble(parameters.getProperty("fixedStepSize"));
+            minStep = Double.parseDouble(parameters.getProperty("minStep"));
+            maxStep = Double.parseDouble(parameters.getProperty("maxStep"));
+            scalRelativeTolerance = Double.parseDouble(parameters.getProperty("scalRelativeTolerance"));
+            scalAbsoluteTolerance = Double.parseDouble(parameters.getProperty("scalAbsoluteTolerance"));
+
 
         } catch (Exception e) {
 
@@ -508,7 +522,11 @@ public class SimulationHandlerVar {
             simulationWithFixedNumberOfRuns = false;
             printRunResults = false;
 
-
+            fixedStepSize=1.0e-1;
+            minStep=1.0e-8;
+            maxStep=100.0;
+            scalAbsoluteTolerance=1.0e-10;
+            scalRelativeTolerance=1.0e-10;
         }
     }
 
@@ -538,6 +556,13 @@ public class SimulationHandlerVar {
             parameters.setProperty("maxNumberOfRuns", maxNumberOfRuns.toString());
             parameters.setProperty("simulationWithFixedNumberOfRuns", simulationWithFixedNumberOfRuns.toString());
             parameters.setProperty("printRunResults", printRunResults.toString());
+
+            parameters.setProperty("numericSolverID",Integer.toString(numericSolverID));
+            parameters.setProperty("fixedStepSize",Double.toString(fixedStepSize));
+            parameters.setProperty("minStep",Double.toString(minStep));
+            parameters.setProperty("maxStep",Double.toString(maxStep));
+            parameters.setProperty("scalRelativeTolerance",Double.toString(scalRelativeTolerance));
+            parameters.setProperty("scalAbsoluteTolerance",Double.toString(scalAbsoluteTolerance));
 
             parameters.store(new FileOutputStream("libhpng_parameters.cfg"), "");
 
@@ -656,6 +681,30 @@ public class SimulationHandlerVar {
             logger.info("The algorithm used for hypothesis testing has been changed to : " + algorithmName);
     }
 
+
+    public int getNumericSolverID() {
+        return numericSolverID;
+    }
+
+    public double getFixedStepSize() {
+        return fixedStepSize;
+    }
+
+    public double getMinStep() {
+        return minStep;
+    }
+
+    public double getMaxStep() {
+        return maxStep;
+    }
+
+    public double getScalAbsoluteTolerance() {
+        return scalAbsoluteTolerance;
+    }
+
+    public double getScalRelativeTolerance() {
+        return scalRelativeTolerance;
+    }
 
     private Properties simulateAndCheckPROBQ(Integer intervalCalcs, Double realProbability, Boolean fixedNumber) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException {
 
