@@ -4,6 +4,7 @@ import de.wwu.criticalsystems.libhpng.model.ContinuousPlaceVar;
 import de.wwu.criticalsystems.libhpng.model.HPnGModelVar;
 import de.wwu.criticalsystems.libhpng.model.ODESystem;
 import de.wwu.criticalsystems.libhpng.model.Place;
+import de.wwu.criticalsystems.libhpng.plotting.MarkingPlotVar;
 import org.apache.commons.math3.exception.MaxCountExceededException;
 import org.apache.commons.math3.ode.sampling.StepHandler;
 import org.apache.commons.math3.ode.sampling.StepInterpolator;
@@ -13,11 +14,11 @@ import java.util.Arrays;
 public class ODEStepHandler implements StepHandler {
     private int counter = 0;
     ODESystem odeSystem;
-    SimulationHandlerVar simulationHandlerVar;
+    MarkingPlotVar plot;
 
-    public ODEStepHandler(ODESystem odeSystem, SimulationHandlerVar simulationHandlerVar) {
+    public ODEStepHandler(ODESystem odeSystem, MarkingPlotVar plot) {
         this.odeSystem = odeSystem;
-        this.simulationHandlerVar = simulationHandlerVar;
+        this.plot = plot;
     }
 
     @Override
@@ -39,7 +40,7 @@ public class ODEStepHandler implements StepHandler {
                 ((ContinuousPlaceVar) place).setLastUpdate(t);
             }
         }
-        simulationHandlerVar.continuousMarkingToPlot(t);
+        plot.saveAll(t);
         counter++;
 //        System.out.println("time: "+t+", a: " + y[0]+", b: "+ y[1]);
 //        System.out.println("t: "+t+"fluid: "+ Arrays.toString(y)+"drifts: "+Arrays.toString(drifts)+ " counter: "+counter);

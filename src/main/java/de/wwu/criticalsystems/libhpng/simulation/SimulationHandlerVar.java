@@ -387,9 +387,6 @@ public class SimulationHandlerVar {
 
     }
 
-    public void continuousMarkingToPlot(double time) {
-        currentPlot.saveAll(time);
-    }
 
 
     public void simulateAndCheckProperty(HPnGModelVar model, SimpleNode root, Double time, ProbabilityOperator operator, Double boundary, File results) throws InvalidPropertyException, ModelNotReadableException, InvalidRandomVariateGeneratorException, FileNotFoundException, IOException {
@@ -403,11 +400,12 @@ public class SimulationHandlerVar {
         this.boundary = boundary;
 
 
-        ArrayList<FluidPropertyVar> fluidProperyList = new ArrayList<FluidPropertyVar>();
-        fluidProperyList = PropertyCheckerVar.getFluidProperties(root, fluidProperyList, logger, model, this.propertyTime, this.propertyTime, false);
+//        ArrayList<FluidPropertyVar> fluidProperyList = new ArrayList<FluidPropertyVar>();
+//        fluidProperyList = PropertyCheckerVar.getFluidProperties(root, fluidProperyList, logger, model, this.propertyTime, this.propertyTime, false);
 //
 //
-        simulator = new DynamicSimulatorVar(model, maxTime, this, fluidProperyList);
+//        simulator = new DynamicSimulatorVar(model, maxTime, this, fluidProperyList);
+        simulator = new SimulatorVar(model,maxTime,this);
         simulator.setLogger(logger);
 
 

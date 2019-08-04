@@ -79,7 +79,7 @@ public class SimulatorVar {
 //        model.updateFluidRates(false);
         getNextEvent(currentTime);
         System.out.println("time" + currentTime);
-        ODEStepHandler stepHandler = new ODEStepHandler(ode, simulationHandlerVar);
+        ODEStepHandler stepHandler = new ODEStepHandler(ode, currentPlot);
         integrator.addStepHandler(stepHandler);
         integrator.integrate(ode, currentTime, ode.getCurrentFluidLevels(), event.getOccurenceTime(), result);
         model.advanceMarking(event.getOccurenceTime());

@@ -101,7 +101,7 @@ public class ModelHandlerVar {
 	}
 	
 	
-	private SimpleNode readFormula(String formula) throws InvalidPropertyException {
+	public SimpleNode readFormula(String formula) throws InvalidPropertyException {
 		
 		String formulaEOF = formula + "\n";
 		try {
