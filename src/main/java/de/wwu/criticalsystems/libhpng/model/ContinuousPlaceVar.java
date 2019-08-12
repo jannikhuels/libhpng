@@ -69,6 +69,11 @@ public class ContinuousPlaceVar extends Place {
         return rateAdaptionCondition;
     }
 
+    public void resetRateAdpationCondition(){
+        rateAdaptionCondition.removeAllArguments();
+        rateAdaptionCondition.setExpressionString("");
+    }
+
 
     public Double getDriftValue() {
         return driftValue;

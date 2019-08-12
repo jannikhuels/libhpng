@@ -803,6 +803,7 @@ public class HPnGModelVar {
             if (place.getClass().equals(ContinuousPlaceVar.class)) {
 
                 p = (ContinuousPlaceVar) place;
+                p.resetRateAdpationCondition();
 
                 for (Arc arc : arcs) {
                     if (arc.getConnectedPlace().getId().equals(place.getId()) && !arc.getClass().equals(GuardArc.class)) {
