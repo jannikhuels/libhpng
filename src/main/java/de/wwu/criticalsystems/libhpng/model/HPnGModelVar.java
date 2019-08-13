@@ -273,8 +273,6 @@ public class HPnGModelVar {
         Boolean change = true;
         ContinuousPlaceVar p;
         String currentTransitionDrift;
-        Expression placedrift = new Expression("0");
-        String currentExpression;
         String placeDriftString;
 
         resetCurrentTransitionRates();
@@ -286,8 +284,6 @@ public class HPnGModelVar {
             change = false;
 
             for (Place place : places) {
-                placedrift.clearExpressionString();
-                placedrift.setExpressionString("0");
                 placeDriftString = "0";
                 if (place.getClass().equals(ContinuousPlaceVar.class)) {
 
@@ -329,16 +325,16 @@ public class HPnGModelVar {
                     }
 //					if (Double.isNaN(placedrift.calculate()))
 //						placedrift.setExpressionString("0");
-                    System.out.println(placedrift.getExpressionString() + "ausgewertet" + computeCurrentExpressionValue(placedrift));
+                    System.out.println(placeDriftString + "ausgewertet" + computeCurrentExpressionValue(new Expression(placeDriftString)));
                     System.out.println("influx " + inFlux + ", ausgewertet: " + computeCurrentExpressionValue(new Expression(inFlux)));
                     System.out.println("outflux " + outFlux + ", ausgewertet: " + computeCurrentExpressionValue(new Expression(outFlux)));
-                    p.setCurrentDriftFromString(placedrift.getExpressionString());
+                    p.setCurrentDriftFromString(placeDriftString);
                     //TODO ordne placedrift aktuelle werte zu +1e-11
-                    if ((computeCurrentExpressionValue(placedrift) + 1e-11 < 0 && p.getCurrentFluidLevel() <= 0.0) || boundaryHit) {
+                    if ((computeCurrentExpressionValue(new Expression(placeDriftString)) + 1e-11 < 0 && p.getCurrentFluidLevel() <= 0.0) || boundaryHit) {
                         rateAdaption(p, ContinuousArcType.output, new Expression(inFlux));
                         change = true;
 //                        p.setCurrentDriftFromString("0");
-                    } else if (placedrift.calculate() > 0 && p.getCurrentFluidLevel() >= p.getUpperBoundary() && !p.getUpperBoundaryInfinity() || boundaryHit) {
+                    } else if (computeCurrentExpressionValue(new Expression(placeDriftString)) > 0 && p.getCurrentFluidLevel() >= p.getUpperBoundary() && !p.getUpperBoundaryInfinity() || boundaryHit) {
                         rateAdaption(p, ContinuousArcType.input, new Expression(outFlux));
                         change = true;
                     }
