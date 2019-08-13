@@ -22,7 +22,7 @@ public class SimulatorVar {
 
         switch(simulationHandlerVar.getNumericSolverID()){
             case 0:
-                integrator = new ClassicalRungeKuttaIntegrator(1.0e-1);
+                integrator = new ClassicalRungeKuttaIntegrator(simulationHandlerVar.getFixedStepSize());
                 break;
             case 1:
                 integrator= new EulerIntegrator(simulationHandlerVar.getFixedStepSize());
@@ -314,7 +314,7 @@ public class SimulatorVar {
 
 
                     // create event that stops simulation if event occurs first
-                    integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, eventType, arc, ode, place.getId() + "-" + arc.getWeight()), 1.0e-2, 0.01, 10000);
+                    integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, eventType, arc, ode, place.getId() + "-" + arc.getWeight()), simulationHandlerVar.getMaxCheckInterval(), simulationHandlerVar.getConvergence(), simulationHandlerVar.getMaxIterationCount());
 
 
                 } else if (!arc.getClass().equals(GuardArcVar.class))
@@ -328,13 +328,13 @@ public class SimulatorVar {
                     ContinuousPlaceVar place = (ContinuousPlaceVar) p;
                     //upper bound
                     if (!place.getUpperBoundaryInfinity())
-                        integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_boundary, place, ode, place.getId() + "-" + place.getUpperBoundary()), 1.0e-2, 0.01, 10000);
+                        integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_boundary, place, ode, place.getId() + "-" + place.getUpperBoundary()), simulationHandlerVar.getMaxCheckInterval(), simulationHandlerVar.getConvergence(), simulationHandlerVar.getMaxIterationCount());
                     //lower bound
-                    integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_boundary, place, ode, place.getId()), 1.0e-3, 0.01, 10000);
+                    integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_boundary, place, ode, place.getId()), simulationHandlerVar.getMaxCheckInterval(), simulationHandlerVar.getConvergence(), simulationHandlerVar.getMaxIterationCount());
                     //TODO angucken wohin damit
                     String placeCondition = place.getRateAdaptionCondition().getExpressionString();
                     if (!placeCondition.equals(""))
-                        integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_internaltransition, place, ode, placeCondition), 1.0e-2, 0.01, 10000);
+                        integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_internaltransition, place, ode, placeCondition), simulationHandlerVar.getMaxCheckInterval(), simulationHandlerVar.getConvergence(), simulationHandlerVar.getMaxIterationCount());
 //						if (timeDelta == 0.0 && place.getCurrentFluidLevel() == 0.0)
 //							place.checkLowerBoundary();
 //						else if (timeDelta == 0.0)
@@ -347,7 +347,7 @@ public class SimulatorVar {
                 if (transition.getClass().equals(DynamicContinuousTransitionVar.class) || transition.getClass().equals(ContinuousTransitionVar.class)) {
                     Collection<String> events = ((FluidTransition) transition).getRateAdapationEvents().values();
                     for (String transitionEvent : events) {
-                        integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_internaltransition, transition, ode, transitionEvent), 1.0e-2, 0.01, 10000);
+                        integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_internaltransition, transition, ode, transitionEvent), simulationHandlerVar.getMaxCheckInterval(), simulationHandlerVar.getConvergence(), simulationHandlerVar.getMaxIterationCount());
                     }
                 }
 

@@ -283,12 +283,17 @@ public class SimulationHandlerVar {
     private Integer maxNumberOfRuns;
     private Boolean simulationWithFixedNumberOfRuns;
     private Boolean printRunResults;
+    //solver parameter
     private int numericSolverID;
     private double fixedStepSize;
     private double minStep;
     private double maxStep;
     private double scalAbsoluteTolerance;
     private double scalRelativeTolerance;
+    //event handler parameter
+    private double maxCheckInterval;
+    private double convergence;
+    private int maxIterationCount;
 
     public MarkingPlotVar getCurrentPlot() {
         return currentPlot;
@@ -389,7 +394,6 @@ public class SimulationHandlerVar {
     }
 
 
-
     public void simulateAndCheckProperty(HPnGModelVar model, SimpleNode root, Double time, ProbabilityOperator operator, Double boundary, File results) throws InvalidPropertyException, ModelNotReadableException, InvalidRandomVariateGeneratorException, FileNotFoundException, IOException {
 
         final long timeStart = System.currentTimeMillis();
@@ -406,7 +410,7 @@ public class SimulationHandlerVar {
 //
 //
 //        simulator = new DynamicSimulatorVar(model, maxTime, this, fluidProperyList);
-        simulator = new SimulatorVar(model,maxTime,this);
+        simulator = new SimulatorVar(model, maxTime, this);
         simulator.setLogger(logger);
 
 
@@ -494,6 +498,10 @@ public class SimulationHandlerVar {
             scalRelativeTolerance = Double.parseDouble(parameters.getProperty("scalRelativeTolerance"));
             scalAbsoluteTolerance = Double.parseDouble(parameters.getProperty("scalAbsoluteTolerance"));
 
+            maxCheckInterval = Double.parseDouble(parameters.getProperty("maxCheckInterval"));
+            convergence = Double.parseDouble(parameters.getProperty("convergence"));
+            maxIterationCount = Integer.parseInt(parameters.getProperty("maxIterationCount"));
+
 
         } catch (Exception e) {
 
@@ -521,11 +529,16 @@ public class SimulationHandlerVar {
             simulationWithFixedNumberOfRuns = false;
             printRunResults = false;
 
-            fixedStepSize=1.0e-1;
-            minStep=1.0e-8;
-            maxStep=100.0;
-            scalAbsoluteTolerance=1.0e-10;
-            scalRelativeTolerance=1.0e-10;
+            numericSolverID = 6;
+            fixedStepSize = 1.0e-1;
+            minStep = 1.0e-8;
+            maxStep = 100.0;
+            scalAbsoluteTolerance = 1.0e-10;
+            scalRelativeTolerance = 1.0e-10;
+
+            maxCheckInterval = 0.1;
+            convergence = 0.1;
+            maxIterationCount = 1000;
         }
     }
 
@@ -556,12 +569,16 @@ public class SimulationHandlerVar {
             parameters.setProperty("simulationWithFixedNumberOfRuns", simulationWithFixedNumberOfRuns.toString());
             parameters.setProperty("printRunResults", printRunResults.toString());
 
-            parameters.setProperty("numericSolverID",Integer.toString(numericSolverID));
-            parameters.setProperty("fixedStepSize",Double.toString(fixedStepSize));
-            parameters.setProperty("minStep",Double.toString(minStep));
-            parameters.setProperty("maxStep",Double.toString(maxStep));
-            parameters.setProperty("scalRelativeTolerance",Double.toString(scalRelativeTolerance));
-            parameters.setProperty("scalAbsoluteTolerance",Double.toString(scalAbsoluteTolerance));
+            parameters.setProperty("numericSolverID", Integer.toString(numericSolverID));
+            parameters.setProperty("fixedStepSize", Double.toString(fixedStepSize));
+            parameters.setProperty("minStep", Double.toString(minStep));
+            parameters.setProperty("maxStep", Double.toString(maxStep));
+            parameters.setProperty("scalRelativeTolerance", Double.toString(scalRelativeTolerance));
+            parameters.setProperty("scalAbsoluteTolerance", Double.toString(scalAbsoluteTolerance));
+
+            parameters.setProperty("maxCheckInterval", Double.toString(maxCheckInterval));
+            parameters.setProperty("convergence", Double.toString(convergence));
+            parameters.setProperty("maxIterationCount", Integer.toString(maxIterationCount));
 
             parameters.store(new FileOutputStream("libhpng_parameters.cfg"), "");
 
@@ -703,6 +720,18 @@ public class SimulationHandlerVar {
 
     public double getScalRelativeTolerance() {
         return scalRelativeTolerance;
+    }
+
+    public double getMaxCheckInterval() {
+        return maxCheckInterval;
+    }
+
+    public double getConvergence() {
+        return convergence;
+    }
+
+    public int getMaxIterationCount() {
+        return maxIterationCount;
     }
 
     private Properties simulateAndCheckPROBQ(Integer intervalCalcs, Double realProbability, Boolean fixedNumber) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException {
@@ -957,14 +986,14 @@ public class SimulationHandlerVar {
 
     private Properties simulateAndTestPROB(Boolean checkLowerThan, Boolean invertPropertyAndThreshold, Boolean fixedNumber) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException {
 
-		SimulationForHypothesisTestingVar testing;
-		
-		if (fixedNumber)
-			testing = new SimulationForHypothesisTestingVar(model, minNumberOfRuns, logger, root, correctnessIndifferenceLevel, powerIndifferenceLevel, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold, printRunResults, 0, currentTime, currentPlot, maxTime, simulator, true, fixedNumberOfRuns, testRuns);
-		else		
-			testing = new SimulationForHypothesisTestingVar(model, minNumberOfRuns, logger, root, correctnessIndifferenceLevel, powerIndifferenceLevel, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold, printRunResults, maxNumberOfRuns, currentTime, currentPlot, maxTime, simulator, false, 0, testRuns);
-		
-		return testing.performTesting(algorithmID, getAlgorithmName(), this.propertyTime, this.boundary);
+        SimulationForHypothesisTestingVar testing;
+
+        if (fixedNumber)
+            testing = new SimulationForHypothesisTestingVar(model, minNumberOfRuns, logger, root, correctnessIndifferenceLevel, powerIndifferenceLevel, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold, printRunResults, 0, currentTime, currentPlot, maxTime, simulator, true, fixedNumberOfRuns, testRuns);
+        else
+            testing = new SimulationForHypothesisTestingVar(model, minNumberOfRuns, logger, root, correctnessIndifferenceLevel, powerIndifferenceLevel, guess, type1Error, type2Error, checkLowerThan, invertPropertyAndThreshold, printRunResults, maxNumberOfRuns, currentTime, currentPlot, maxTime, simulator, false, 0, testRuns);
+
+        return testing.performTesting(algorithmID, getAlgorithmName(), this.propertyTime, this.boundary);
     }
 
 
