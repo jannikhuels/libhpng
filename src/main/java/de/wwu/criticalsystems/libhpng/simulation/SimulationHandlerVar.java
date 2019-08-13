@@ -1,6 +1,7 @@
 package de.wwu.criticalsystems.libhpng.simulation;
 
 import de.wwu.criticalsystems.libhpng.confidenceintervals.ConfidenceIntervalCalculator;
+import de.wwu.criticalsystems.libhpng.confidenceintervals.ConfidenceIntervalCalculatorVar;
 import de.wwu.criticalsystems.libhpng.errorhandling.*;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
 import de.wwu.criticalsystems.libhpng.model.*;
@@ -707,251 +708,250 @@ public class SimulationHandlerVar {
     private Properties simulateAndCheckPROBQ(Integer intervalCalcs, Double realProbability, Boolean fixedNumber) throws ModelNotReadableException, InvalidPropertyException, InvalidRandomVariateGeneratorException {
 
 
-//        Integer coverage = 0;
-//        Integer noCoverage = 0;
-//        Integer maxRun = 0;
-//        Integer minRun = 0;
-//        Integer notEnoughRuns = 0;
-//        Integer totalRuns = 0;
-//        Integer run = 0;
-//        Integer firings = 0;
-//        Integer minFirings = Integer.MAX_VALUE;
-//        Integer maxFirings = Integer.MIN_VALUE;
-//        Integer thisrunsfirings;
-//
-//        Double lower;
-//        Double upper;
-//        Double midpoint;
-//        Double halfwidth;
-//
-//        Double coveragePercentage;
-//        Double noCoveragePercentage;
-//        Double notEnoughRunsPercentage;
-//        Integer averageRuns;
-//
-//
-//        SampleGenerator generator;
-//        ConfidenceIntervalCalculator calc = new ConfidenceIntervalCalculator(intervalID, model, this.propertyTime, minNumberOfRuns, logger, root, confidenceLevel, halfIntervalWidth);
-//        ArrayList<String> related = calc.getChecker().getAllRelatedPlaceAndTransitionIds();
-//
-//        Integer n = 0;
-//        while (n < calculations) {
-//
-//            generator = new SampleGenerator();
-//            generator.initializeRandomStream();
-//            if (logger != null)
-//                logger.info("Simulation started for a 'P=?' property with fixed interval width");
-//
-//
-//            if (fixedNumber) {
-//
-//                for (run = 0; run < fixedNumberOfRuns; run++) {
-//
-//                    if (printRunResults || ((run + 1) % 100 == 0))
-//                        System.out.println("Starting simulation run no." + (run + 1));
-//
-//                    currentTime = 0.0;
-//                    try {
-//                        model.resetMarking();
-//                        generator.sampleGeneralTransitions(model, logger);
-//                    } catch (InvalidDistributionParameterException e) {
-//                        throw new ModelNotReadableException(e.getLocalizedMessage());
-//                    }
-//
-//                    currentPlot = new MarkingPlotVar(maxTime);
-//                    currentPlot.initializeRelatedOnly(this.model, related);
-//
-//
-//                    //simulation
-//                    while (currentTime <= maxTime)
-//                        currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);
-//
-//                    thisrunsfirings = 0;
-//                    for (Transition t : model.getTransitions()) {
-//                        if (t.getClass().equals(GeneralTransition.class))
-//                            thisrunsfirings += ((GeneralTransition) t).getFirings();
-//                    }
-//                    firings += thisrunsfirings;
-//                    if (thisrunsfirings < minFirings)
-//                        minFirings = thisrunsfirings;
-//                    if (thisrunsfirings > maxFirings)
-//                        maxFirings = thisrunsfirings;
-//
-//                    calc.calculateConfidenceInterval(run + 1, currentPlot);
-//
-//                    if (printRunResults) {
-//                        System.out.println(maxTime + " seconds: simulation run no." + (run + 1) + " completed");
-//                        model.printCurrentMarking(false, true);
-//                    }
-//
-//                }
-//
-//
-//                midpoint = calc.getMidpoint();
-//                lower = calc.getLowerBorder();
-//                upper = calc.getUpperBorder();
-//                halfwidth = (upper - lower) / 2.0;
-//
-//
-//                System.out.println(run + " runs simulated. Midpoint: " + midpoint + ".");
-//                System.out.println("Resulting confidence interval borders:" + lower + " & " + upper + " (one sided interval width = " + halfwidth + ")");
-//
-//
-//                if (lower <= realProbability && realProbability <= upper) {
-//                    System.out.println("The real probability lies within the interval.");
-//                    coverage++;
-//                    maxRun = calcMaxRun(run, maxRun);
-//                    minRun = calcMinRun(run, minRun);
-//                    totalRuns += run;
-//
-//                } else {
-//                    System.out.println("The real probability does not lie within the interval.");
-//                    noCoverage++;
-//                    maxRun = calcMaxRun(run, maxRun);
-//                    minRun = calcMinRun(run, minRun);
-//                    totalRuns += run;
-//
-//                }
-//
-//                if (logger != null) {
-//                    logger.info("Simulation finished after " + fixedNumberOfRuns + " runs");
-//                    logger.info("Simulation results: Midpoint: " + midpoint + ". Resulting confidence interval borders:" + lower + " & " + upper + " (one sided interval width = " + halfwidth + ")");
-//                }
-//
-//
-//            } else {
-//
-//                run = 0;
-//                while (!calc.checkBound() && run < maxNumberOfRuns) {
-//
-//                    if (printRunResults || ((run + 1) % 100 == 0))
-//                        System.out.println("Starting simulation run no." + (run + 1));
-//
-//                    currentTime = 0.0;
-//                    try {
-//                        model.resetMarking();
-//                        generator.sampleGeneralTransitions(model, logger);
-//                    } catch (InvalidDistributionParameterException e) {
-//                        throw new ModelNotReadableException(e.getLocalizedMessage());
-//                    }
-//
-//                    currentPlot = new MarkingPlotVar(maxTime);
-//                    currentPlot.initializeRelatedOnly(this.model, related);
-//
-//                    //simulation
-//                    while (currentTime <= maxTime)
-//                        currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);
-//
-//
-//                    thisrunsfirings = 0;
-//                    for (Transition t : model.getTransitions()) {
-//                        if (t.getClass().equals(GeneralTransition.class))
-//                            thisrunsfirings += ((GeneralTransition) t).getFirings();
-//                    }
-//                    firings += thisrunsfirings;
-//                    if (thisrunsfirings < minFirings)
-//                        minFirings = thisrunsfirings;
-//                    if (thisrunsfirings > maxFirings)
-//                        maxFirings = thisrunsfirings;
-//
-//
-//                    calc.calculateConfidenceInterval(run + 1, currentPlot);
-//
-//                    if (printRunResults) {
-//                        System.out.println(maxTime + " seconds: simulation run no." + (run + 1) + " completed");
-//                        model.printCurrentMarking(false, true);
-//                    }
-//
-//                    run++;
-//                }
-//
-//                midpoint = calc.getMidpoint();
-//                lower = calc.getLowerBorder();
-//                upper = calc.getUpperBorder();
-//                halfwidth = (upper - lower) / 2.0;
-//
-//
-//                if (logger != null)
-//                    logger.info("Simulation finished after " + run + " runs");
-//
-//                if (!calc.checkBound()) {
-//
-//                    System.out.println("The maximum number of " + maxNumberOfRuns + " runs has been achieved.");
-//                    notEnoughRuns++;
-//
-//                    if (logger != null)
-//                        logger.info("The maximum number of " + maxNumberOfRuns + " runs has been achieved.");
-//
-//
-//                } else {
-//
-//                    System.out.println(run + " runs needed. Midpoint: " + midpoint + ".");
-//                    System.out.println("Resulting confidence interval borders:" + lower + " & " + upper + " (one sided interval width = " + halfwidth + ")");
-//
-//
-//                    if (lower <= realProbability && realProbability <= upper) {
-//                        System.out.println("The real probability lies within the interval.");
-//                        coverage++;
-//                        maxRun = calcMaxRun(run, maxRun);
-//                        minRun = calcMinRun(run, minRun);
-//                        totalRuns += run;
-//
-//                    } else {
-//                        System.out.println("The real probability does not lie within the interval.");
-//                        noCoverage++;
-//                        maxRun = calcMaxRun(run, maxRun);
-//                        minRun = calcMinRun(run, minRun);
-//                        totalRuns += run;
-//
-//                    }
-//
-//                    if (logger != null)
-//                        logger.info("Simulation results: Midpoint: " + midpoint + ". Resulting confidence interval borders:" + lower + " & " + upper + " (one sided interval width = " + halfwidth + ")");
-//
-//                }
-//            }
-//
-//            System.out.println("Mean number of random variables: " + (firings.doubleValue() / run.doubleValue()) + " (mininmum: " + minFirings + ", maximum: " + maxFirings + ")");
-//
-//            calc.resetResults();
-//            n++;
+        Integer coverage = 0;
+        Integer noCoverage = 0;
+        Integer maxRun = 0;
+        Integer minRun = 0;
+        Integer notEnoughRuns = 0;
+        Integer totalRuns = 0;
+        Integer run = 0;
+        Integer firings = 0;
+        Integer minFirings = Integer.MAX_VALUE;
+        Integer maxFirings = Integer.MIN_VALUE;
+        Integer thisrunsfirings;
 
-//        }
-//
-//
-//        coveragePercentage = calcPercentage(coverage);
-//        noCoveragePercentage = calcPercentage(noCoverage);
-//        notEnoughRunsPercentage = calcPercentage(notEnoughRuns);
-//        averageRuns = totalRuns / (coverage + noCoverage + notEnoughRuns);
-//
-//        System.out.println("\n" + "The real probability lies within the interval in: " + calcPercentage(coverage) + "% (" + coverage + ") of " + calculations + " calculations");
-//        System.out.println("The real probability does not lie within the interval in: " + calcPercentage(noCoverage) + "% (" + noCoverage + ") of " + calculations + " calculations");
-//        System.out.println("The maximum number of " + maxNumberOfRuns + " runs has been achieved in: " + calcPercentage(notEnoughRuns) + "% (" + notEnoughRuns + ") of " + calculations + " calculations" + "\n");
-//        System.out.println("Minimal number of simulation runs needed: " + minRun);
-//        System.out.println("Maximal number of simulation runs needed: " + maxRun);
-//        if (coverage > 0 || noCoverage > 0) {
-//            System.out.println("Average number of simulation runs needed: " + totalRuns / (coverage + noCoverage) + "\n");
-//        } else {
-//            System.out.println("There where no successfull runs" + "\n");
-//        }
-//
-//
-//        Properties parameters = new Properties();
-//
-//
-//        parameters.setProperty("Coverage", coverage.toString());
-//        parameters.setProperty("noCoverage", noCoverage.toString());
-//        parameters.setProperty("notEnoughRuns", notEnoughRuns.toString());
-//        parameters.setProperty("calculations", calculations.toString());
-//        parameters.setProperty("minRun", minRun.toString());
-//        parameters.setProperty("maxRun", maxRun.toString());
-//        parameters.setProperty("averageRuns", averageRuns.toString());
-//        parameters.setProperty("CoveragePercentage", coveragePercentage.toString());
-//        parameters.setProperty("noCoveragePercentage", noCoveragePercentage.toString());
-//        parameters.setProperty("notEnoughRunsPercentage", notEnoughRunsPercentage.toString());
+        Double lower;
+        Double upper;
+        Double midpoint;
+        Double halfwidth;
 
-//        return parameters;
-        return null;
+        Double coveragePercentage;
+        Double noCoveragePercentage;
+        Double notEnoughRunsPercentage;
+        Integer averageRuns;
+
+
+        SampleGeneratorVar generator;
+        ConfidenceIntervalCalculatorVar calc = new ConfidenceIntervalCalculatorVar(intervalID, model, this.propertyTime, minNumberOfRuns, logger, root, confidenceLevel, halfIntervalWidth);
+        ArrayList<String> related = calc.getChecker().getAllRelatedPlaceAndTransitionIds();
+
+        Integer n = 0;
+        while (n < calculations) {
+
+            generator = new SampleGeneratorVar();
+            generator.initializeRandomStream();
+            if (logger != null)
+                logger.info("Simulation started for a 'P=?' property with fixed interval width");
+
+
+            if (fixedNumber) {
+
+                for (run = 0; run < fixedNumberOfRuns; run++) {
+
+                    if (printRunResults || ((run + 1) % 100 == 0))
+                        System.out.println("Starting simulation run no." + (run + 1));
+
+                    currentTime = 0.0;
+                    try {
+                        model.resetMarking();
+                        generator.sampleGeneralTransitions(model, logger);
+                    } catch (InvalidDistributionParameterException e) {
+                        throw new ModelNotReadableException(e.getLocalizedMessage());
+                    }
+
+                    currentPlot = new MarkingPlotVar(maxTime);
+                    currentPlot.initializeRelatedOnly(this.model, related);
+
+
+                    //simulation
+                    while (currentTime <= maxTime)
+                        currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);
+
+                    thisrunsfirings = 0;
+                    for (Transition t : model.getTransitions()) {
+                        if (t.getClass().equals(GeneralTransition.class))
+                            thisrunsfirings += ((GeneralTransition) t).getFirings();
+                    }
+                    firings += thisrunsfirings;
+                    if (thisrunsfirings < minFirings)
+                        minFirings = thisrunsfirings;
+                    if (thisrunsfirings > maxFirings)
+                        maxFirings = thisrunsfirings;
+
+                    calc.calculateConfidenceInterval(run + 1, currentPlot);
+
+                    if (printRunResults) {
+                        System.out.println(maxTime + " seconds: simulation run no." + (run + 1) + " completed");
+                        model.printCurrentMarking(false, true);
+                    }
+
+                }
+
+
+                midpoint = calc.getMidpoint();
+                lower = calc.getLowerBorder();
+                upper = calc.getUpperBorder();
+                halfwidth = (upper - lower) / 2.0;
+
+
+                System.out.println(run + " runs simulated. Midpoint: " + midpoint + ".");
+                System.out.println("Resulting confidence interval borders:" + lower + " & " + upper + " (one sided interval width = " + halfwidth + ")");
+
+
+                if (lower <= realProbability && realProbability <= upper) {
+                    System.out.println("The real probability lies within the interval.");
+                    coverage++;
+                    maxRun = calcMaxRun(run, maxRun);
+                    minRun = calcMinRun(run, minRun);
+                    totalRuns += run;
+
+                } else {
+                    System.out.println("The real probability does not lie within the interval.");
+                    noCoverage++;
+                    maxRun = calcMaxRun(run, maxRun);
+                    minRun = calcMinRun(run, minRun);
+                    totalRuns += run;
+
+                }
+
+                if (logger != null) {
+                    logger.info("Simulation finished after " + fixedNumberOfRuns + " runs");
+                    logger.info("Simulation results: Midpoint: " + midpoint + ". Resulting confidence interval borders:" + lower + " & " + upper + " (one sided interval width = " + halfwidth + ")");
+                }
+
+
+            } else {
+
+                run = 0;
+                while (!calc.checkBound() && run < maxNumberOfRuns) {
+
+                    if (printRunResults || ((run + 1) % 100 == 0))
+                        System.out.println("Starting simulation run no." + (run + 1));
+
+                    currentTime = 0.0;
+                    try {
+                        model.resetMarking();
+                        generator.sampleGeneralTransitions(model, logger);
+                    } catch (InvalidDistributionParameterException e) {
+                        throw new ModelNotReadableException(e.getLocalizedMessage());
+                    }
+
+                    currentPlot = new MarkingPlotVar(maxTime);
+                    currentPlot.initializeRelatedOnly(this.model, related);
+
+                    //simulation
+                    while (currentTime <= maxTime)
+                        currentTime = simulator.getAndCompleteNextEvent(currentTime, currentPlot, printRunResults);
+
+
+                    thisrunsfirings = 0;
+                    for (Transition t : model.getTransitions()) {
+                        if (t.getClass().equals(GeneralTransition.class))
+                            thisrunsfirings += ((GeneralTransition) t).getFirings();
+                    }
+                    firings += thisrunsfirings;
+                    if (thisrunsfirings < minFirings)
+                        minFirings = thisrunsfirings;
+                    if (thisrunsfirings > maxFirings)
+                        maxFirings = thisrunsfirings;
+
+
+                    calc.calculateConfidenceInterval(run + 1, currentPlot);
+
+                    if (printRunResults) {
+                        System.out.println(maxTime + " seconds: simulation run no." + (run + 1) + " completed");
+                        model.printCurrentMarking(false, true);
+                    }
+
+                    run++;
+                }
+
+                midpoint = calc.getMidpoint();
+                lower = calc.getLowerBorder();
+                upper = calc.getUpperBorder();
+                halfwidth = (upper - lower) / 2.0;
+
+
+                if (logger != null)
+                    logger.info("Simulation finished after " + run + " runs");
+
+                if (!calc.checkBound()) {
+
+                    System.out.println("The maximum number of " + maxNumberOfRuns + " runs has been achieved.");
+                    notEnoughRuns++;
+
+                    if (logger != null)
+                        logger.info("The maximum number of " + maxNumberOfRuns + " runs has been achieved.");
+
+
+                } else {
+
+                    System.out.println(run + " runs needed. Midpoint: " + midpoint + ".");
+                    System.out.println("Resulting confidence interval borders:" + lower + " & " + upper + " (one sided interval width = " + halfwidth + ")");
+
+
+                    if (lower <= realProbability && realProbability <= upper) {
+                        System.out.println("The real probability lies within the interval.");
+                        coverage++;
+                        maxRun = calcMaxRun(run, maxRun);
+                        minRun = calcMinRun(run, minRun);
+                        totalRuns += run;
+
+                    } else {
+                        System.out.println("The real probability does not lie within the interval.");
+                        noCoverage++;
+                        maxRun = calcMaxRun(run, maxRun);
+                        minRun = calcMinRun(run, minRun);
+                        totalRuns += run;
+
+                    }
+
+                    if (logger != null)
+                        logger.info("Simulation results: Midpoint: " + midpoint + ". Resulting confidence interval borders:" + lower + " & " + upper + " (one sided interval width = " + halfwidth + ")");
+
+                }
+            }
+
+            System.out.println("Mean number of random variables: " + (firings.doubleValue() / run.doubleValue()) + " (mininmum: " + minFirings + ", maximum: " + maxFirings + ")");
+
+            calc.resetResults();
+            n++;
+
+        }
+
+
+        coveragePercentage = calcPercentage(coverage);
+        noCoveragePercentage = calcPercentage(noCoverage);
+        notEnoughRunsPercentage = calcPercentage(notEnoughRuns);
+        averageRuns = totalRuns / (coverage + noCoverage + notEnoughRuns);
+
+        System.out.println("\n" + "The real probability lies within the interval in: " + calcPercentage(coverage) + "% (" + coverage + ") of " + calculations + " calculations");
+        System.out.println("The real probability does not lie within the interval in: " + calcPercentage(noCoverage) + "% (" + noCoverage + ") of " + calculations + " calculations");
+        System.out.println("The maximum number of " + maxNumberOfRuns + " runs has been achieved in: " + calcPercentage(notEnoughRuns) + "% (" + notEnoughRuns + ") of " + calculations + " calculations" + "\n");
+        System.out.println("Minimal number of simulation runs needed: " + minRun);
+        System.out.println("Maximal number of simulation runs needed: " + maxRun);
+        if (coverage > 0 || noCoverage > 0) {
+            System.out.println("Average number of simulation runs needed: " + totalRuns / (coverage + noCoverage) + "\n");
+        } else {
+            System.out.println("There where no successfull runs" + "\n");
+        }
+
+
+        Properties parameters = new Properties();
+
+
+        parameters.setProperty("Coverage", coverage.toString());
+        parameters.setProperty("noCoverage", noCoverage.toString());
+        parameters.setProperty("notEnoughRuns", notEnoughRuns.toString());
+        parameters.setProperty("calculations", calculations.toString());
+        parameters.setProperty("minRun", minRun.toString());
+        parameters.setProperty("maxRun", maxRun.toString());
+        parameters.setProperty("averageRuns", averageRuns.toString());
+        parameters.setProperty("CoveragePercentage", coveragePercentage.toString());
+        parameters.setProperty("noCoveragePercentage", noCoveragePercentage.toString());
+        parameters.setProperty("notEnoughRunsPercentage", notEnoughRunsPercentage.toString());
+
+        return parameters;
     }
 
 
