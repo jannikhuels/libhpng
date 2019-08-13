@@ -135,7 +135,7 @@ public class PropertyCheckerVar {
 			
 			if (type.equals("ATOMIC_ARC")){			
 				for (Arc arc : model.getArcs()){
-					if (arc.getId().equals(temp) && arc.getClass().equals(GuardArc.class)){
+					if (arc.getId().equals(temp) && arc.getClass().equals(GuardArcVar.class)){
 						id = arc.getConnectedPlace().getId();
 						break;
 					}
@@ -207,7 +207,7 @@ public class PropertyCheckerVar {
 		
 		Double value;
 		String id = null;	
-		GuardArc guardArc = null;
+		GuardArcVar guardArc = null;
 		
 		String type = propertyRoot.toString();
 		
@@ -215,8 +215,8 @@ public class PropertyCheckerVar {
 		String temp = getPropertyID(propertyRoot);
 		if (type.equals("ATOMIC_ARC")){			
 			for (Arc arc : model.getArcs()){
-				if (arc.getId().equals(temp) && arc.getClass().equals(GuardArc.class)){
-					guardArc = (GuardArc)arc;
+				if (arc.getId().equals(temp) && arc.getClass().equals(GuardArcVar.class)){
+					guardArc = (GuardArcVar) arc;
 					id = arc.getConnectedPlace().getId();
 					break;
 				}
@@ -678,7 +678,7 @@ public class PropertyCheckerVar {
 		
 		String type = propertyRoot.toString();
 		String id = null;
-		GuardArc guardArc = null;
+		GuardArcVar guardArc = null;
 		
 		Double boundary = getPropertyBoundary(propertyRoot, "ATOMIC_FLUID");
 		String compare = getPropertyCompare(propertyRoot, "ATOMIC_FLUID");	
@@ -687,8 +687,8 @@ public class PropertyCheckerVar {
 		String temp = getPropertyID(propertyRoot);
 		if (type.equals("ATOMIC_ARC")){			
 			for (Arc arc : model.getArcs()){
-				if (arc.getId().equals(temp) && arc.getClass().equals(GuardArc.class)){
-					guardArc = (GuardArc)arc;
+				if (arc.getId().equals(temp) && arc.getClass().equals(GuardArcVar.class)){
+					guardArc = (GuardArcVar) arc;
 					id = arc.getConnectedPlace().getId();
 					break;
 				}

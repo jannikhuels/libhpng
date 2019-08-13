@@ -61,8 +61,8 @@ public class HPnGModelVar {
                 arcs.add(new DiscreteArc((DiscreteArc) currentArcToCopy));
             else if (currentArcToCopy.getClass().equals(ContinuousArc.class))
                 arcs.add(new ContinuousArc((ContinuousArc) currentArcToCopy));
-            else if (currentArcToCopy.getClass().equals(GuardArc.class))
-                arcs.add(new GuardArc((GuardArc) currentArcToCopy));
+            else if (currentArcToCopy.getClass().equals(GuardArcVar.class))
+                arcs.add(new GuardArcVar((GuardArcVar) currentArcToCopy));
         }
 
         //initialize model
@@ -105,7 +105,7 @@ public class HPnGModelVar {
     @XmlElements({
             @XmlElement(name = "continuousArc", type = ContinuousArc.class),
             @XmlElement(name = "discreteArc", type = DiscreteArc.class),
-            @XmlElement(name = "guardArc", type = GuardArc.class),
+            @XmlElement(name = "guardArc", type = GuardArcVar.class),
     })
     private ArrayList<Arc> arcs = new ArrayList<Arc>();
 
@@ -219,8 +219,8 @@ public class HPnGModelVar {
 
             for (Arc arc : transition.getConnectedArcs()) {
 
-                if (arc.getClass().equals(GuardArc.class)) {
-                    if ((!((GuardArc) arc).getInhibitor() && !((GuardArc) arc).getConditionFulfilled()) || (((GuardArc) arc).getInhibitor() && ((GuardArc) arc).getConditionFulfilled()))
+                if (arc.getClass().equals(GuardArcVar.class)) {
+                    if ((!((GuardArcVar) arc).getInhibitor() && !((GuardArcVar) arc).getConditionFulfilled()) || (((GuardArcVar) arc).getInhibitor() && ((GuardArcVar) arc).getConditionFulfilled()))
                         enabled = false;
                     continue;
                 }
@@ -246,8 +246,8 @@ public class HPnGModelVar {
 
     public void checkAllGuardArcs() {
         for (Arc arc : arcs) {
-            if (arc.getClass().equals(GuardArc.class)) {
-                ((GuardArc) arc).checkCondition();
+            if (arc.getClass().equals(GuardArcVar.class)) {
+                ((GuardArcVar) arc).checkCondition();
             } else
                 break;
         }
@@ -256,9 +256,9 @@ public class HPnGModelVar {
 
     public void checkGuardArcsForDiscretePlaces() {
         for (Arc arc : arcs) {
-            if (arc.getClass().equals(GuardArc.class) && arc.getConnectedPlace().getClass().equals(DiscretePlace.class)) {
-                ((GuardArc) arc).checkCondition();
-            } else if (!arc.getClass().equals(GuardArc.class))
+            if (arc.getClass().equals(GuardArcVar.class) && arc.getConnectedPlace().getClass().equals(DiscretePlace.class)) {
+                ((GuardArcVar) arc).checkCondition();
+            } else if (!arc.getClass().equals(GuardArcVar.class))
                 break;
         }
     }
@@ -294,7 +294,7 @@ public class HPnGModelVar {
 
 
                     for (Arc arc : arcs) {
-                        if (arc.getConnectedPlace().getId().equals(place.getId()) && !arc.getClass().equals(GuardArc.class)) {
+                        if (arc.getConnectedPlace().getId().equals(place.getId()) && !arc.getClass().equals(GuardArcVar.class)) {
                             if (arc.getConnectedTransition().getEnabled()) {
 
                                 if (((ContinuousArc) arc).getDirection().equals(ContinuousArcType.input)) {
@@ -329,12 +329,12 @@ public class HPnGModelVar {
                     System.out.println("influx " + inFlux + ", ausgewertet: " + computeCurrentExpressionValue(new Expression(inFlux)));
                     System.out.println("outflux " + outFlux + ", ausgewertet: " + computeCurrentExpressionValue(new Expression(outFlux)));
                     p.setCurrentDriftFromString(placeDriftString);
-                    //TODO ordne placedrift aktuelle werte zu +1e-11
-                    if ((computeCurrentExpressionValue(new Expression(placeDriftString)) + 1e-11 < 0 && p.getCurrentFluidLevel() <= 0.0) || boundaryHit) {
+                    //TODO ordne placedrift aktuelle werte zu +1e-11 && computeCurrentExpressionValue(new Expression(placeDriftString))<0)
+                    if ((computeCurrentExpressionValue(new Expression(placeDriftString)) + 1e-11 < 0 && p.getCurrentFluidLevel() <= 0.0) ) {
                         rateAdaption(p, ContinuousArcType.output, new Expression(inFlux));
                         change = true;
-//                        p.setCurrentDriftFromString("0");
-                    } else if (computeCurrentExpressionValue(new Expression(placeDriftString)) > 0 && p.getCurrentFluidLevel() >= p.getUpperBoundary() && !p.getUpperBoundaryInfinity() || boundaryHit) {
+//                        p.setCurrentDriftFromString("0");|| (boundaryHit&& computeCurrentExpressionValue(new Expression(placeDriftString))>0)
+                    } else if (computeCurrentExpressionValue(new Expression(placeDriftString)) > 0 && p.getCurrentFluidLevel() >= p.getUpperBoundary() && !p.getUpperBoundaryInfinity() ) {
                         rateAdaption(p, ContinuousArcType.input, new Expression(outFlux));
                         change = true;
                     }
@@ -469,7 +469,7 @@ public class HPnGModelVar {
                 counter1++;
             else if (arc.getClass().equals(ContinuousArc.class))
                 counter2++;
-            else if (arc.getClass().equals(GuardArc.class))
+            else if (arc.getClass().equals(GuardArcVar.class))
                 counter3++;
         }
         numbers[2][0] = counter1;
@@ -796,7 +796,7 @@ public class HPnGModelVar {
                 p.resetRateAdpationCondition();
 
                 for (Arc arc : arcs) {
-                    if (arc.getConnectedPlace().getId().equals(place.getId()) && !arc.getClass().equals(GuardArc.class)) {
+                    if (arc.getConnectedPlace().getId().equals(place.getId()) && !arc.getClass().equals(GuardArcVar.class)) {
                         if (arc.getConnectedTransition().getEnabled()) {
 
                             if (((ContinuousArc) arc).getDirection().equals(ContinuousArcType.input)) {

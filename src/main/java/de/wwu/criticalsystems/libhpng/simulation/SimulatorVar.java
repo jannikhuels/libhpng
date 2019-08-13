@@ -78,11 +78,13 @@ public class SimulatorVar {
 
 //        model.updateFluidRates(false);
         getNextEvent(currentTime);
-        System.out.println("time" + currentTime);
-        ODEStepHandler stepHandler = new ODEStepHandler(ode, currentPlot);
-        integrator.addStepHandler(stepHandler);
-        integrator.integrate(ode, currentTime, ode.getCurrentFluidLevels(), event.getOccurenceTime(), result);
-        model.advanceMarking(event.getOccurenceTime());
+        if(!event.getOccurenceTime().equals(currentTime)){
+            ODEStepHandler stepHandler = new ODEStepHandler(ode, currentPlot);
+            integrator.addStepHandler(stepHandler);
+            integrator.integrate(ode, currentTime, ode.getCurrentFluidLevels(), event.getOccurenceTime(), result);
+        }
+        System.out.println("time: " + currentTime);
+        model.advanceMarking(event.getOccurenceTime()-currentTime);
         model.updateEnabling(false);//TODO richtig?
         //complete event and update model marking
         if (maxTime < event.getOccurenceTime() || event.getEventType().equals(SimulationEventType.no_event)) {
@@ -130,10 +132,10 @@ public class SimulatorVar {
         } else if (event.getEventType().equals(SimulationEventType.guard_arcs_immediate) || event.getEventType().equals(SimulationEventType.guard_arcs_continuous) || event.getEventType().equals(SimulationEventType.guard_arcs_deterministic)) {
 
             //guard arc condition
-            GuardArc arc;
+            GuardArcVar arc;
             for (Object object : event.getRelatedObjects()) {
 
-                arc = (GuardArc) object;
+                arc = (GuardArcVar) object;
                 Boolean fulfilled = arc.checkCondition();
 
                 if (printRunResults && fulfilled && !arc.getInhibitor())
@@ -297,7 +299,7 @@ public class SimulatorVar {
             for (Arc arc : model.getArcs()) {
 
 
-                if (arc.getClass().equals(GuardArc.class) && arc.getConnectedPlace().getClass().equals(ContinuousPlaceVar.class)) {
+                if (arc.getClass().equals(GuardArcVar.class) && arc.getConnectedPlace().getClass().equals(ContinuousPlaceVar.class)) {
                     //guard arc starting from fluid place
 
                     ContinuousPlaceVar place = ((ContinuousPlaceVar) arc.getConnectedPlace());
@@ -315,7 +317,7 @@ public class SimulatorVar {
                     integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, eventType, arc, ode, place.getId() + "-" + arc.getWeight()), 1.0e-2, 0.01, 10000);
 
 
-                } else if (!arc.getClass().equals(GuardArc.class))
+                } else if (!arc.getClass().equals(GuardArcVar.class))
                     break;
             }
 

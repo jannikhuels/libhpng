@@ -22,7 +22,7 @@ public class FluidPropertyVar {
 		this.until = until;
 		this.untilTime = untilTime;
 		String id = null;	
-		GuardArc guardArc = null;
+		GuardArcVar guardArc = null;
 		
 		String type = root.toString();
 		
@@ -30,8 +30,8 @@ public class FluidPropertyVar {
 		String temp = PropertyChecker.getPropertyID(root, logger);
 		if (type.equals("ATOMIC_ARC")){			
 			for (Arc arc : model.getArcs()){
-				if (arc.getId().equals(temp) && arc.getClass().equals(GuardArc.class)){
-					guardArc = (GuardArc)arc;
+				if (arc.getId().equals(temp) && arc.getClass().equals(GuardArcVar.class)){
+					guardArc = (GuardArcVar) arc;
 					id = arc.getConnectedPlace().getId();
 					break;
 				}
