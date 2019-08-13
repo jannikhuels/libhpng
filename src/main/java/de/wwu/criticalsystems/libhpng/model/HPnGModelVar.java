@@ -275,6 +275,7 @@ public class HPnGModelVar {
         String currentTransitionDrift;
         Expression placedrift = new Expression("0");
         String currentExpression;
+        String placeDriftString;
 
         resetCurrentTransitionRates();
         updatePlaceDrift();
@@ -287,6 +288,7 @@ public class HPnGModelVar {
             for (Place place : places) {
                 placedrift.clearExpressionString();
                 placedrift.setExpressionString("0");
+                placeDriftString = "0";
                 if (place.getClass().equals(ContinuousPlaceVar.class)) {
 
                     inFlux = "0";
@@ -302,30 +304,24 @@ public class HPnGModelVar {
                                 if (((ContinuousArc) arc).getDirection().equals(ContinuousArcType.input)) {
 
                                     if (arc.getConnectedTransition().getClass().equals(ContinuousTransitionVar.class)) {
-                                        currentExpression = placedrift.getExpressionString();
-                                        currentTransitionDrift = "("+((ContinuousTransitionVar) arc.getConnectedTransition()).getCurrentRateExpression().getExpressionString() + ")*" + arc.getWeight();
+                                        currentTransitionDrift = "(" + ((ContinuousTransitionVar) arc.getConnectedTransition()).getCurrentRateExpression().getExpressionString() + ")*" + arc.getWeight();
                                         inFlux = inFlux + "+" + currentTransitionDrift;
-                                        placedrift.setExpressionString(currentExpression + "+" + currentTransitionDrift);
+                                        placeDriftString = placeDriftString + "+" + currentTransitionDrift;
                                     } else if (arc.getConnectedTransition().getClass().equals(DynamicContinuousTransitionVar.class)) {
-                                        currentExpression = placedrift.getExpressionString();
-                                        currentTransitionDrift = "("+(((DynamicContinuousTransitionVar) arc.getConnectedTransition()).getCurrentRateExpression()).getExpressionString() + ")*" + arc.getWeight();
+                                        currentTransitionDrift = "(" + (((DynamicContinuousTransitionVar) arc.getConnectedTransition()).getCurrentRateExpression()).getExpressionString() + ")*" + arc.getWeight();
                                         inFlux = inFlux + "+" + currentTransitionDrift;
-                                        placedrift.setExpressionString(currentExpression + "+" + currentTransitionDrift);
-//										placedrift.addDefinitions(((DynamicContinuousTransition)arc.getConnectedTransition()).getFluidExpression()+"");//* arc.getWeight());
+                                        placeDriftString = placeDriftString + "+" + currentTransitionDrift;
                                     }
 
                                 } else {
                                     if (arc.getConnectedTransition().getClass().equals(ContinuousTransitionVar.class)) {
-//										outFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();
-                                        currentExpression = placedrift.getExpressionString();
-                                        currentTransitionDrift = "("+((ContinuousTransitionVar) arc.getConnectedTransition()).getCurrentRateExpression().getExpressionString() + ")*" + arc.getWeight();
+                                        currentTransitionDrift = "(" + ((ContinuousTransitionVar) arc.getConnectedTransition()).getCurrentRateExpression().getExpressionString() + ")*" + arc.getWeight();
                                         outFlux = outFlux + "+" + currentTransitionDrift;
-                                        placedrift.setExpressionString(currentExpression + "-(" + currentTransitionDrift + ")");
+                                        placeDriftString = placeDriftString + "-(" + currentTransitionDrift + ")";
                                     } else if (arc.getConnectedTransition().getClass().equals(DynamicContinuousTransitionVar.class)) {
-                                        currentExpression = placedrift.getExpressionString();
-                                        currentTransitionDrift ="("+ (((DynamicContinuousTransitionVar) arc.getConnectedTransition()).getCurrentRateExpression()).getExpressionString() + ")*" + arc.getWeight();
+                                        currentTransitionDrift = "(" + (((DynamicContinuousTransitionVar) arc.getConnectedTransition()).getCurrentRateExpression()).getExpressionString() + ")*" + arc.getWeight();
                                         outFlux = outFlux + "+" + currentTransitionDrift;
-                                        placedrift.setExpressionString(currentExpression + "-(" + currentTransitionDrift + ")");
+                                        placeDriftString = placeDriftString + "-(" + currentTransitionDrift + ")";
                                     }
                                 }
                             }
@@ -338,7 +334,7 @@ public class HPnGModelVar {
                     System.out.println("outflux " + outFlux + ", ausgewertet: " + computeCurrentExpressionValue(new Expression(outFlux)));
                     p.setCurrentDriftFromString(placedrift.getExpressionString());
                     //TODO ordne placedrift aktuelle werte zu +1e-11
-                    if ((computeCurrentExpressionValue(placedrift)+1e-11< 0 && p.getCurrentFluidLevel() <= 0.0) || boundaryHit) {
+                    if ((computeCurrentExpressionValue(placedrift) + 1e-11 < 0 && p.getCurrentFluidLevel() <= 0.0) || boundaryHit) {
                         rateAdaption(p, ContinuousArcType.output, new Expression(inFlux));
                         change = true;
 //                        p.setCurrentDriftFromString("0");
@@ -793,13 +789,11 @@ public class HPnGModelVar {
     public void updatePlaceDrift() {
 
         ContinuousPlaceVar p;
-        Expression placedrift = new Expression("0");
-        String currentExpression;
+        String placeDriftString;
 
 
         for (Place place : places) {
-            placedrift.clearExpressionString();
-            placedrift.setExpressionString("0");
+            placeDriftString = "0";
             if (place.getClass().equals(ContinuousPlaceVar.class)) {
 
                 p = (ContinuousPlaceVar) place;
@@ -812,33 +806,23 @@ public class HPnGModelVar {
                             if (((ContinuousArc) arc).getDirection().equals(ContinuousArcType.input)) {
 
                                 if (arc.getConnectedTransition().getClass().equals(ContinuousTransitionVar.class)) {
-                                    currentExpression = placedrift.getExpressionString();
-                                    placedrift.setExpressionString(currentExpression + "+(" + ((ContinuousTransitionVar) arc.getConnectedTransition()).getCurrentRateExpression().getExpressionString() + "*)" + arc.getWeight());
+                                    placeDriftString = placeDriftString + "+(" + ((ContinuousTransitionVar) arc.getConnectedTransition()).getCurrentRateExpression().getExpressionString() + "*)" + arc.getWeight();
                                 } else if (arc.getConnectedTransition().getClass().equals(DynamicContinuousTransitionVar.class)) {
-                                    currentExpression = placedrift.getExpressionString();
-                                    placedrift.setExpressionString(currentExpression + "+(" + (((DynamicContinuousTransitionVar) arc.getConnectedTransition()).getCurrentRateExpression()).getExpressionString() + ")*" + arc.getWeight());
+                                    placeDriftString = placeDriftString + "+(" + (((DynamicContinuousTransitionVar) arc.getConnectedTransition()).getCurrentRateExpression()).getExpressionString() + ")*" + arc.getWeight();
                                 }
 
                             } else {
                                 if (arc.getConnectedTransition().getClass().equals(ContinuousTransitionVar.class)) {
-//										outFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();
-                                    currentExpression = placedrift.getExpressionString();
-                                    placedrift.setExpressionString(currentExpression + "-(" + ((ContinuousTransitionVar) arc.getConnectedTransition()).getCurrentRateExpression().getExpressionString() + ")*" + arc.getWeight());
+                                    placeDriftString = placeDriftString + "-(" + ((ContinuousTransitionVar) arc.getConnectedTransition()).getCurrentRateExpression().getExpressionString() + ")*" + arc.getWeight();
                                 } else if (arc.getConnectedTransition().getClass().equals(DynamicContinuousTransitionVar.class)) {
-                                    currentExpression = placedrift.getExpressionString();
-                                    placedrift.setExpressionString(currentExpression + "-(" + (((DynamicContinuousTransitionVar) arc.getConnectedTransition()).getCurrentRateExpression()).getExpressionString() + ")*" + arc.getWeight());
-//										outFlux += ((DynamicContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();
+                                    placeDriftString = placeDriftString + "-(" + (((DynamicContinuousTransitionVar) arc.getConnectedTransition()).getCurrentRateExpression()).getExpressionString() + ")*" + arc.getWeight();
                                 }
                             }
                         }
                     }
                 }
-//					if (Double.isNaN(placedrift.calculate()))
-//						placedrift.setExpressionString("0");
-//					System.out.println(placedrift.getExpressionString()+"ausgewertet"+placedrift.calculate());
-                p.setDriftFromString(placedrift.getExpressionString());
-                p.setCurrentDriftFromString(placedrift.getExpressionString());
-
+                p.setDriftFromString(placeDriftString);
+                p.setCurrentDriftFromString(placeDriftString);
 
             } else
                 continue;
