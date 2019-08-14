@@ -92,6 +92,7 @@ public class ODEEventHandler implements EventHandler {
 
             }
         }
+        //TODO systemout
         System.out.println("time: " + v + ", a: " + doubles[0] + ", b: " + doubles[1]);
         return Action.STOP;
     }

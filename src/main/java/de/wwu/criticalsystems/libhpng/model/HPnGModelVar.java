@@ -123,7 +123,6 @@ public class HPnGModelVar {
 
         updateFluidRates(false);
 //        setDynamicContinuousTransitionsBack();
-        computeInitialInternalTransitions();
     }
 
 
@@ -325,9 +324,9 @@ public class HPnGModelVar {
                     }
 //					if (Double.isNaN(placedrift.calculate()))
 //						placedrift.setExpressionString("0");
-                    System.out.println(placeDriftString + "ausgewertet" + computeCurrentExpressionValue(new Expression(placeDriftString)));
-                    System.out.println("influx " + inFlux + ", ausgewertet: " + computeCurrentExpressionValue(new Expression(inFlux)));
-                    System.out.println("outflux " + outFlux + ", ausgewertet: " + computeCurrentExpressionValue(new Expression(outFlux)));
+//                    System.out.println(placeDriftString + "ausgewertet" + computeCurrentExpressionValue(new Expression(placeDriftString)));
+//                    System.out.println("influx " + inFlux + ", ausgewertet: " + computeCurrentExpressionValue(new Expression(inFlux)));
+//                    System.out.println("outflux " + outFlux + ", ausgewertet: " + computeCurrentExpressionValue(new Expression(outFlux)));
                     p.setCurrentDriftFromString(placeDriftString);
                     //TODO ordne placedrift aktuelle werte zu +1e-11 && computeCurrentExpressionValue(new Expression(placeDriftString))<0)
                     if ((computeCurrentExpressionValue(new Expression(placeDriftString)) + 1e-11 < 0 && p.getCurrentFluidLevel() <= 0.0) ) {
@@ -760,15 +759,6 @@ public class HPnGModelVar {
     }
 
 
-    private void computeInitialInternalTransitions() {
-
-        for (Place place : places) {
-
-//			if (place.getClass().equals(ContinuousPlaceVar.class))
-//				((ContinuousPlaceVar)place).computeTimeToNextInternalTransition(arcs);
-
-        }
-    }
 
 
     private Double computeTimeToNextPriority(Double flux, Double changeOfFlux, Double accumulatedFluxRequired, Double accumulatedChangeOfFluxRequired) {

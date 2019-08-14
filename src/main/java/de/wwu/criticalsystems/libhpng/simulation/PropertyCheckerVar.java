@@ -706,14 +706,14 @@ public class PropertyCheckerVar {
 		switch (type){
 		case "ATOMIC_UBOUND":
 			for (Place place : model.getPlaces()){				
-				if (place.getId().equals(id) && place.getClass().equals(ContinuousPlace.class)){
-					if (((ContinuousPlace)place).getUpperBoundaryInfinity() && (compare.equals("<") || compare.equals("<="))){
+				if (place.getId().equals(id) && place.getClass().equals(ContinuousPlaceVar.class)){
+					if (((ContinuousPlaceVar)place).getUpperBoundaryInfinity() && (compare.equals("<") || compare.equals("<="))){
 						if (leftBorderIncluded) 
 							return leftBorder;
 						return leftBorder + Double.MIN_VALUE;
-					} else if (((ContinuousPlace)place).getUpperBoundaryInfinity())
+					} else if (((ContinuousPlaceVar)place).getUpperBoundaryInfinity())
 						return -1.0;					
-					boundary = ((ContinuousPlace)place).getUpperBoundary();		
+					boundary = ((ContinuousPlaceVar)place).getUpperBoundary();
 					compare = ">=";
 				}					
 			}
@@ -751,14 +751,14 @@ public class PropertyCheckerVar {
 				break;
 			}
 		}
-	    if (!placePlot.getReferencedPlace().getClass().equals(ContinuousPlace.class)){
+	    if (!placePlot.getReferencedPlace().getClass().equals(ContinuousPlaceVar.class)){
 	    	if (logger != null)
 				logger.severe("Property Error: the ID of the place for the atomic fluid property must refer to a continuous place");
 			throw new InvalidPropertyException("Property Error: the ID of the place for for the atomic fluid property must refer to a continuous place");
 		}
 	    
 
-		if (!invalid && ((compare.equals("<") && boundary == 0.0) || (compare.equals(">") && !((ContinuousPlace)placePlot.getReferencedPlace()).getUpperBoundaryInfinity() && boundary > ((ContinuousPlace)placePlot.getReferencedPlace()).getUpperBoundary())))
+		if (!invalid && ((compare.equals("<") && boundary == 0.0) || (compare.equals(">") && !((ContinuousPlaceVar)placePlot.getReferencedPlace()).getUpperBoundaryInfinity() && boundary > ((ContinuousPlaceVar)placePlot.getReferencedPlace()).getUpperBoundary())))
 			return -1.0;
 		
 		

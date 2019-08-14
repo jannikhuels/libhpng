@@ -27,7 +27,7 @@ public class FluidPropertyVar {
 		String type = root.toString();
 		
 		//get ID of referenced place or transition, for guard arc condition get place ID for corresponding place
-		String temp = PropertyChecker.getPropertyID(root, logger);
+		String temp = PropertyCheckerVar.getPropertyID(root, logger);
 		if (type.equals("ATOMIC_ARC")){			
 			for (Arc arc : model.getArcs()){
 				if (arc.getId().equals(temp) && arc.getClass().equals(GuardArcVar.class)){
@@ -50,7 +50,7 @@ public class FluidPropertyVar {
 			throw new InvalidPropertyException("Property Error: the ID of the property node '" + root.toString() + "' could not be matched");
 		}		
 				
-		boundary = PropertyChecker.getPropertyBoundary(root, type, logger);
+		boundary = PropertyCheckerVar.getPropertyBoundary(root, type, logger);
 		
 		//set boundaries for upper boundary, lower boundary and guard arc case
 		switch (type){

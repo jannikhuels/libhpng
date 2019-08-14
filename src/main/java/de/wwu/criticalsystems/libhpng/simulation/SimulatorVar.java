@@ -83,6 +83,7 @@ public class SimulatorVar {
             integrator.addStepHandler(stepHandler);
             integrator.integrate(ode, currentTime, ode.getCurrentFluidLevels(), event.getOccurenceTime(), result);
         }
+        //TODO systemout
         System.out.println("time: " + currentTime);
         model.advanceMarking(event.getOccurenceTime()-currentTime);
         model.updateEnabling(false);//TODO richtig?
@@ -222,6 +223,7 @@ public class SimulatorVar {
 
             }
         }*/
+//TODO systemout eventtype
         System.out.println(event.getEventType());
         boolean boundaryHit = false;
         if (event.getEventType().equals(SimulationEventType.place_boundary))

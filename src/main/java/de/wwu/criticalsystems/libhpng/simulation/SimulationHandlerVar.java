@@ -400,7 +400,7 @@ public class SimulationHandlerVar {
 
         this.model = model;
         this.root = root;
-        this.maxTime = PropertyChecker.getMaxTimeForSimulation(root, time);
+        this.maxTime = PropertyCheckerVar.getMaxTimeForSimulation(root, time);
         this.propertyTime = time;
         this.boundary = boundary;
 

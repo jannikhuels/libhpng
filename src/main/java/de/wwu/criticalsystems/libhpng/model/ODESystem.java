@@ -33,12 +33,10 @@ public class ODESystem implements FirstOrderDifferentialEquations {
         for (Place p : model.getPlaces()) {
             if (p.getClass().equals(ContinuousPlaceVar.class)) {
                 Expression test = ((ContinuousPlaceVar) p).getCurrentDrift();
-                System.out.println("Expression string: "+test.getExpressionString());
                 ode.add(counter, test);
                 counter++;
             }
         }
-        System.out.println("size ode: "+counter);
     }
 
 
