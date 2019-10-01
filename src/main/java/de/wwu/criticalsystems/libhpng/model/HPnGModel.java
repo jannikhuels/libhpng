@@ -134,6 +134,7 @@ public class HPnGModel {
 
                     fromNodeFound = true;
                     arc.setConnectedPlace(place);
+                    place.getConnectedArcs().add(arc);
                     if (arc.getClass().equals(ContinuousArc.class)) {
                         ContinuousArcType dir = ContinuousArcType.output;
                         ((ContinuousArc) arc).setDirection(dir);
@@ -147,6 +148,7 @@ public class HPnGModel {
 
                     toNodeFound = true;
                     arc.setConnectedPlace(place);
+                    place.getConnectedArcs().add(arc);
                     if (arc.getClass().equals(ContinuousArc.class)) {
                         ContinuousArcType dir = ContinuousArcType.input;
                         ((ContinuousArc) arc).setDirection(dir);
@@ -633,6 +635,8 @@ public class HPnGModel {
                                 ((DynamicContinuousTransition) currentArc.getConnectedTransition()).setCurrentFluid(sharedFluid);
                                 ((DynamicContinuousTransition) currentArc.getConnectedTransition()).setCurrentChangeOfFluid(changeOfSharedFluid);
                                 ((DynamicContinuousTransition) currentArc.getConnectedTransition()).setAdapted(true);
+                                flux -= sharedFluid;
+                                changeOfFlux -= changeOfSharedFluid;
                             }
 
 
@@ -644,6 +648,8 @@ public class HPnGModel {
                                 changeOfSharedFluid = ((ContinuousTransition) currentArc.getConnectedTransition()).getCurrentChangeOfFluid() * currentArc.getShare() * flux / sum;
                                 ((ContinuousTransition) currentArc.getConnectedTransition()).setCurrentFluid(sharedFluid);
                                 ((ContinuousTransition) currentArc.getConnectedTransition()).setCurrentChangeOfFluid(changeOfSharedFluid);
+                                flux -= sharedFluid;
+                                changeOfFlux -= changeOfSharedFluid;
                             }
                         }
 
@@ -721,4 +727,6 @@ public class HPnGModel {
 
         return Double.POSITIVE_INFINITY;
     }
+
+
 }
