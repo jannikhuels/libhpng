@@ -1,18 +1,20 @@
 package de.wwu.criticalsystems.libhpng.model;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.logging.Logger;
-
-import javax.xml.bind.annotation.*;
-
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidModelConnectionException;
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidRandomVariateGeneratorException;
 import de.wwu.criticalsystems.libhpng.errorhandling.ModelCopyingFailedException;
 import de.wwu.criticalsystems.libhpng.model.ContinuousArc.ContinuousArcType;
 import de.wwu.criticalsystems.libhpng.model.DiscreteArc.DiscreteArcType;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.logging.Logger;
 
 
 @XmlRootElement(name = "HPnG")
@@ -278,7 +280,8 @@ public class HPnGModel {
         for (Transition transition : transitions) {
             if (transition.getClass().equals(ContinuousTransition.class)) {
                 ((ContinuousTransition) transition).setCurrentFluid(((ContinuousTransition) transition).getFluidRate());
-                ((ContinuousTransition) transition).setCurrentChangeOfFluid(0.0);
+                ((ContinuousTransition) transition).setChangeOfFluid(0.0);
+                ((ContinuousTransition) transition).setRateAdaptionPlace(null);
             }
         }
         updateDynamicRates();
@@ -587,10 +590,14 @@ public class HPnGModel {
 
                     ((DynamicContinuousTransition) priorityArcs.get(0).getConnectedTransition()).setCurrentFluid(flux / priorityArcs.get(0).getWeight());
                     ((DynamicContinuousTransition) priorityArcs.get(0).getConnectedTransition()).setCurrentChangeOfFluid(changeOfFlux / priorityArcs.get(0).getWeight());
+                    resetOtherConnectedTransitions(priorityArcs.get(0));
                     ((DynamicContinuousTransition) priorityArcs.get(0).getConnectedTransition()).setAdapted(true);
+                    ((DynamicContinuousTransition) priorityArcs.get(0).getConnectedTransition()).setRateAdaptionPlace(place);
                 } else if (priorityArcs.size() == 1) {
                     ((ContinuousTransition) priorityArcs.get(0).getConnectedTransition()).setCurrentFluid(flux / priorityArcs.get(0).getWeight());
                     ((ContinuousTransition) priorityArcs.get(0).getConnectedTransition()).setCurrentChangeOfFluid(changeOfFlux / priorityArcs.get(0).getWeight());
+                    ((ContinuousTransition) priorityArcs.get(0).getConnectedTransition()).setRateAdaptionPlace(place);
+                    resetOtherConnectedTransitions(priorityArcs.get(0));
                 } else {
                     boolean change = true;
                     while (change) {
@@ -635,8 +642,10 @@ public class HPnGModel {
                                 ((DynamicContinuousTransition) currentArc.getConnectedTransition()).setCurrentFluid(sharedFluid);
                                 ((DynamicContinuousTransition) currentArc.getConnectedTransition()).setCurrentChangeOfFluid(changeOfSharedFluid);
                                 ((DynamicContinuousTransition) currentArc.getConnectedTransition()).setAdapted(true);
+                                ((DynamicContinuousTransition) currentArc.getConnectedTransition()).setRateAdaptionPlace(place);
                                 flux -= sharedFluid;
                                 changeOfFlux -= changeOfSharedFluid;
+                                resetOtherConnectedTransitions(currentArc);
                             }
 
 
@@ -648,8 +657,10 @@ public class HPnGModel {
                                 changeOfSharedFluid = ((ContinuousTransition) currentArc.getConnectedTransition()).getCurrentChangeOfFluid() * currentArc.getShare() * flux / sum;
                                 ((ContinuousTransition) currentArc.getConnectedTransition()).setCurrentFluid(sharedFluid);
                                 ((ContinuousTransition) currentArc.getConnectedTransition()).setCurrentChangeOfFluid(changeOfSharedFluid);
+                                ((ContinuousTransition) currentArc.getConnectedTransition()).setRateAdaptionPlace(place);
                                 flux -= sharedFluid;
                                 changeOfFlux -= changeOfSharedFluid;
+                                resetOtherConnectedTransitions(currentArc);
                             }
                         }
 
@@ -669,9 +680,13 @@ public class HPnGModel {
                     ((DynamicContinuousTransition) arcs.get(arcIndex).getConnectedTransition()).setCurrentFluid(0.0);
                     ((DynamicContinuousTransition) arcs.get(arcIndex).getConnectedTransition()).setCurrentChangeOfFluid(0.0);
                     ((DynamicContinuousTransition) arcs.get(arcIndex).getConnectedTransition()).setAdapted(true);
+                    ((DynamicContinuousTransition) arcs.get(arcIndex).getConnectedTransition()).setRateAdaptionPlace(place);
+                    resetOtherConnectedTransitions((ContinuousArc) arcs.get(arcIndex));
                 } else {
                     ((ContinuousTransition) arcs.get(arcIndex).getConnectedTransition()).setCurrentFluid(0.0);
                     ((ContinuousTransition) arcs.get(arcIndex).getConnectedTransition()).setCurrentChangeOfFluid(0.0);
+                    ((ContinuousTransition) arcs.get(arcIndex).getConnectedTransition()).setRateAdaptionPlace(place);
+                    resetOtherConnectedTransitions((ContinuousArc) arcs.get(arcIndex));
                 }
             }
             arcIndex++;
@@ -711,8 +726,10 @@ public class HPnGModel {
     private void updateDynamicRates() {
 
         for (Transition transition : transitions) {
-            if (transition.getClass().equals(DynamicContinuousTransition.class) && !((DynamicContinuousTransition) transition).getAdapted())
+            if (transition.getClass().equals(DynamicContinuousTransition.class) && !((DynamicContinuousTransition) transition).getAdapted()) {
                 ((DynamicContinuousTransition) transition).computeCurrentFluidAndCurrentChangeOfFluid(this.places);
+                ((DynamicContinuousTransition) transition).setRateAdaptionPlace(null);
+            }
 
         }
     }
@@ -728,5 +745,32 @@ public class HPnGModel {
         return Double.POSITIVE_INFINITY;
     }
 
+    //resets all specific transitions of one place
+    private void resetTransitionRatesOfPlaceByType(ContinuousPlace place, ContinuousArc arc) {
+        for (Arc placeArc : place.getConnectedArcs()) {
+            if (placeArc.getClass().equals(ContinuousArc.class) && !placeArc.equals(arc) && ((ContinuousArc) placeArc).getDirection().equals(arc.getDirection())) {
+                if (placeArc.getConnectedTransition().getClass().equals(ContinuousTransition.class) && ((ContinuousTransition) placeArc.getConnectedTransition()).getRateAdaptionPlace() != null && ((ContinuousTransition) placeArc.getConnectedTransition()).getRateAdaptionPlace().equals(place))
+                    ((ContinuousTransition) placeArc.getConnectedTransition()).resetCurrentFluid();
+                else if (placeArc.getConnectedTransition().getClass().equals(DynamicContinuousTransition.class) && ((DynamicContinuousTransition) placeArc.getConnectedTransition()).getRateAdaptionPlace().equals(place)) {
+                    ((DynamicContinuousTransition) placeArc.getConnectedTransition()).computeCurrentFluidAndCurrentChangeOfFluid(this.places);
+                    ((DynamicContinuousTransition) placeArc.getConnectedTransition()).setRateAdaptionPlace(null);
+                }
+            }
+        }
 
+    }
+
+    //resets all transitions which may obtain more flow after another transition got adapted
+    private void resetOtherConnectedTransitions(ContinuousArc baseArc) {
+        Transition baseTransition = baseArc.getConnectedTransition();
+        for (Arc arc : baseTransition.getConnectedArcs()) {
+            if (arc.getClass().equals(ContinuousArc.class) && !arc.equals(baseArc)) {
+                ContinuousPlace place = (ContinuousPlace) arc.getConnectedPlace();
+                //if place is full and arc towards the place or empty and exiting arc
+                if ((place.getUpperBoundaryReached() && ((ContinuousArc) arc).getDirection().equals(ContinuousArcType.input)) || (place.getLowerBoundaryReached() && ((ContinuousArc) arc).getDirection().equals(ContinuousArcType.output))) {
+                    resetTransitionRatesOfPlaceByType(place, (ContinuousArc) arc);
+                }
+            }
+        }
+    }
 }
