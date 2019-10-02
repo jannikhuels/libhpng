@@ -1,14 +1,5 @@
 package de.wwu.criticalsystems.libhpng.simulation;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Properties;
-import java.util.logging.Logger;
-
 import de.wwu.criticalsystems.libhpng.confidenceintervals.ConfidenceIntervalCalculator;
 import de.wwu.criticalsystems.libhpng.errorhandling.*;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
@@ -17,6 +8,11 @@ import de.wwu.criticalsystems.libhpng.model.HPnGModel;
 import de.wwu.criticalsystems.libhpng.model.Transition;
 import de.wwu.criticalsystems.libhpng.plotting.ContinuousPlacesPlotter;
 import de.wwu.criticalsystems.libhpng.plotting.MarkingPlot;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Properties;
+import java.util.logging.Logger;
 
 public class SimulationHandler {
 
@@ -269,7 +265,7 @@ public class SimulationHandler {
 	private Boolean printRunResults;
 	
 	
-	public void simulateAndPlotOnly(Double maxTime, HPnGModel model) throws ModelNotReadableException, InvalidRandomVariateGeneratorException, InvalidPropertyException{
+	public void simulateAndPlotOnly(Double maxTime, HPnGModel model, String imagePath) throws ModelNotReadableException, InvalidRandomVariateGeneratorException, InvalidPropertyException{
 		
 		Integer firings = 0;
 		Integer minFirings = Integer.MAX_VALUE;
@@ -334,7 +330,7 @@ public class SimulationHandler {
 		
 			
 		ContinuousPlacesPlotter plotter = new ContinuousPlacesPlotter();
-		plotter.plotContinuousPlaces(model, plots, maxTime, confidenceLevel);
+		plotter.plotContinuousPlaces(model, plots, maxTime, confidenceLevel, imagePath);
 		if (logger != null)
 			logger.info("Simulation finished after " + fixedNumberOfRuns + " runs");
 

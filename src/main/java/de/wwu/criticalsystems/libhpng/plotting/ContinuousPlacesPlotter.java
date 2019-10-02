@@ -1,17 +1,16 @@
 package de.wwu.criticalsystems.libhpng.plotting;
 
-import java.awt.Color;
-import java.awt.Shape;
-import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-
-import javax.swing.JFrame;
-
+import de.wwu.criticalsystems.libhpng.model.ContinuousPlace;
+import de.wwu.criticalsystems.libhpng.model.HPnGModel;
+import de.wwu.criticalsystems.libhpng.model.Place;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.ui.RefineryUtilities;
 import umontreal.ssj.probdist.StudentDist;
 
-import de.wwu.criticalsystems.libhpng.model.*;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 
 public class ContinuousPlacesPlotter {
 	
@@ -23,7 +22,7 @@ public class ContinuousPlacesPlotter {
 	private ArrayList<ContinuousPlaceEntry> ssquares = new ArrayList<ContinuousPlaceEntry>();
 
 	
-	public void plotContinuousPlaces(HPnGModel model, ArrayList<MarkingPlot> plots, Double maxTime, Double confidenceLevel){
+	public void plotContinuousPlaces(HPnGModel model, ArrayList<MarkingPlot> plots, Double maxTime, Double confidenceLevel, String imagePath){
 
 		int series=0;
 		Double t;
@@ -54,7 +53,10 @@ public class ContinuousPlacesPlotter {
 		graph.pack();
 		RefineryUtilities.centerFrameOnScreen(graph);
 		graph.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		graph.setVisible(true);		
+		graph.setVisible(true);
+		if (imagePath != null) {
+			graph.getSVG(imagePath);
+		}
 	}
 
 	

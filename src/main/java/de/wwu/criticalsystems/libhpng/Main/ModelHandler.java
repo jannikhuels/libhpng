@@ -1,21 +1,9 @@
 package de.wwu.criticalsystems.libhpng.Main;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.logging.FileHandler;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-
-import de.wwu.criticalsystems.libhpng.errorhandling.InvalidSimulationParameterException;
-import de.wwu.criticalsystems.libhpng.errorhandling.ModelNotReadableException;
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidPropertyException;
 import de.wwu.criticalsystems.libhpng.errorhandling.InvalidRandomVariateGeneratorException;
+import de.wwu.criticalsystems.libhpng.errorhandling.InvalidSimulationParameterException;
+import de.wwu.criticalsystems.libhpng.errorhandling.ModelNotReadableException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.ParseException;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SMCParser;
 import de.wwu.criticalsystems.libhpng.formulaparsing.SimpleNode;
@@ -23,6 +11,12 @@ import de.wwu.criticalsystems.libhpng.init.ModelReader;
 import de.wwu.criticalsystems.libhpng.model.HPnGModel;
 import de.wwu.criticalsystems.libhpng.simulation.SimulationHandler;
 import de.wwu.criticalsystems.libhpng.simulation.SimulationHandler.ProbabilityOperator;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 
 public class ModelHandler {
@@ -207,10 +201,10 @@ public class ModelHandler {
 	}	
 	
 	
-	public void plotPlaces(Double maxTime){
+	public void plotPlaces(Double maxTime, String imagePath){
 		   	
 		try {
-			simulationHandler.simulateAndPlotOnly(maxTime, model);
+			simulationHandler.simulateAndPlotOnly(maxTime, model, imagePath);
 			
 		} catch (ModelNotReadableException e) {
 			if (logger != null) 
@@ -394,5 +388,7 @@ public class ModelHandler {
 			logger.severe("Property Error: the boundary node of the property root could not be identified");
 		throw new InvalidPropertyException("Property Error: the boundary node of the property root could not be identified");
 	}
-    	
+
+	public void plotPlacesAndSaveSVG(Double maxTime, String path) {
+	}
 }
