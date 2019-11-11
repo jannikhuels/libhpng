@@ -95,54 +95,59 @@ public class Simulator {
 				else if (printRunResults && !fulfilled && arc.getInhibitor())
 					System.out.println(event.getOccurenceTime() + " seconds: inhibitor arc " + arc.getId() + " has its condition stopped being fulfilled for transition " + arc.getConnectedTransition().getId());									
 			}			
-		} else if (event.getEventType().equals(SimulationEventType.place_boundary)){
-			
-			//place boundary reached
-			ContinuousPlace place;
-			for (Object object: event.getRelatedObjects()){				
-				
-				place = (ContinuousPlace)object;
-				place.setExactFluidLevel(place.getCurrentFluidLevel(), event.getOccurenceTime());
-					
-				if (place.checkLowerBoundary()){
-					place.checkUpperBoundary();
-					if (printRunResults)
-						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " is empty");
-				} else {
-					place.checkUpperBoundary();
-					if (printRunResults)
-						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " has reached its upper boundary");
-				}	
-			}	
-		} else if (event.getEventType().equals(SimulationEventType.place_internaltransition)){
+//		} else if (event.getEventType().equals(SimulationEventType.place_boundary)){
+//			
+//			//place boundary reached
+//			ContinuousPlace place;
+//			//model.updateFluidRates(event.getOccurenceTime());
+//			
+//			for (Object object: event.getRelatedObjects()){				
+//				
+//				place = (ContinuousPlace)object;
+//				//place.setExactDrift(place.getDrift());
+//				//place.setExactFluidLevel(place.getCurrentFluidLevel(), event.getOccurenceTime());
+//				
+//				place.performInternalTransition(event.getOccurenceTime(), place.getExactDrift(), place.getChangeOfExactDrift(), model.getArcs(), false);	
+//					
+//				if (place.checkLowerBoundary()){
+//					place.checkUpperBoundary();
+//					if (printRunResults)
+//						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " is empty");
+//				} else {
+//					place.checkUpperBoundary();
+//					if (printRunResults)
+//						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " has reached its upper boundary");
+//				}	
+//			}	
+		} else if (event.getEventType().equals(SimulationEventType.place_boundary) || event.getEventType().equals(SimulationEventType.place_internaltransition)){
 
 			ContinuousPlace place;
+			//model.updateFluidRates(event.getOccurenceTime());
 			
 			//internal transition
 			for (Object object: event.getRelatedObjects()){
 				
 				place = ((ContinuousPlace)object);
+				//place.setExactDrift(place.getDrift());
 				
-				Boolean lowerBoundary = place.getLowerBoundaryReached();
-				Boolean upperBoundary = false;
+				Boolean previousLowerBoundary = place.getLowerBoundaryReached();
+				Boolean previousUpperBoundary = false;
 				if (!place.getUpperBoundaryInfinity())
-					upperBoundary = place.getUpperBoundaryReached();
+					previousUpperBoundary = place.getUpperBoundaryReached();
 				
 							
 				place.performInternalTransition(event.getOccurenceTime(), place.getExactDrift(), place.getChangeOfExactDrift(), model.getArcs(), false);	
 				
-				if (printRunResults)
-					System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " has performed an internal transition");
 				
-				
-				if (!lowerBoundary && place.checkLowerBoundary()){
-					place.checkUpperBoundary();
-					if (printRunResults)
+				if (printRunResults) {
+					
+					if (!previousLowerBoundary && place.getLowerBoundaryReached())
 						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " is empty");
-				} else if (!upperBoundary && place.checkUpperBoundary()) {
-					if (printRunResults)
+					else if (!previousUpperBoundary && place.getUpperBoundaryReached()) 
 						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " has reached its upper boundary");
-				}
+					else
+						System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " has performed an internal transition");
+				}	
 				
 	 			
 				for (Arc arc: model.getArcs()){
@@ -173,8 +178,10 @@ public class Simulator {
 		//update model status
 		model.updateEnabling(false);
 		model.updateFluidRates(event.getOccurenceTime());
-		if (event.getEventType() != SimulationEventType.place_internaltransition)
-			model.computeInternalTransitionsAtEvent();
+//		if (event.getEventType() != SimulationEventType.place_internaltransition) 
+// 			model.computeInternalTransitionsAtEvent(false);
+//		else
+//			model.computeInternalTransitionsAtEvent(true);
 		
 		//plot status
 		currentPlot.saveAll(event.getOccurenceTime());		
@@ -291,11 +298,9 @@ public class Simulator {
 							if (place.getDrift() < 0.0 && ((GuardArc)arc).getConditionFulfilled().equals(false))							
 								continue;						
 	
-							((GuardArc)arc).setConditionFulfilled(true);
-								
+							((GuardArc)arc).setConditionFulfilled(true);							
 							
-						}
-						
+						}						
 		
 						
 						timeOfCurrentEvent = currentTime + timeDelta;
@@ -360,9 +365,7 @@ public class Simulator {
 					else if (place.getDrift() > 0.0 && !place.getUpperBoundaryInfinity() && !place.getUpperBoundaryReached())
 						timeDeltaQ = place.getTimeTilCurrentFluidLevelHitsBoundary(place.getUpperBoundary());
 					
-					
-
-					
+								
 					if (((timeDelta >= 0.0 && timeDelta < Double.POSITIVE_INFINITY) || (timeDeltaQ >= 0.0 && timeDeltaQ < Double.POSITIVE_INFINITY)) && !timeDelta.equals(timeDeltaQ) && (timeDelta < place.getTimeToNextInternalTransition() || timeDeltaQ < place.getTimeToNextInternalTransition())){
 						
 						if (timeDelta < 0.0)
@@ -415,27 +418,28 @@ public class Simulator {
 						else if (timeDelta == 0.0)
 							place.checkUpperBoundary();
 						
-					} else {	
+					} 
+					
 						
-						timeOfCurrentEvent = currentTime + place.getTimeToNextInternalTransition();
+					timeOfCurrentEvent = currentTime + place.getTimeToNextInternalTransition();
 
-						if (timeOfCurrentEvent < event.getOccurenceTime() && timeOfCurrentEvent >= currentTime){
-							
-							event.setEventType(SimulationEventType.place_internaltransition);							
-							event.setFirstEventItem(place, 0);
-							event.setOccurenceTime(timeOfCurrentEvent);
-								
-						} else if (timeOfCurrentEvent.equals(event.getOccurenceTime()) && timeOfCurrentEvent >= currentTime) {
-							
-							if (event.getEventType().equals(SimulationEventType.no_event)){							
-								event.setEventType(SimulationEventType.place_internaltransition);
-								event.setFirstEventItem(place, 0);							
-							} else if (event.getEventType().equals(SimulationEventType.place_internaltransition)){
-								event.getRelatedObjects().add(place);
-							}							
-						}	
+					if (timeOfCurrentEvent < event.getOccurenceTime() && timeOfCurrentEvent >= currentTime){
 						
-					}
+						event.setEventType(SimulationEventType.place_internaltransition);							
+						event.setFirstEventItem(place, 0);
+						event.setOccurenceTime(timeOfCurrentEvent);
+							
+					} else if (timeOfCurrentEvent.equals(event.getOccurenceTime()) && timeOfCurrentEvent >= currentTime) {
+						
+						if (event.getEventType().equals(SimulationEventType.no_event)){							
+							event.setEventType(SimulationEventType.place_internaltransition);
+							event.setFirstEventItem(place, 0);							
+						} else if (event.getEventType().equals(SimulationEventType.place_internaltransition)){
+							event.getRelatedObjects().add(place);
+						}							
+					}	
+						
+					
 				}					
 			}	
 		}

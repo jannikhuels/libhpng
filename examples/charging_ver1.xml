@@ -1,0 +1,37 @@
+<HPnG>
+  <places>
+    <discretePlace id="petrol" marking="0"/>
+    <discretePlace id="driving" marking="0"/>
+    <discretePlace id="start" marking="0"/>
+    <discretePlace id="electric" marking="0"/>
+    <discretePlace id="charging" marking="0"/>
+    <continuousPlace id="e-car" level="0" capacity="0" infiniteCapacity="1" quantum="1.0"/>
+  </places>
+  <transitions>
+    <generalTransition id="finish" cdf="normal" priority="0" weight="1" policy="resume">
+      <parameter name="mu" value="8"/>
+      <parameter name="sigma" value="1"/>
+    </generalTransition>
+    <generalTransition id="stop_charging" cdf="uniform" priority="0" weight="1" policy="resume">
+      <parameter name="mu" value="0"/>
+      <parameter name="sigma" value="8"/>
+    </generalTransition>
+    <immediateTransition id="take_petrol" priority="0" weight="1"/>
+    <immediateTransition id="take_electric" priority="0" weight="1"/>
+    <continuousTransition id="charge" rate="1.0"/>
+    <continuousTransition id="discharge"  rate="1.0"/>
+  </transitions>
+  <arcs>
+    <discreteArc weight="1" fromNode="start" toNode="take_petrol" id="starttotake_petrol"/>
+    <discreteArc weight="1" fromNode="stop_charging" toNode="driving" id="stop_chargingtodriving"/>
+    <discreteArc weight="1" fromNode="take_petrol" toNode="petrol" id="take_petroltopetrol"/>
+    <discreteArc weight="1" fromNode="take_electric" toNode="electric" id="take_electrictoelectric"/>
+    <discreteArc weight="1" fromNode="start" toNode="take_electric" id="starttotake_electric"/>
+    <discreteArc weight="1" fromNode="charging" toNode="stop_charging" id="chargingtostop_charging"/>
+    <discreteArc weight="1" fromNode="driving" toNode="finish" id="drivingtofinish"/>
+    <continuousArc fromNode="charge" toNode="e-car" id="chargetoe-car" share="1" priority="0"  weight="1"/>
+    <continuousArc fromNode="e-car" toNode="discharge" id="e-cartodischarge" share="1" priority="0" weight="1"/>
+    <guardArc weight="1" isInhibitor="0" fromNode="charging" toNode="charge" id="chargingtocharge"/>
+    <guardArc weight="1" isInhibitor="0" fromNode="driving" toNode="discharge" id="drivingtodischarge"/>
+  </arcs>
+</HPnG>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HPnG>
+    <places>
+        <discretePlace id="pd_x1" marking="1"/>
+        <discretePlace id="pd_x2" marking="0"/>
+        <discretePlace id="pd_y1" marking="1"/>
+        <discretePlace id="pd_y2" marking="0"/>
+        <discretePlace id="pd_l1" marking="1"/>
+        <discretePlace id="pd_l2" marking="0"/>
+        <discretePlace id="pd_l3" marking="0"/>
+        <discretePlace id="pd_true" marking="0"/>
+        <discretePlace id="pd_false" marking="0"/>
+    </places>
+    <transitions>
+        <generalTransition id="tg_x" cdf="uniform" priority="0" weight="1.0E0" policy="resume">
+            <parameter name="a" value="0.0"/>
+            <parameter name="b" value="1.0"/>
+        </generalTransition>
+        <deterministicTransition id="td_y" discTime="0.5" priority="0" weight="1.0E0"/>
+        <immediateTransition id="ti_2" priority="0" weight="1.0E0"/>
+        <immediateTransition id="ti_3" priority="0" weight="1.0E0"/>
+        <immediateTransition id="ti_4" priority="0" weight="1.0E0"/>
+        <immediateTransition id="ti_5" priority="0" weight="1.0E0"/>
+        <immediateTransition id="ti_6" priority="0" weight="1.0E0"/>
+        <immediateTransition id="ti_7" priority="0" weight="1.0E0"/>
+    </transitions>
+    <arcs>
+        <discreteArc id="da_xa" fromNode="pd_x1" toNode="tg_x" weight="1.0E0"/>
+        <discreteArc id="da_xb" fromNode="tg_x" toNode="pd_x2" weight="1.0E0"/>
+        <discreteArc id="da_ya" fromNode="pd_y1" toNode="td_y" weight="1.0E0"/>
+        <discreteArc id="da_yb" fromNode="td_y" toNode="pd_y2" weight="1.0E0"/>
+        <discreteArc id="da_1a" fromNode="pd_l1" toNode="ti_2" weight="1.0E0"/>
+        <discreteArc id="da_1b" fromNode="ti_2" toNode="pd_l2" weight="1.0E0"/>
+        <discreteArc id="da_2a" fromNode="pd_l1" toNode="ti_3" weight="1.0E0"/>
+        <discreteArc id="da_2b" fromNode="ti_3" toNode="pd_l3" weight="1.0E0"/>
+        <discreteArc id="da_3a" fromNode="pd_l2" toNode="ti_4" weight="1.0E0"/>
+        <discreteArc id="da_3b" fromNode="ti_4" toNode="pd_true" weight="1.0E0"/>
+        <discreteArc id="da_4a" fromNode="pd_l2" toNode="ti_5" weight="1.0E0"/>
+        <discreteArc id="da_4b" fromNode="ti_5" toNode="pd_false" weight="1.0E0"/>
+        <discreteArc id="da_5a" fromNode="pd_l3" toNode="ti_6" weight="1.0E0"/>
+        <discreteArc id="da_5b" fromNode="ti_6" toNode="pd_true" weight="1.0E0"/>
+        <discreteArc id="da_6a" fromNode="pd_l3" toNode="ti_7" weight="1.0E0"/>
+        <discreteArc id="da_6b" fromNode="ti_7" toNode="pd_false" weight="1.0E0"/>
+        <guardArc id="ga_xa" fromNode="pd_x2" toNode="ti_4" isInhibitor="0" weight="1.0E0"/>
+        <guardArc id="ga_xb" fromNode="pd_x2" toNode="ti_7" isInhibitor="0" weight="1.0E0"/>
+        <guardArc id="ga_ya" fromNode="pd_y2" toNode="ti_5" isInhibitor="0" weight="1.0E0"/>
+        <guardArc id="ga_yb" fromNode="pd_y2" toNode="ti_6" isInhibitor="0" weight="1.0E0"/>
+    </arcs>
+</HPnG>

@@ -1,0 +1,56 @@
+<HPnG>
+  <places>
+    <discretePlace id="petrol" marking="0"/>
+    <discretePlace id="completed" marking="0"/>
+    <discretePlace id="decision" marking="0"/>
+    <discretePlace id="electric" marking="0"/>
+    <discretePlace id="charging" marking="0"/>
+    <continuousPlace id="e-car" level="0" capacity="0" infiniteCapacity="1" quantum="1.0"/>
+    <discretePlace id="start" marking="0"/>
+    <discretePlace id="done" marking="0"/>
+    <discretePlace id="computing" marking="0"/>
+    <continuousPlace id="distance" level=" 0" capacity="0" infiniteCapacity="1" quantum="1.0"/>
+    <discretePlace id="driving" marking="0"/>
+  </places>
+  <transitions>
+    <generalTransition id="stop_charging" cdf="uniform" priority="0" weight="1" policy="resume">
+      <parameter name="mu" value="0"/>
+      <parameter name="sigma" value="8"/>
+    </generalTransition>
+    <immediateTransition id="take_petrol" priority="0" weight="1"/>
+    <immediateTransition id="take_electric" priority="0" weight="1"/>
+    <continuousTransition id="charge" rate="1.0"/>
+    <continuousTransition id="discharge" rate="1.0"/>
+    <immediateTransition id="ready" priority="0" weight="1"/>
+    <generalTransition id="finish" cdf="normal" priority="0" weight="1" policy="resume">
+      <parameter name="mu" value="8"/>
+      <parameter name="sigma" value="1"/>
+    </generalTransition>
+    <continuousTransition id="increase" rate="1.0"/>
+    <continuousTransition id="decrease" rate="1.0"/>
+  </transitions>
+  <arcs>
+    <discreteArc weight="1" fromNode="decision" toNode="take_petrol" id="decisiontotake_petrol"/>
+    <discreteArc weight="1" fromNode="stop_charging" toNode="completed" id="stop_chargingtocompleted"/>
+    <discreteArc weight="1" fromNode="take_petrol" toNode="petrol" id="take_petroltopetrol"/>
+    <discreteArc weight="1" fromNode="take_electric" toNode="electric" id="take_electrictoelectric"/>
+    <discreteArc weight="1" fromNode="decision" toNode="take_electric" id="decisiontotake_electric"/>
+    <discreteArc weight="1" fromNode="charging" toNode="stop_charging" id="chargingtostop_charging"/>
+    <continuousArc fromNode="charge" toNode="e-car" id="chargetoe-car" share="1" priority="0" weight="1"/>
+    <continuousArc fromNode="e-car" toNode="discharge" id="e-cartodischarge" share="1" priority="0" weight="1"/>
+    <guardArc weight="1" isInhibitor="0" fromNode="charging" toNode="charge" id="chargingtocharge"/>
+    <guardArc weight="1" isInhibitor="0" fromNode="driving" toNode="discharge" id="drivingtodischarge"/>
+    <discreteArc weight="1" fromNode="start" toNode="ready" id="starttoready"/>
+    <discreteArc weight="1" fromNode="ready" toNode="decision" id="readytodecision"/>
+    <discreteArc weight="1" fromNode="finish" toNode="done" id="finishtodone"/>
+    <discreteArc weight="1" fromNode="computing" toNode="finish" id="computingtofinish"/>
+    <continuousArc fromNode="increase" toNode="distance" id="increasetodistance" share="1" priority="0" weight="1"/>
+    <continuousArc fromNode="distance" toNode="decrease" id="distancetodecrease" share="1" priority="0" weight="1"/>
+    <guardArc weight="1" isInhibitor="0" fromNode="computing" toNode="increase" id="computingtoincrease"/>
+    <guardArc weight="1" isInhibitor="0" fromNode="driving" toNode="decrease" id="drivingtodecrease"/>
+    <guardArc weight="1" isInhibitor="0" fromNode="e-car" toNode="decrease" id="e-cartodecrease"/>
+    <guardArc weight="1" isInhibitor="0" fromNode="completed" toNode="ready" id="completedtoready"/>
+    <guardArc weight="1" isInhibitor="0" fromNode="done" toNode="ready" id="donetoready"/>
+    <discreteArc weight="1" fromNode="ready" toNode="driving" id="readytodriving"/>
+  </arcs>
+</HPnG>

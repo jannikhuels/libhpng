@@ -68,6 +68,14 @@ public class ContinuousPlace extends Place{
 	public Double getDrift() {
 		return drift;
 	}
+	
+	public void setDriftToZero() {
+		drift = 0.0;
+	}
+	
+	public void setDrift(Double newDrift) {
+		drift = newDrift;
+	}
 
 	public Boolean getUpperBoundaryInfinity() {
 		return upperBoundaryInfinity;
@@ -156,13 +164,17 @@ public class ContinuousPlace extends Place{
 	public void resetFluidLevel() {
 		this.currentFluidLevel = this.originalFluidLevel;
 		this.exactFluidLevel = this.originalFluidLevel;
+		this.drift = 0.0;	
+		this.exactDrift = 0.0; 
+		this.changeOfExactDrift = 0.0; 
+		this.lastUpdate = 0.0;
 	}
 	
 	
 	public Boolean checkUpperBoundary(){
 		
 		BigDecimal level = new BigDecimal(currentFluidLevel);
-		level = level.setScale(14,BigDecimal.ROUND_UP);
+		level = level.setScale(6,BigDecimal.ROUND_UP);
 		
 		if (!upperBoundaryInfinity && level.doubleValue() >= upperBoundary)
 			upperBoundaryReached = true;
@@ -175,7 +187,7 @@ public class ContinuousPlace extends Place{
 	public Boolean checkLowerBoundary(){	
 		
 		BigDecimal level = new BigDecimal(currentFluidLevel);
-		level = level.setScale(14,BigDecimal.ROUND_DOWN);
+		level = level.setScale(0,BigDecimal.ROUND_DOWN);
 					
 		if (level.doubleValue() <= 0.0)
 			lowerBoundaryReached = true;
@@ -184,116 +196,40 @@ public class ContinuousPlace extends Place{
 		return lowerBoundaryReached;
 	}
 	
-		
+	
+	//only to be called after fluid rates have been updated
 	public void computeTimeToNextInternalTransition(ArrayList<Arc> arcs) {	
 		
-		timeToNextInternalTransition = Double.POSITIVE_INFINITY;
-		
+		timeToNextInternalTransition = Double.POSITIVE_INFINITY;		
+	
 		if (upperBoundaryReached || lowerBoundaryReached){
 			
-			Double inFlux = 0.0;					
-			Double outFlux = 0.0;
-			Double changeOfInFlux = 0.0;
-			Double changeOfOutFlux = 0.0;
-			
-			for (Arc arc: arcs){
-				if (arc.getConnectedPlace().getId().equals(this.getId()) && !arc.getClass().equals(GuardArc.class)){
-					if (arc.getConnectedTransition().getEnabled()) {
-						
-						if (((ContinuousArc)arc).getDirection().equals(ContinuousArcType.input)){
-							
-							if (arc.getConnectedTransition().getClass().equals(ContinuousTransition.class)){
-								inFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();
-								changeOfInFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentChangeOfFluid() * arc.getWeight();
-								
-							} else if (arc.getConnectedTransition().getClass().equals(DynamicContinuousTransition.class)){
-								inFlux += ((DynamicContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();
-								changeOfInFlux += ((DynamicContinuousTransition)arc.getConnectedTransition()).getCurrentChangeOfFluid() * arc.getWeight();
-							}
-												
-						} else {									
-							if (arc.getConnectedTransition().getClass().equals(ContinuousTransition.class)){
-								outFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();
-								changeOfOutFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentChangeOfFluid() * arc.getWeight();
-							} else if (arc.getConnectedTransition().getClass().equals(DynamicContinuousTransition.class)){	
-								outFlux += ((DynamicContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();
-								changeOfOutFlux += ((DynamicContinuousTransition)arc.getConnectedTransition()).getCurrentChangeOfFluid() * arc.getWeight();
-							}
-						}
-					}
-				}
-			}
-
-				
-			if (inFlux.equals(outFlux) && changeOfExactDrift != 0.0)
-				timeToNextInternalTransition = Math.sqrt(Math.abs((2 * quantum)/changeOfExactDrift));
-				
-			else if (upperBoundaryReached && changeOfOutFlux > changeOfInFlux )				
-				timeToNextInternalTransition = (inFlux - outFlux) / (changeOfOutFlux - changeOfInFlux);		
-			
-			else if (lowerBoundaryReached && changeOfInFlux > changeOfOutFlux)				
-				timeToNextInternalTransition = (outFlux - inFlux) / (changeOfInFlux - changeOfOutFlux);	
-			
-
-				
-			if (timeToNextInternalTransition <= 0.0)
-				timeToNextInternalTransition = Double.POSITIVE_INFINITY;
-			
+			computeTimeToNextInternalAtBound(arcs);			
 			return;
 		} 
 		
 		if (changeOfExactDrift != 0.0)		
 			timeToNextInternalTransition = Math.sqrt(Math.abs((2 * quantum)/changeOfExactDrift));
+		
+		else if(changeOfExactDrift == 0.0 && (exactDrift - drift != 0.0))
+			timeToNextInternalTransition = Math.abs(quantum - Math.abs(exactFluidLevel - currentFluidLevel)) / Math.abs(exactDrift - drift);
+		
+		//else if(changeOfExactDrift == 0.0 && drift == 0.0 && exactDrift != 0.0)
+		//	timeToNextInternalTransition = Math.abs(quantum / exactDrift);
+		
 		else		
 			timeToNextInternalTransition = Double.POSITIVE_INFINITY;		
 	}
-		
+	
+	
+			
 	public void computeTimeToNextInternalTransitionFromExternal(ArrayList<Arc> arcs) {		
 		
 		timeToNextInternalTransition = Double.POSITIVE_INFINITY;
 		
 		if (upperBoundaryReached || lowerBoundaryReached){
 			
-			Double inFlux = 0.0;					
-			Double outFlux = 0.0;
-			Double changeOfInFlux = 0.0;
-			Double changeOfOutFlux = 0.0;
-			
-			for (Arc arc: arcs){
-				if (arc.getConnectedPlace().getId().equals(this.getId()) && !arc.getClass().equals(GuardArc.class)){
-					if (arc.getConnectedTransition().getEnabled()) {
-						
-						if (((ContinuousArc)arc).getDirection().equals(ContinuousArcType.input)){
-							
-							if (arc.getConnectedTransition().getClass().equals(ContinuousTransition.class)){
-								inFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();								
-							} else if (arc.getConnectedTransition().getClass().equals(DynamicContinuousTransition.class)){
-								inFlux += ((DynamicContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();
-								changeOfInFlux += ((DynamicContinuousTransition)arc.getConnectedTransition()).getCurrentChangeOfFluid() * arc.getWeight();
-							}
-												
-						} else {									
-							if (arc.getConnectedTransition().getClass().equals(ContinuousTransition.class)){
-								outFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();
-							} else if (arc.getConnectedTransition().getClass().equals(DynamicContinuousTransition.class)){	
-								outFlux += ((DynamicContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();
-								changeOfOutFlux += ((DynamicContinuousTransition)arc.getConnectedTransition()).getCurrentChangeOfFluid() * arc.getWeight();
-							}
-						}
-					}
-				}
-			}
-	
-			
-			if (upperBoundaryReached && changeOfOutFlux > changeOfInFlux)				
-				timeToNextInternalTransition = (inFlux - outFlux) / (changeOfOutFlux - changeOfInFlux);		
-			
-			else if (lowerBoundaryReached && changeOfInFlux > changeOfOutFlux)				
-				timeToNextInternalTransition = (outFlux - inFlux) / (changeOfInFlux - changeOfOutFlux);				
-				
-			if (timeToNextInternalTransition < 0.0)
-				timeToNextInternalTransition = Double.POSITIVE_INFINITY;
-			
+			computeTimeToNextInternalAtBound(arcs);			
 			return;
 		} 
 		
@@ -323,27 +259,35 @@ public class ContinuousPlace extends Place{
 				s4 = Double.POSITIVE_INFINITY;
 						
 			timeToNextInternalTransition =  Math.min(Math.min(s1,  s2), Math.min(s3, s4));
-		} else
-			timeToNextInternalTransition = Double.POSITIVE_INFINITY; 
+			
+		} else if(changeOfExactDrift == 0.0 && (exactDrift - drift != 0.0))
+				timeToNextInternalTransition = Math.abs(quantum - Math.abs(exactFluidLevel - currentFluidLevel)) / Math.abs(exactDrift - drift);
+			
+		//else if(changeOfExactDrift == 0.0 && drift == 0.0 && exactDrift != 0.0)
+		//	timeToNextInternalTransition = Math.abs(quantum / exactDrift);
 	
+		else
+			timeToNextInternalTransition = Double.POSITIVE_INFINITY; 		
+		
 			
 		if (timeToNextInternalTransition < 0.0)
 			timeToNextInternalTransition = Double.POSITIVE_INFINITY;
 		
 	}
-		
+	
+	
 	public void performInternalTransition(Double timePoint, Double previousDrift, Double previousChangeOfDrift, ArrayList<Arc> arcs, Boolean adapted){
 		
 		Double timeSinceLastInternalTransition = timePoint - lastUpdate;	
 		Double oldTimeToNextInternalTransition = null;
-		if (!(timeToNextInternalTransition == null)) 
-			oldTimeToNextInternalTransition = timeToNextInternalTransition - timeSinceLastInternalTransition;	
+		if (!(timeToNextInternalTransition == null))
+			oldTimeToNextInternalTransition = timeToNextInternalTransition;	
 		
 		Double fluid = exactFluidLevel;			
 		fluid += previousDrift * timeSinceLastInternalTransition + previousChangeOfDrift/2.0 * Math.pow(timeSinceLastInternalTransition, 2.0);
 		
 		BigDecimal level = new BigDecimal(fluid);
-		level = level.setScale(8,BigDecimal.ROUND_HALF_UP);
+		level = level.setScale(0,BigDecimal.ROUND_HALF_UP);
 		if (level.doubleValue() <= 0.0){ 
 			fluid = 0.0;
 			if (exactDrift < 0.0)
@@ -355,13 +299,14 @@ public class ContinuousPlace extends Place{
 		} else
 			fluid = level.doubleValue();	
 		
-		setExactFluidLevel(fluid, timePoint);
-		
+		setExactFluidLevel(fluid, timePoint); //also resets lastUpdate						
 		
 		currentFluidLevel = exactFluidLevel;		
 		drift = exactDrift;			
 		
-			
+		checkLowerBoundary();
+		checkUpperBoundary();
+		
 		computeTimeToNextInternalTransition(arcs);
 		
 		if (adapted && !(timeToNextInternalTransition == null)) {			
@@ -369,8 +314,50 @@ public class ContinuousPlace extends Place{
 				timeToNextInternalTransition = oldTimeToNextInternalTransition;
 			}
 		}
-
 	}
+	
+	
+public void advanceExactFluidLevel(Double timePoint, Double previousDrift, Double previousChangeOfDrift, ArrayList<Arc> arcs, Boolean adapted){
+		
+		Double timeSinceLastInternalTransition = timePoint - lastUpdate;	
+		Double oldTimeToNextInternalTransition = null;
+		if (!(timeToNextInternalTransition == null))
+			oldTimeToNextInternalTransition = timeToNextInternalTransition;	
+		
+		if (timeSinceLastInternalTransition > 0.0) {
+			
+			Double fluid = exactFluidLevel;			
+			fluid += previousDrift * timeSinceLastInternalTransition + previousChangeOfDrift/2.0 * Math.pow(timeSinceLastInternalTransition, 2.0);
+			
+			BigDecimal level = new BigDecimal(fluid);
+			level = level.setScale(0,BigDecimal.ROUND_HALF_UP);
+			if (level.doubleValue() <= 0.0){ 
+				fluid = 0.0;
+				if (exactDrift < 0.0)
+					exactDrift = 0.0;
+			} else if (!upperBoundaryInfinity && upperBoundary <= level.doubleValue()){
+				fluid = upperBoundary;
+				if (exactDrift > 0.0)
+					exactDrift = 0.0;
+			} else
+				fluid = level.doubleValue();	
+			
+			setExactFluidLevel(fluid, timePoint); //also resets lastUpdate					
+
+		}
+		
+		computeTimeToNextInternalTransitionFromExternal(arcs);
+		
+		if (adapted && !(timeToNextInternalTransition == null)) {			
+			if (!(oldTimeToNextInternalTransition == null) && oldTimeToNextInternalTransition < timeToNextInternalTransition && oldTimeToNextInternalTransition > 0.0) {
+				timeToNextInternalTransition = oldTimeToNextInternalTransition;
+			}
+		}
+		
+		
+	}
+
+
 	
 	public Double getTimeTilExactFluidLevelHitsBoundary(Double boundary, Double timePoint){
 		
@@ -407,6 +394,7 @@ public class ContinuousPlace extends Place{
 			return Math.min(t1, t2);		
 	}	
 	
+	
 	public Double getTimeTilCurrentFluidLevelHitsBoundary(Double boundary){		
 		
 		if ((!upperBoundaryInfinity && upperBoundaryReached && boundary.equals(upperBoundary)) || (lowerBoundaryReached && boundary == 0.0))
@@ -419,5 +407,72 @@ public class ContinuousPlace extends Place{
 		
 		return ((boundary - currentFluidLevel)/drift);
 		
+	}
+
+	
+	public void reduceTimeToInternalTransition(Double timeDelta) {
+		timeToNextInternalTransition = Math.max(0.0, timeToNextInternalTransition - timeDelta);
+		
+	}
+	
+	private void computeTimeToNextInternalAtBound(ArrayList<Arc> arcs) {		
+		
+		
+			Double inFlux = 0.0;					
+			Double outFlux = 0.0;
+			Double changeOfInFlux = 0.0;
+			Double changeOfOutFlux = 0.0;
+			
+			for (Arc arc: arcs){
+				if (arc.getConnectedPlace().getId().equals(this.getId()) && !arc.getClass().equals(GuardArc.class)){
+					if (arc.getConnectedTransition().getEnabled()) {
+						
+						if (((ContinuousArc)arc).getDirection().equals(ContinuousArcType.input)){
+							
+							if (arc.getConnectedTransition().getClass().equals(ContinuousTransition.class)){
+								inFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();
+								changeOfInFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentChangeOfFluid() * arc.getWeight();
+								
+							} else if (arc.getConnectedTransition().getClass().equals(DynamicContinuousTransition.class)){
+								inFlux += ((DynamicContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();
+								changeOfInFlux += ((DynamicContinuousTransition)arc.getConnectedTransition()).getCurrentChangeOfFluid() * arc.getWeight();
+							}
+												
+						} else {									
+							if (arc.getConnectedTransition().getClass().equals(ContinuousTransition.class)){
+								outFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();
+								changeOfOutFlux += ((ContinuousTransition)arc.getConnectedTransition()).getCurrentChangeOfFluid() * arc.getWeight();
+							} else if (arc.getConnectedTransition().getClass().equals(DynamicContinuousTransition.class)){	
+								outFlux += ((DynamicContinuousTransition)arc.getConnectedTransition()).getCurrentFluid() * arc.getWeight();
+								changeOfOutFlux += ((DynamicContinuousTransition)arc.getConnectedTransition()).getCurrentChangeOfFluid() * arc.getWeight();
+							}
+						}
+					}
+				}
+			}
+				
+			//if (inFlux == outFlux && changeOfOutFlux != changeOfInFlux) 
+			//	timeToNextInternalTransition = Math.sqrt(Math.abs((2 * quantum)/(changeOfOutFlux - changeOfInFlux)));
+								
+			//else if(changeOfExactDrift == 0.0 && drift == 0.0 && exactDrift != 0.0)
+				//timeToNextInternalTransition = Math.abs(quantum / exactDrift);
+			
+			
+			//time until boundary is left			
+			if (upperBoundaryReached && outFlux > inFlux && changeOfOutFlux == 0.0 && changeOfInFlux == 0.0)				
+				timeToNextInternalTransition =  quantum / (outFlux - inFlux);		
+
+			else if (lowerBoundaryReached && outFlux < inFlux && changeOfOutFlux == 0.0 && changeOfInFlux == 0.0)				
+				timeToNextInternalTransition = quantum / (inFlux - outFlux);			
+			
+			else if (upperBoundaryReached && changeOfOutFlux > changeOfInFlux )				
+				timeToNextInternalTransition = (inFlux - outFlux) / (changeOfOutFlux - changeOfInFlux);		
+
+			else if (lowerBoundaryReached && changeOfInFlux > changeOfOutFlux)				
+				timeToNextInternalTransition = (outFlux - inFlux) / (changeOfInFlux - changeOfOutFlux);	
+				
+			if (timeToNextInternalTransition <= 0.0)
+				timeToNextInternalTransition = Double.POSITIVE_INFINITY;
+
 	}
 }

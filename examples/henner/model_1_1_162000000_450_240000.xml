@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HPnG>
+  <places>
+    <continuousPlace id="ev" capacity="324000001" infiniteCapacity="0" level="0" quantum="0.1"/>
+
+    <discretePlace marking="1" id="inlot"/>
+
+    <discretePlace marking="1" id="policy power supply"/>
+    <discretePlace marking="1" id="regular price"/>
+    <discretePlace marking="0" id="low price"/>
+
+    <discretePlace marking="1" id="policy power demand"/>
+    <discretePlace marking="1" id="stable grid"/>
+    <discretePlace marking="0" id="unstable grid"/>
+  </places>
+  <transitions>
+    <generalTransition id="client return" cdf="foldednormal" priority="0" weight="1" policy="resume">
+      <parameter name="mu" value="28800"/>
+      <parameter name="sigma" value="450"/>
+    </generalTransition>
+<!--    <generalTransition id="client return" cdf="uniform" priority="0" weight="1" policy="resume">-->
+<!--      <parameter name="a" value="0"/>-->
+<!--      <parameter name="b" value="28800"/>-->
+<!--    </generalTransition>-->
+
+    <continuousTransition id="base charge" rate="22500"/>
+
+    <continuousTransition id="extra charge" rate="97500"/>
+    <deterministicTransition id="price recovery" priority="0" weight="1" discTime="5400" />
+    <generalTransition id="price slump" cdf="exp" priority="0" weight="1" policy="resume"><!-- TODO: proper distribution -->
+      <parameter name="mean" value="3600"/>
+    </generalTransition>
+<!--    <generalTransition id="price slump" cdf="uniform" priority="0" weight="1" policy="resume">&lt;!&ndash; TODO: proper distribution &ndash;&gt;-->
+<!--        <parameter name="a" value="0"/>-->
+<!--        <parameter name="b" value="28800"/>-->
+<!--    </generalTransition>-->
+
+    <continuousTransition id="charge penalty" rate="240000"/>
+    <deterministicTransition id="demand increase" priority="0" weight="1" discTime="14400" />
+    <generalTransition id="demand decrease" cdf="foldednormal" priority="0" weight="1" policy="resume"><!-- TODO: proper distribution -->
+      <parameter name="mu" value="3600"/>
+      <parameter name="sigma" value="600"/>
+    </generalTransition>
+<!--    <generalTransition id="demand decrease" cdf="uniform" priority="0" weight="1" policy="resume">&lt;!&ndash; TODO: proper distribution &ndash;&gt;-->
+<!--        <parameter name="a" value="0"/>-->
+<!--        <parameter name="b" value="28800"/>-->
+<!--    </generalTransition>-->
+  </transitions>
+  <arcs>
+    <discreteArc weight="1" fromNode="inlot" toNode="client return" id="inlot to client return"/>
+
+    <guardArc weight="1" isInhibitor="0" fromNode="inlot" toNode="base charge" id="inlot to base charge"/>
+    <continuousArc share="1" priority="0" weight="1" fromNode="base charge" toNode="ev" id="base charge to ev"/>
+
+    <guardArc weight="1" isInhibitor="0" fromNode="inlot" toNode="extra charge" id="inlot to extra charge"/>
+    <guardArc weight="1" isInhibitor="0" fromNode="low price" toNode="extra charge" id="low price to extra charge"/>
+    <continuousArc share="1" priority="0" weight="1" fromNode="extra charge" toNode="ev" id="extra charge to ev"/>
+    <discreteArc weight="1" fromNode="policy power supply" toNode="price slump" id="policy power supply to price slump"/>
+    <discreteArc weight="1" fromNode="regular price" toNode="price slump" id="regular price to price slump"/>
+    <discreteArc weight="1" fromNode="price slump" toNode="low price" id="price slump to low price"/>
+    <discreteArc weight="1" fromNode="low price" toNode="price recovery" id="low price to price recovery"/>
+    <discreteArc weight="1" fromNode="price recovery" toNode="regular price" id="price recovery to regular price"/>
+
+
+    <guardArc weight="1" isInhibitor="0" fromNode="inlot" toNode="charge penalty" id="inlot to charge penalty"/>
+    <guardArc weight="1" isInhibitor="0" fromNode="unstable grid" toNode="charge penalty" id="unstable grid to charge penalty"/>
+    <continuousArc share="1" priority="0" weight="1" fromNode="ev" toNode="charge penalty" id="ev to charge penalty"/>
+    <discreteArc weight="1" fromNode="policy power demand" toNode="demand increase" id="policy power demand to demand increase"/>
+    <discreteArc weight="1" fromNode="stable grid" toNode="demand increase" id="stable grid to demand increase"/>
+    <discreteArc weight="1" fromNode="demand increase" toNode="unstable grid" id="demand increase to unstable grid"/>
+    <discreteArc weight="1" fromNode="unstable grid" toNode="demand decrease" id="unstable grid to demand decrease"/>
+    <discreteArc weight="1" fromNode="demand decrease" toNode="stable grid" id="demand decrease to stable grid"/>
+  </arcs>
+</HPnG>

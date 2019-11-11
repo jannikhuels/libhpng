@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='ASCII'?>
+<HPnG>
+  <places>
+    <continuousPlace id="ev" capacity="50.0" infiniteCapacity="0" level="5.0" quantum ="1.0"/>
+    <discretePlace marking="1" id="no_grid"/>
+    <discretePlace marking="0" id="to_grid"/>
+    <discretePlace marking="0" id="grid_policy_discharging"/>
+    <discretePlace marking="1" id="inlot"/>
+    <discretePlace marking="0" id="driving"/>
+    <discretePlace marking="1" id="available"/>
+    <discretePlace marking="0" id="unavailable"/>
+    <discretePlace marking="0" id="grid_policy_charging"/>
+  </places>
+  <transitions>
+    <continuousTransition id="v2g" rate="4"/>
+    <continuousTransition id="g2v" rate="4"/>
+    <continuousTransition id="power" rate="7"/>
+    <deterministicTransition id="start_discharge" discTime="6" priority="0" weight="1"/>
+    <deterministicTransition id="balanced" discTime="1" priority="0" weight="1"/>
+    <generalTransition id="end_discharge" cdf="foldednormal" priority="0" weight="1" policy="resume">
+        <parameter name="mu" value="0.25"/>
+        <parameter name="sigma" value="0.5"/>
+    </generalTransition>
+    <generalTransition id="client_return" cdf="foldednormal" priority="0" weight="1" policy="resume">
+        <parameter name="mu" value="9"/>
+        <parameter name="sigma" value="1"/>
+    </generalTransition>
+    <generalTransition id="overloaded" cdf="foldednormal" priority="0" weight="1" policy="resume">
+        <parameter name="mu" value="4"/>
+        <parameter name="sigma" value="2"/>
+    </generalTransition>
+  </transitions>
+  <arcs>
+    <continuousArc share="1" priority="0" weight="1" fromNode="ev" toNode="v2g" id="evtov2g"/>
+    <continuousArc share="1" priority="0" weight="1" fromNode="g2v" toNode="ev" id="g2vtoev"/>
+    <continuousArc share="1" priority="0" weight="1" fromNode="power" toNode="ev" id="powertoev"/>
+    <discreteArc weight="1" fromNode="no_grid" toNode="start_discharge" id="nogridtostartdischarge"/>
+    <discreteArc weight="1" fromNode="start_discharge" toNode="to_grid" id="startdischargetotogrid"/>
+    <discreteArc weight="1" fromNode="to_grid" toNode="end_discharge" id="togridtoenddischarge"/>
+    <discreteArc weight="1" fromNode="end_discharge" toNode="no_grid" id="enddischargetonogrid"/>
+    <discreteArc weight="1" fromNode="grid_policy_discharging" toNode="end_discharge" id="gridpolicydischargingtoenddischarge"/>
+    <discreteArc weight="1" fromNode="inlot" toNode="client_return" id="inlottoclientreturn"/>
+    <discreteArc weight="1" fromNode="client_return" toNode="driving" id="clientreturntodriving"/>
+    <discreteArc weight="1" fromNode="available" toNode="overloaded" id="availabletooverloaded"/>
+    <discreteArc weight="1" fromNode="overloaded" toNode="unavailable" id="overloadedtounavailable"/>
+    <discreteArc weight="1" fromNode="unavailable" toNode="balanced" id="unavailabletobalanced"/>
+    <discreteArc weight="1" fromNode="balanced" toNode="available" id="balancedtoavailable"/>
+    <discreteArc weight="1" fromNode="grid_policy_charging" toNode="balanced" id="gridpolicychargingtobalanced"/>
+    <guardArc weight="1" isInhibitor="0" fromNode="to_grid" toNode="v2g" id="togridtov2g"/>
+    <guardArc weight="1" isInhibitor="0" fromNode="inlot" toNode="g2v" id="inlottog2v"/>
+    <guardArc weight="1" isInhibitor="0" fromNode="inlot" toNode="power" id="inlottopower"/>
+    <guardArc weight="1" isInhibitor="0" fromNode="available" toNode="power" id="availabletopower"/>
+  </arcs>
+</HPnG>

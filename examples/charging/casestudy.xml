@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HPnG>
+    <places>
+        <!-- charge battery -->
+        <discretePlace id="pd0" marking="0"/>
+        <!-- no charge -->
+        <discretePlace id="pd1" marking="1"/>
+        <!-- battery not empty-->
+        <discretePlace id="pd2" marking="0"/>
+        <!-- battery empty-->
+        <discretePlace id="pd3" marking="1"/>
+        <!-- battery -->
+        <continuousPlace id="pc0" capacity="3" infiniteCapacity="0" level="0" quantum = "0.01"/>
+        <!-- cost -->
+        <continuousPlace id="pc1" capacity="1" infiniteCapacity="1" level="0" quantum = "0.01"/>
+        <!-- demand d0 -->
+        <discretePlace id="pd_d0" marking="1"/>
+        <!-- demand d1 -->
+        <discretePlace id="pd_d1" marking="0"/>
+        <!-- demand d2 -->
+        <discretePlace id="pd_d2" marking="0"/>
+    </places>
+    <transitions>
+        <!-- charge battery -->
+		<dynamicContinuousTransition id="tdy0"> <!-- function="max" factor="-1" parameter="0"> -->
+         <!--   <continuousTransition referenceId="tf_d0"></continuousTransition> -->
+            <pid coef="-1">tf_d0</pid>
+         <!--   <continuousTransition referenceId="tf_d1"></continuousTransition> -->
+            <pid coef="-1">tf_d1</pid>
+         <!--   <continuousTransition referenceId="tf_d2"></continuousTransition> -->
+            <pid coef="-1">tf_d2</pid>
+         <!--   <constant value="7.0" factor="1" name="Pa"></constant> -->
+        </dynamicContinuousTransition>
+        <!-- discharge battery -->
+        <dynamicContinuousTransition id="tdy1"> <!-- function="max" parameter="0"> -->
+         <!--  <continuousTransition referenceId="tf_d0"></continuousTransition> -->
+         	<pid coef="1">tf_d0</pid>
+         <!--  <continuousTransition referenceId="tf_d1"></continuousTransition> -->
+         	<pid coef="1">tf_d1</pid>
+         <!--    <continuousTransition referenceId="tf_d2"></continuousTransition> -->
+         	<pid coef="1">tf_d2</pid>
+         <!--    <constant value="7.0" factor="-1" name="Pa"></constant> -->
+        </dynamicContinuousTransition>
+        <!-- costs -->
+        <dynamicContinuousTransition id="tdy2"> <!-- function="max"  factor="1" parameter="0"> -->
+         <!--   <continuousTransition referenceId="tf_d0"></continuousTransition> -->
+         <pid coef="1">tf_d0</pid>
+         <!--   <continuousTransition referenceId="tf_d1"></continuousTransition> -->
+         <pid coef="1">tf_d1</pid>
+         <!--   <continuousTransition referenceId="tf_d2"></continuousTransition> -->
+         <pid coef="1">tf_d2</pid>
+         <!--   <constant value="7.0" factor="-1" name="Pa"></constant> -->
+        </dynamicContinuousTransition>
+        <!-- transition tg0: no charge to charge -->
+        <generalTransition id="tg0" cdf="foldednormal" priority="0" weight="1.0E0" policy="resume">
+            <parameter name="mu" value="5.0"/>
+            <parameter name="sigma" value="3.0"/>
+        </generalTransition>
+        <!-- transition td0: charge to no charge -->
+        <deterministicTransition id="td0" discTime="10.0" priority="1" weight="1.0E0"/>
+        <!-- transition ti0: not empty to empty -->
+        <immediateTransition id="ti0" priority="1" weight="1.0E0"/>
+        <!-- transition ti1: empty to not empty -->
+        <immediateTransition id="ti1" priority="1" weight="1.0E0"/>
+        <!-- demand d0 -->
+        <continuousTransition id="tf_d0" rate="7.0"/>
+        <!-- demand d1 -->
+        <continuousTransition id="tf_d1" rate="1.5"/>
+        <!-- demand d2 -->
+        <continuousTransition id="tf_d2" rate="3.0"/>
+        <!-- transition td_d00 : deactivate d_0 -->
+        <deterministicTransition id="td_d00" discTime="10.0" priority="1" weight="1.0E0"/>
+        <!-- transition td_d10 : deactivate d_1  -->
+        <deterministicTransition id="td_d10" discTime="5.0" priority="1" weight="1.0E0"/>
+        <!-- transition td_d11 : activate d_1  -->
+        <deterministicTransition id="td_d11" discTime="3.0" priority="1" weight="1.0E0"/>
+        <!-- transition td_d20 : deactivate d_2  -->
+        <deterministicTransition id="td_d20" discTime="1.0" priority="1" weight="1.0E0"/>
+        <!-- transition td_d21 : activate d_2  -->
+        <deterministicTransition id="td_d21" discTime="1.0" priority="1" weight="1.0E0"/>
+    </transitions>
+    <arcs>
+        <!-- continuous arcs -->
+        <continuousArc id="ca0" fromNode="tdy0" priority="1" share="1.0E0" toNode="pc0" weight="1.0E0"/> <!-- charge battery -->
+        <continuousArc id="ca1" fromNode="pc0" priority="1" share="1.0E0" toNode="tdy1" weight="1.0E0"/> <!-- discharge battery -->
+        <continuousArc id="ca2" fromNode="tdy2" priority="1" share="1.0E0" toNode="pc1" weight="1.0E0"/> <!-- cost -->
+        <!-- discrete arcs: battery charging or not -->
+        <discreteArc id="da0" fromNode="pd0" toNode="td0" weight="1.0E0"/>
+        <discreteArc id="da1" fromNode="td0" toNode="pd1" weight="1.0E0"/>
+        <discreteArc id="da2" fromNode="pd1" toNode="tg0" weight="1.0E0"/>
+        <discreteArc id="da3" fromNode="tg0" toNode="pd0" weight="1.0E0"/>
+        <!-- discrete arcs: battery empty or not -->
+        <discreteArc id="da4" fromNode="pd2" toNode="ti0" weight="1.0E0"/>
+        <discreteArc id="da5" fromNode="ti0" toNode="pd3" weight="1.0E0"/>
+        <discreteArc id="da6" fromNode="pd3" toNode="ti1" weight="1.0E0"/>
+        <discreteArc id="da7" fromNode="ti1" toNode="pd2" weight="1.0E0"/>
+        <!-- guard arcs: battery -->
+        <guardArc fromNode="pd0" id="ga0" isInhibitor="0" toNode="td0" weight="1.0E0"/> <!-- guard arc that enables battery charging -->
+        <guardArc fromNode="pc0" id="ga1" isInhibitor="1" toNode="ti0" weight="0.0E0"/> <!-- guard arc: battery = 0  -->
+        <guardArc fromNode="pd0" id="ga2" isInhibitor="0" toNode="ti1" weight="0.0E0"/> <!-- guard arc: battery > 0  -->
+        <guardArc fromNode="pd3" id="ga3" isInhibitor="0" toNode="tdy2" weight="1.0E0"/> <!-- guard arc that enables costs (battery empty) -->
+        <!-- guard arcs: demand -->
+        <guardArc fromNode="pd_d0" id="ga_d0" isInhibitor="0" toNode="tf_d0" weight="1.0E0"/> <!-- guard arc that enables demand d0 -->
+        <guardArc fromNode="pd_d1" id="ga_d1" isInhibitor="0" toNode="tf_d1" weight="1.0E0"/> <!-- guard arc that enables demand d1 -->
+        <guardArc fromNode="pd_d2" id="ga_d2" isInhibitor="0" toNode="tf_d2" weight="1.0E0"/> <!-- guard arc that enables demand d2 -->
+        <guardArc fromNode="pd_d0" id="ga_d11" isInhibitor="0" toNode="td_d10" weight="1.0E0"/> <!-- guard arc that enables demand d1 -->
+        <guardArc fromNode="pd_d1" id="ga_d21" isInhibitor="0" toNode="td_d20" weight="1.0E0"/> <!-- guard arc that enables demand d2 -->
+        <!-- discrete arcs: demand deactivation -->
+        <discreteArc id="da_d00" fromNode="pd_d0" toNode="td_d00" weight="1.0E0"/>
+        <discreteArc id="da_d10" fromNode="pd_d1" toNode="td_d00" weight="1.0E0"/>
+        <discreteArc id="da_d11" fromNode="pd_d1" toNode="td_d10" weight="1.0E0"/>
+        <discreteArc id="da_d20" fromNode="pd_d2" toNode="td_d00" weight="1.0E0"/>
+        <discreteArc id="da_d21" fromNode="pd_d2" toNode="td_d10" weight="1.0E0"/>
+        <discreteArc id="da_d22" fromNode="pd_d2" toNode="td_d20" weight="1.0E0"/>
+        <!-- discrete arcs: demand activation -->
+        <discreteArc id="da_d1" fromNode="td_d11" toNode="pd_d1" weight="1.0E0"/>
+        <discreteArc id="da_d2" fromNode="td_d21" toNode="pd_d2" weight="1.0E0"/>
+    </arcs>
+</HPnG>
