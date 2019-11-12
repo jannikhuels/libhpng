@@ -187,7 +187,7 @@ public class ContinuousPlace extends Place{
 	public Boolean checkLowerBoundary(){	
 		
 		BigDecimal level = new BigDecimal(currentFluidLevel);
-		level = level.setScale(0,BigDecimal.ROUND_DOWN);
+		level = level.setScale(6,BigDecimal.ROUND_DOWN);
 					
 		if (level.doubleValue() <= 0.0)
 			lowerBoundaryReached = true;
@@ -287,7 +287,7 @@ public class ContinuousPlace extends Place{
 		fluid += previousDrift * timeSinceLastInternalTransition + previousChangeOfDrift/2.0 * Math.pow(timeSinceLastInternalTransition, 2.0);
 		
 		BigDecimal level = new BigDecimal(fluid);
-		level = level.setScale(0,BigDecimal.ROUND_HALF_UP);
+		level = level.setScale(6,BigDecimal.ROUND_HALF_UP);
 		if (level.doubleValue() <= 0.0){ 
 			fluid = 0.0;
 			if (exactDrift < 0.0)
@@ -330,7 +330,7 @@ public void advanceExactFluidLevel(Double timePoint, Double previousDrift, Doubl
 			fluid += previousDrift * timeSinceLastInternalTransition + previousChangeOfDrift/2.0 * Math.pow(timeSinceLastInternalTransition, 2.0);
 			
 			BigDecimal level = new BigDecimal(fluid);
-			level = level.setScale(0,BigDecimal.ROUND_HALF_UP);
+			level = level.setScale(6,BigDecimal.ROUND_HALF_UP);
 			if (level.doubleValue() <= 0.0){ 
 				fluid = 0.0;
 				if (exactDrift < 0.0)

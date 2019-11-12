@@ -1,10 +1,12 @@
 package de.wwu.criticalsystems.libhpng.model;
 
 import java.util.Comparator;
-		
+
+
 public class ArcComparator implements Comparator<Arc> {
 
-    //compare arcs by 1. type, 2. place comparison, 3. transition comparison
+    //compare arcs by 1. type, 2. priority, 3. place comparison, 4. transition comparison
+
     @Override
     public int compare(Arc a1, Arc a2) {
 
@@ -50,11 +52,13 @@ public class ArcComparator implements Comparator<Arc> {
         PlaceComparator placeComparator = new PlaceComparator();
         TransitionComparator transitionComparator = new TransitionComparator();
 
-        if (a1Type < a2Type || (a1Type == a2Type && a1Prio > a2Prio )|| (a1Type == a2Type && a1Prio == a2Prio && placeComparator.compare(a1.getConnectedPlace(), a2.getConnectedPlace()) == -1) || (a1Type == a2Type && a1Prio == a2Prio && placeComparator.compare(a1.getConnectedPlace(), a2.getConnectedPlace()) == 0 && transitionComparator.compare(a1.getConnectedTransition(), a2.getConnectedTransition()) == -1))
-        return -1;
 
-        if (a1Type > a2Type || (a1Type == a2Type && a1Prio < a2Prio )|| (a1Type == a2Type && a1Prio == a2Prio && placeComparator.compare(a1.getConnectedPlace(), a2.getConnectedPlace()) == 1) || (a1Type == a2Type && a1Prio == a2Prio && placeComparator.compare(a1.getConnectedPlace(), a2.getConnectedPlace()) == 0 && transitionComparator.compare(a1.getConnectedTransition(), a2.getConnectedTransition()) == 1))
-        return 1;
+        if (a1Type < a2Type || (a1Type == a2Type && a1Prio > a2Prio) || (a1Type == a2Type && a1Prio == a2Prio && placeComparator.compare(a1.getConnectedPlace(), a2.getConnectedPlace()) == -1) || (a1Type == a2Type && a1Prio == a2Prio && placeComparator.compare(a1.getConnectedPlace(), a2.getConnectedPlace()) == 0 && transitionComparator.compare(a1.getConnectedTransition(), a2.getConnectedTransition()) == -1))
+            return -1;
+
+        if (a1Type > a2Type || (a1Type == a2Type && a1Prio < a2Prio) || (a1Type == a2Type && a1Prio == a2Prio && placeComparator.compare(a1.getConnectedPlace(), a2.getConnectedPlace()) == 1) || (a1Type == a2Type && a1Prio == a2Prio && placeComparator.compare(a1.getConnectedPlace(), a2.getConnectedPlace()) == 0 && transitionComparator.compare(a1.getConnectedTransition(), a2.getConnectedTransition()) == 1))
+            return 1;
+
 
         return 0;
     }
