@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <HPnG>
   <places>
-    <continuousPlace id="ev" capacity="324000001" infiniteCapacity="0" level="0" quantum="100.0"/>
+    <continuousPlace id="ev" capacity="324000001" infiniteCapacity="0" level="0" quantum="0.1"/>
 
     <discretePlace marking="1" id="inlot"/>
 
