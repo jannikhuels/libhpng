@@ -299,7 +299,7 @@ public class SimulationHandlerVar {
         return currentPlot;
     }
 
-    public void simulateAndPlotOnly(Double maxTime, HPnGModelVar model) throws ModelNotReadableException, InvalidRandomVariateGeneratorException, InvalidPropertyException {
+    public void simulateAndPlotOnly(Double maxTime, HPnGModelVar model, String imagePath) throws ModelNotReadableException, InvalidRandomVariateGeneratorException, InvalidPropertyException {
         Integer firings = 0;
         Integer minFirings = Integer.MAX_VALUE;
         Integer maxFirings = Integer.MIN_VALUE;
@@ -324,7 +324,8 @@ public class SimulationHandlerVar {
 
             currentTime = 0.0;
             try {
-                model.resetMarking();
+                //already in load model
+                //model.resetMarking();
                 if (printRunResults)
                     model.printCurrentMarking(true, false);
                 generator.sampleGeneralTransitions(model, logger);
@@ -385,7 +386,7 @@ public class SimulationHandlerVar {
 
 
         ContinuousPlacesPlotterVar plotter = new ContinuousPlacesPlotterVar();
-        plotter.plotContinuousPlaces(model, plots, maxTime, confidenceLevel);
+        plotter.plotContinuousPlaces(model, plots, maxTime, confidenceLevel, imagePath);
         if (logger != null)
             logger.info("Simulation finished after " + fixedNumberOfRuns + " runs");
 

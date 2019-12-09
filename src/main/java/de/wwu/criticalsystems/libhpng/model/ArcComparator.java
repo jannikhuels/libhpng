@@ -16,6 +16,7 @@ public class ArcComparator implements Comparator<Arc> {
         }
 
         int a1Type = 3;
+        int a1Prio = 0;
         switch (a1.getClass().getSimpleName()) {
             case "GuardArc":
             case "GuardArcVar":
@@ -23,6 +24,7 @@ public class ArcComparator implements Comparator<Arc> {
                 break;
             case "ContinuousArc":
                 a1Type = 1;
+                a1Prio = ((ContinuousArc) a1).getPriority();
                 break;
             case "DiscreteArc":
                 a1Type = 2;
@@ -30,6 +32,7 @@ public class ArcComparator implements Comparator<Arc> {
         }
 
         int a2Type = 3;
+        int a2Prio = 0;
         switch (a2.getClass().getSimpleName()) {
             case "GuardArc":
             case "GuardArcVar":
@@ -37,6 +40,7 @@ public class ArcComparator implements Comparator<Arc> {
                 break;
             case "ContinuousArc":
                 a2Type = 1;
+                a2Prio = ((ContinuousArc) a2).getPriority();
                 break;
             case "DiscreteArc":
                 a2Type = 2;
@@ -46,11 +50,11 @@ public class ArcComparator implements Comparator<Arc> {
         PlaceComparator placeComparator = new PlaceComparator();
         TransitionComparator transitionComparator = new TransitionComparator();
 
-        if (a1Type < a2Type || (a1Type == a2Type && placeComparator.compare(a1.getConnectedPlace(), a2.getConnectedPlace()) == -1) || (a1Type == a2Type && placeComparator.compare(a1.getConnectedPlace(), a2.getConnectedPlace()) == 0 && transitionComparator.compare(a1.getConnectedTransition(), a2.getConnectedTransition()) == -1))
-            return -1;
+        if (a1Type < a2Type || (a1Type == a2Type && a1Prio > a2Prio )|| (a1Type == a2Type && a1Prio == a2Prio && placeComparator.compare(a1.getConnectedPlace(), a2.getConnectedPlace()) == -1) || (a1Type == a2Type && a1Prio == a2Prio && placeComparator.compare(a1.getConnectedPlace(), a2.getConnectedPlace()) == 0 && transitionComparator.compare(a1.getConnectedTransition(), a2.getConnectedTransition()) == -1))
+        return -1;
 
-        if (a1Type > a2Type || (a1Type == a2Type && placeComparator.compare(a1.getConnectedPlace(), a2.getConnectedPlace()) == 1) || (a1Type == a2Type && placeComparator.compare(a1.getConnectedPlace(), a2.getConnectedPlace()) == 0 && transitionComparator.compare(a1.getConnectedTransition(), a2.getConnectedTransition()) == 1))
-            return 1;
+        if (a1Type > a2Type || (a1Type == a2Type && a1Prio < a2Prio )|| (a1Type == a2Type && a1Prio == a2Prio && placeComparator.compare(a1.getConnectedPlace(), a2.getConnectedPlace()) == 1) || (a1Type == a2Type && a1Prio == a2Prio && placeComparator.compare(a1.getConnectedPlace(), a2.getConnectedPlace()) == 0 && transitionComparator.compare(a1.getConnectedTransition(), a2.getConnectedTransition()) == 1))
+        return 1;
 
         return 0;
     }

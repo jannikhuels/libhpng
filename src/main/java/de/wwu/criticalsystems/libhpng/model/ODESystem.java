@@ -82,7 +82,6 @@ public class ODESystem implements FirstOrderDifferentialEquations {
                 for (Place place : model.getPlaces()) {
                     if (place.getClass().equals(ContinuousPlaceVar.class) && (place.getId().equals(missing[j]) || ("delta_" + place.getId()).equals(missing[j]))) {
 
-                        //TODO hier muss evtl noch ein delta_ dazu - ziemlich sicher nicht
                         ode.get(i).addArguments(new Argument(missing[j], x[idToInt.get(missing[j])]));
                         break;
                     }

@@ -20,7 +20,7 @@ public class ContinuousPlacesPlotterVar {
 	private ArrayList<ContinuousPlaceEntry> ssquares = new ArrayList<ContinuousPlaceEntry>();
 
 	
-	public void plotContinuousPlaces(HPnGModelVar model, ArrayList<MarkingPlotVar> plots, Double maxTime, Double confidenceLevel){
+	public void plotContinuousPlaces(HPnGModelVar model, ArrayList<MarkingPlotVar> plots, Double maxTime, Double confidenceLevel, String imagePath){
 
 		int series=0;
 		Double t;
@@ -51,7 +51,10 @@ public class ContinuousPlacesPlotterVar {
 		graph.pack();
 		RefineryUtilities.centerFrameOnScreen(graph);
 		graph.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		graph.setVisible(true);		
+		graph.setVisible(true);
+		if (imagePath != null) {
+			graph.getSVG(imagePath);
+		}
 	}
 
 	

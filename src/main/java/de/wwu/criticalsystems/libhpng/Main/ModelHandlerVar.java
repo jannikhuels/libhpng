@@ -212,13 +212,13 @@ public class ModelHandlerVar {
 	}	
 	
 	
-	public void plotPlaces(Double maxTime){
+	public void plotPlaces(Double maxTime, String imagePath){
 
 //		System.out.println(Arra);
 
 
 		try {
-			simulationHandler.simulateAndPlotOnly(maxTime, model);
+			simulationHandler.simulateAndPlotOnly(maxTime, model, imagePath);
 
 		} catch (ModelNotReadableException e) {
 			if (logger != null)

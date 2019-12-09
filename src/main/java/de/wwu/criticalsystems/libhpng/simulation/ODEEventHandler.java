@@ -44,7 +44,7 @@ public class ODEEventHandler implements EventHandler {
 
     @Override
     public Action eventOccurred(double v, double[] doubles, boolean b) {
-        if (v < event.getOccurenceTime()) {//TODO if klammer falsch?
+        if (v < event.getOccurenceTime()) {
             event.setEventType(eventType);
             event.setOccurenceTime(v);
             event.setFirstEventItem(object, 0);
@@ -93,7 +93,7 @@ public class ODEEventHandler implements EventHandler {
             }
         }
         //TODO systemout
-        System.out.println("time: " + v + ", a: " + doubles[0] + ", b: " + doubles[1]);
+//        System.out.println("time: " + v + ", a: " + doubles[0] + ", b: " + doubles[1]);
         return Action.STOP;
     }
 

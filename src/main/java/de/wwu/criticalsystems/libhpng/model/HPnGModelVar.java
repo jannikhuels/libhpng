@@ -139,6 +139,7 @@ public class HPnGModelVar {
 
                     fromNodeFound = true;
                     arc.setConnectedPlace(place);
+                    place.getConnectedArcs().add(arc);
                     if (arc.getClass().equals(ContinuousArc.class)) {
                         ContinuousArcType dir = ContinuousArcType.output;
                         ((ContinuousArc) arc).setDirection(dir);
@@ -152,6 +153,7 @@ public class HPnGModelVar {
 
                     toNodeFound = true;
                     arc.setConnectedPlace(place);
+                    place.getConnectedArcs().add(arc);
                     if (arc.getClass().equals(ContinuousArc.class)) {
                         ContinuousArcType dir = ContinuousArcType.input;
                         ((ContinuousArc) arc).setDirection(dir);
@@ -277,6 +279,7 @@ public class HPnGModelVar {
         resetCurrentTransitionRates();
         updatePlaceDrift();
 
+        int terminationCounter = 0;
 
         while (change) {
 
@@ -328,14 +331,16 @@ public class HPnGModelVar {
 //                    System.out.println("influx " + inFlux + ", ausgewertet: " + computeCurrentExpressionValue(new Expression(inFlux)));
 //                    System.out.println("outflux " + outFlux + ", ausgewertet: " + computeCurrentExpressionValue(new Expression(outFlux)));
                     p.setCurrentDriftFromString(placeDriftString);
-                    //TODO ordne placedrift aktuelle werte zu +1e-11 && computeCurrentExpressionValue(new Expression(placeDriftString))<0)
-                    if ((computeCurrentExpressionValue(new Expression(placeDriftString)) + 1e-11 < 0 && p.getCurrentFluidLevel() <= 0.0) ) {
+                    //TODO ordne placedrift aktuelle werte zu +1e-11 && computeCurrentExpressionValue(new Expression(placeDriftString))<0) terminationcounterwert
+                    if ((computeCurrentExpressionValue(new Expression(placeDriftString)) < 0 && p.getCurrentFluidLevel() <= 0.0) && terminationCounter < 20) {
                         rateAdaption(p, ContinuousArcType.output, new Expression(inFlux));
                         change = true;
+                        terminationCounter++;
 //                        p.setCurrentDriftFromString("0");|| (boundaryHit&& computeCurrentExpressionValue(new Expression(placeDriftString))>0)
-                    } else if (computeCurrentExpressionValue(new Expression(placeDriftString)) > 0 && p.getCurrentFluidLevel() >= p.getUpperBoundary() && !p.getUpperBoundaryInfinity() ) {
+                    } else if (computeCurrentExpressionValue(new Expression(placeDriftString)) > 0 && p.getCurrentFluidLevel() >= p.getUpperBoundary() && !p.getUpperBoundaryInfinity() && terminationCounter < 5) {
                         rateAdaption(p, ContinuousArcType.input, new Expression(outFlux));
                         change = true;
+                        terminationCounter++;
                     }
 
 
@@ -550,14 +555,12 @@ public class HPnGModelVar {
                 //compute current flow to check whether the priority can be fulfilled at the moment
                 remainingFlowValue = computeCurrentExpressionValue(new Expression(remainingFlow));
                 double currentRequiredFlow = computeCurrentExpressionValue(new Expression(requiredFlow));
-//TODO fall gleich?
                 if (currentRequiredFlow <= remainingFlowValue) {
                     //subtract the distributed flow
                     remainingFlowValue -= currentRequiredFlow;
                     remainingFlow = remainingFlow + "-(" + requiredFlow + ")";
                     arcIndex = arcIndex2;
                     enoughForCurrentPriority = true;
-                    //TODO EVent wenn grenze gebrochen wird dh required>remaining
                     place.setRateAdaptionConditionFromString(remainingFlow + "-(" + requiredFlow + ")");
                     continue;
                 }
@@ -579,11 +582,13 @@ public class HPnGModelVar {
                 if (priorityArcs.size() == 1 && priorityArcs.get(0).getConnectedTransition().getClass().equals(DynamicContinuousTransitionVar.class)) {
                     String oldCurrentRate = ((DynamicContinuousTransitionVar) priorityArcs.get(0).getConnectedTransition()).getCurrentRateExpression().getExpressionString();
                     ((DynamicContinuousTransitionVar) priorityArcs.get(0).getConnectedTransition()).setCurrentRateExpressionFromString("(" + remainingFlow + ")/" + priorityArcs.get(0).getWeight());
+                    resetOtherConnectedTransitions(priorityArcs.get(0));
                     ((DynamicContinuousTransitionVar) priorityArcs.get(0).getConnectedTransition()).setAdapted(true);
                     ((DynamicContinuousTransitionVar) priorityArcs.get(0).getConnectedTransition()).addRateAdapationEvent(place.getId(), "(" + remainingFlow + ")/" + priorityArcs.get(0).getWeight() + "-(" + oldCurrentRate + ")");
                 } else if (priorityArcs.size() == 1) {
                     String oldCurrentRate = ((ContinuousTransitionVar) priorityArcs.get(0).getConnectedTransition()).getCurrentRateExpression().getExpressionString();
                     ((ContinuousTransitionVar) priorityArcs.get(0).getConnectedTransition()).setCurrentRateExpressionFromString(remainingFlow + "/" + priorityArcs.get(0).getWeight());
+                    resetOtherConnectedTransitions(priorityArcs.get(0));
                     ((ContinuousTransitionVar) priorityArcs.get(0).getConnectedTransition()).addRateAdapationEvent(place.getId(), "(" + remainingFlow + ")/" + priorityArcs.get(0).getWeight() + "-(" + oldCurrentRate + ")");
                 } else {
                     boolean change = true;
@@ -591,7 +596,7 @@ public class HPnGModelVar {
                         change = false;
                         for (ContinuousArc currentArc : priorityArcs) {
 
-                            if (currentArc.getConnectedTransition().getClass().equals(DynamicContinuousTransition.class)) {
+                            if (currentArc.getConnectedTransition().getClass().equals(DynamicContinuousTransitionVar.class)) {
 
                                 if (currentArc.getShare() / currentSumValue >= 1 / remainingFlowValue) {
                                     String currentRate = "(" + ((DynamicContinuousTransitionVar) currentArc.getConnectedTransition()).getCurrentRateExpression().getExpressionString() + ")*" + currentArc.getWeight();
@@ -633,6 +638,7 @@ public class HPnGModelVar {
 //                                String oldCurrentRate = ((DynamicContinuousTransitionVar) priorityArcs.get(0).getConnectedTransition()).getCurrentRateExpression().getExpressionString();
                                 sharedFluid = "((" + ((DynamicContinuousTransitionVar) currentArc.getConnectedTransition()).getCurrentRateExpression().getExpressionString() + ")*" + currentArc.getShare() + "*(" + remainingFlow + "))/" + "(" + sumString + ")";
                                 ((DynamicContinuousTransitionVar) currentArc.getConnectedTransition()).setCurrentRateExpressionFromString(sharedFluid);
+                                resetOtherConnectedTransitions(currentArc);
                                 ((DynamicContinuousTransitionVar) currentArc.getConnectedTransition()).setAdapted(true);
 //                                currentPriorityActualFlow = currentPriorityActualFlow + "+" + sharedFluid;
                                 ((DynamicContinuousTransitionVar) currentArc.getConnectedTransition()).addRateAdapationEvent(place.getId(), "(" + currentArc.getShare() + "*(" + remainingFlow + "))/(" + sumString + ")-1");//TODO
@@ -657,6 +663,7 @@ public class HPnGModelVar {
                                 sharedFluid = "((" + ((ContinuousTransitionVar) currentArc.getConnectedTransition()).getCurrentRateExpression().getExpressionString() + ")*" + currentArc.getShare() + "*(" + remainingFlow + "))/" + "(" + sumString + ")";
 //                                changeOfSharedFluid = ((ContinuousTransitionVar) currentArc.getConnectedTransition()).getCurrentChangeOfFluid() * currentArc.getShare() * flux / sum;
                                 ((ContinuousTransitionVar) currentArc.getConnectedTransition()).setCurrentRateExpressionFromString(sharedFluid);
+                                resetOtherConnectedTransitions(currentArc);
                                 ((ContinuousTransitionVar) currentArc.getConnectedTransition()).addRateAdapationEvent(place.getId(), "(" + currentArc.getShare() + "*(" + remainingFlow + "))/(" + sumString + ")-1");
                             } /*else {
 
@@ -672,6 +679,7 @@ public class HPnGModelVar {
 
                     }
                 }
+                remainingFlow = "0";
                 arcIndex = arcIndex2;
 
             } else
@@ -688,10 +696,12 @@ public class HPnGModelVar {
 
                 if (arcs.get(arcIndex).getConnectedTransition().getClass().equals(DynamicContinuousTransitionVar.class)) {
                     ((DynamicContinuousTransitionVar) arcs.get(arcIndex).getConnectedTransition()).setCurrentRateExpressionFromString("0");
+                    resetOtherConnectedTransitions((ContinuousArc) arcs.get(arcIndex));
 //                    ((DynamicContinuousTransitionVar) arcs.get(arcIndex).getConnectedTransition()).setCurrentChangeOfFluid(0.0);
                     ((DynamicContinuousTransitionVar) arcs.get(arcIndex).getConnectedTransition()).setAdapted(true);
                 } else {
                     ((ContinuousTransitionVar) arcs.get(arcIndex).getConnectedTransition()).setCurrentRateExpressionFromString("0");
+                    resetOtherConnectedTransitions((ContinuousArc) arcs.get(arcIndex));
 //                    ((ContinuousTransitionVar) arcs.get(arcIndex).getConnectedTransition()).setCurrentChangeOfFluid(0.0);
                 }
                 lowestPriority = ((ContinuousArc) arcs.get(arcIndex)).getPriority();
@@ -714,14 +724,12 @@ public class HPnGModelVar {
     }
 
     public double computeCurrentExpressionValue(Expression expression) {
-        //TODO implementieren
         expression.removeAllArguments();
         String[] missing = expression.getMissingUserDefinedArguments();
         for (int j = 0; j < missing.length; j++) {
             for (Place place : this.getPlaces()) {
                 if (place.getClass().equals(ContinuousPlaceVar.class) && (place.getId().equals(missing[j]) || ("delta_" + place.getId()).equals(missing[j]))) {
 
-                    //TODO hier muss evtl noch ein delta_ dazu - ziemlich sicher nicht
                     expression.addArguments(new Argument(missing[j], ((ContinuousPlaceVar) place).getCurrentFluidLevel()));
                     break;
                 }
@@ -757,8 +765,6 @@ public class HPnGModelVar {
                 ((DiscretePlace) place).resetNumberOfTokens();
         }
     }
-
-
 
 
     private Double computeTimeToNextPriority(Double flux, Double changeOfFlux, Double accumulatedFluxRequired, Double accumulatedChangeOfFluxRequired) {
@@ -829,4 +835,24 @@ public class HPnGModelVar {
     }
 
 
+    private void resetTransitionRatesOfPlaceByType(ContinuousPlaceVar place, ContinuousArc arc) {
+        for (Arc placeArc : place.getConnectedArcs()) {
+            if (placeArc.getClass().equals(ContinuousArc.class) && !placeArc.equals(arc) && ((ContinuousArc) placeArc).getDirection().equals(arc.getDirection())) {
+                ((FluidTransition) placeArc.getConnectedTransition()).resetCurrentRateExpression();
+            }
+        }
+
+    }
+
+    private void resetOtherConnectedTransitions(ContinuousArc baseArc) {
+        Transition baseTransition = baseArc.getConnectedTransition();
+        for (Arc arc : baseTransition.getConnectedArcs()) {
+            if (arc.getClass().equals(ContinuousArc.class) && !arc.equals(baseArc)) {
+                ContinuousPlaceVar place = (ContinuousPlaceVar) arc.getConnectedPlace();
+                if (place.getUpperBoundaryReached() || place.getLowerBoundaryReached()) {
+                    resetTransitionRatesOfPlaceByType(place, (ContinuousArc) arc);
+                }
+            }
+        }
+    }
 }

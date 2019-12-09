@@ -125,7 +125,7 @@ public class ContinuousPlaceVar extends Place {
     }
 
     public Double getExactFluidLevel() {
-        //TODO: Expression muss mit aktuellen Werten ausgewertet gefüllt werden
+
         return currentFluidLevel;
     }
 

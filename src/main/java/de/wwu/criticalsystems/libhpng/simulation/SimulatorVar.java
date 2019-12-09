@@ -20,12 +20,12 @@ public class SimulatorVar {
         this.maxTime = maxTime;
         this.simulationHandlerVar = simulationHandlerVar;
 
-        switch(simulationHandlerVar.getNumericSolverID()){
+        switch (simulationHandlerVar.getNumericSolverID()) {
             case 0:
                 integrator = new ClassicalRungeKuttaIntegrator(simulationHandlerVar.getFixedStepSize());
                 break;
             case 1:
-                integrator= new EulerIntegrator(simulationHandlerVar.getFixedStepSize());
+                integrator = new EulerIntegrator(simulationHandlerVar.getFixedStepSize());
                 break;
             case 2:
                 integrator = new MidpointIntegrator(simulationHandlerVar.getFixedStepSize());
@@ -40,16 +40,18 @@ public class SimulatorVar {
                 integrator = new LutherIntegrator(simulationHandlerVar.getFixedStepSize());
                 break;
             case 6:
-                integrator = new DormandPrince54Integrator(simulationHandlerVar.getMinStep(),simulationHandlerVar.getMaxStep(),simulationHandlerVar.getScalAbsoluteTolerance(), simulationHandlerVar.getScalRelativeTolerance());
+                integrator = new DormandPrince54Integrator(simulationHandlerVar.getMinStep(), simulationHandlerVar.getMaxStep(), simulationHandlerVar.getScalAbsoluteTolerance(), simulationHandlerVar.getScalRelativeTolerance());
                 break;
             case 7:
-                integrator = new HighamHall54Integrator(simulationHandlerVar.getMinStep(),simulationHandlerVar.getMaxStep(),simulationHandlerVar.getScalAbsoluteTolerance(), simulationHandlerVar.getScalRelativeTolerance());
+                integrator = new HighamHall54Integrator(simulationHandlerVar.getMinStep(), simulationHandlerVar.getMaxStep(), simulationHandlerVar.getScalAbsoluteTolerance(), simulationHandlerVar.getScalRelativeTolerance());
                 break;
             case 8:
-                integrator = new DormandPrince853Integrator(simulationHandlerVar.getMinStep(),simulationHandlerVar.getMaxStep(),simulationHandlerVar.getScalAbsoluteTolerance(), simulationHandlerVar.getScalRelativeTolerance());
+                integrator = new DormandPrince853Integrator(simulationHandlerVar.getMinStep(), simulationHandlerVar.getMaxStep(), simulationHandlerVar.getScalAbsoluteTolerance(), simulationHandlerVar.getScalRelativeTolerance());
                 break;
             case 9:
-                integrator = new GraggBulirschStoerIntegrator(simulationHandlerVar.getMinStep(),simulationHandlerVar.getMaxStep(),simulationHandlerVar.getScalAbsoluteTolerance(), simulationHandlerVar.getScalRelativeTolerance());
+                integrator = new GraggBulirschStoerIntegrator(simulationHandlerVar.getMinStep(), simulationHandlerVar.getMaxStep(), simulationHandlerVar.getScalAbsoluteTolerance(), simulationHandlerVar.getScalRelativeTolerance());
+            case 10:
+                integrator = new AdamsBashforthIntegrator(2, simulationHandlerVar.getMinStep(), simulationHandlerVar.getMaxStep(), simulationHandlerVar.getScalAbsoluteTolerance(), simulationHandlerVar.getScalRelativeTolerance());
         }
         ode = new ODESystem(model);
     }
@@ -66,7 +68,6 @@ public class SimulatorVar {
     protected Logger logger;
     protected FirstOrderIntegrator integrator;
     //protected FirstOrderIntegrator integrator;
-    //TODO initialize
     protected SimulationHandlerVar simulationHandlerVar;
     protected ODESystem ode;
 
@@ -78,14 +79,14 @@ public class SimulatorVar {
 
 //        model.updateFluidRates(false);
         getNextEvent(currentTime);
-        if(!event.getOccurenceTime().equals(currentTime)){
+        if (!event.getOccurenceTime().equals(currentTime)) {
             ODEStepHandler stepHandler = new ODEStepHandler(ode, currentPlot);
             integrator.addStepHandler(stepHandler);
             integrator.integrate(ode, currentTime, ode.getCurrentFluidLevels(), event.getOccurenceTime(), result);
         }
         //TODO systemout
-        System.out.println("time: " + currentTime);
-        model.advanceMarking(event.getOccurenceTime()-currentTime);
+//        System.out.println("time: " + currentTime);
+        model.advanceMarking(event.getOccurenceTime() - currentTime);
         model.updateEnabling(false);//TODO richtig?
         //complete event and update model marking
         if (maxTime < event.getOccurenceTime() || event.getEventType().equals(SimulationEventType.no_event)) {
@@ -161,10 +162,13 @@ public class SimulatorVar {
                     place.checkUpperBoundary();
                     if (printRunResults)
                         System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " is empty");
+                    //set value to zero to avoid chain of boundary events resulting from approximation values
+                    place.setCurrentFluidLevel(0.0);
                 } else {
                     place.checkUpperBoundary();
                     if (printRunResults)
                         System.out.println(event.getOccurenceTime() + " seconds: continuous place " + place.getId() + " has reached its upper boundary");
+                    place.setCurrentFluidLevel(place.getUpperBoundary());
                 }
             }
         }
@@ -224,7 +228,7 @@ public class SimulatorVar {
             }
         }*/
 //TODO systemout eventtype
-        System.out.println(event.getEventType());
+//        System.out.println(event.getEventType());
         boolean boundaryHit = false;
         if (event.getEventType().equals(SimulationEventType.place_boundary))
             boundaryHit = true;
@@ -332,8 +336,12 @@ public class SimulatorVar {
                     if (!place.getUpperBoundaryInfinity())
                         integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_boundary, place, ode, place.getId() + "-" + place.getUpperBoundary()), simulationHandlerVar.getMaxCheckInterval(), simulationHandlerVar.getConvergence(), simulationHandlerVar.getMaxIterationCount());
                     //lower bound
-                    integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_boundary, place, ode, place.getId()), simulationHandlerVar.getMaxCheckInterval(), simulationHandlerVar.getConvergence(), simulationHandlerVar.getMaxIterationCount());
-                    //TODO angucken wohin damit
+                    if (place.getCurrentFluidLevel().equals(0.0) && model.computeCurrentExpressionValue(place.getCurrentDrift()) == 0)
+                        //if the fluid level is zero and the drift as well, new rate adaption is needed when the drift becomes negative, dead lock when the condition is set to zero
+                        integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_boundary, place, ode, place.getId() + "+"+ "1e-13"), simulationHandlerVar.getMaxCheckInterval(), simulationHandlerVar.getConvergence(), simulationHandlerVar.getMaxIterationCount());
+                    else
+                        integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_boundary, place, ode, place.getId()), simulationHandlerVar.getMaxCheckInterval(), simulationHandlerVar.getConvergence(), simulationHandlerVar.getMaxIterationCount());
+
                     String placeCondition = place.getRateAdaptionCondition().getExpressionString();
                     if (!placeCondition.equals(""))
                         integrator.addEventHandler(new ODEEventHandler(event.getOccurenceTime(), event, SimulationEventType.place_internaltransition, place, ode, placeCondition), simulationHandlerVar.getMaxCheckInterval(), simulationHandlerVar.getConvergence(), simulationHandlerVar.getMaxIterationCount());
