@@ -24,10 +24,13 @@
      <immediateTransition id="ti_in2" priority="0" weight="1.0E0"/>
      <immediateTransition id="ti_out" priority="0" weight="1.0E0"/>
      <generalTransition id="tg" cdf="uniform" priority="0" weight="1.0E0" policy="repeatdifferent">
-      <parameter name="a" value="51.0"/>      
-      <parameter name="b" value="52.0"/>    
+      <parameter name="a" value="0.0"/>
+      <parameter name="b" value="48.0"/>
 	</generalTransition>
-   </transitions>
+<!--      <generalTransition id="tg" cdf="exp" priority="0" weight="1.0E0" policy="repeatdifferent">-->
+<!--      <parameter name="lambda" value="0.5"/>-->
+<!--      </generalTransition>-->
+  </transitions>
   <arcs>
     <continuousArc id="ca1" fromNode="pcbound" toNode="tc_filla" priority="1" share="1.0E0" weight="1.0E0"/>
     <continuousArc id="ca2" fromNode="tc_filla" toNode="pcavailable" priority="1" share="1.0E0" weight="1.0E0"/>
