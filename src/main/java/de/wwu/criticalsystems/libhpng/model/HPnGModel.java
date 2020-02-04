@@ -354,7 +354,9 @@ public class HPnGModel {
                             p.setTimeToNextInternalTransition(Math.min(p.getTimeToNextInternalTransition(), timeToNextPriority));
                         }
 
-                        change = true;
+                        if (oldExactDrift != null && oldChangeOfDrift != null && (Math.abs(p.getExactDrift() - oldExactDrift) >= 0.000001 || Math.abs(p.getChangeOfExactDrift() - oldChangeOfDrift) >= 0.000001))  
+                        	change = true;
+                        
 
                     } else if ((outFlux > inFlux) && p.getCurrentFluidLevel() <= 0.0) {
                         //lower boundary reached
@@ -366,7 +368,8 @@ public class HPnGModel {
                         if (timeToNextPriority < Double.POSITIVE_INFINITY)
                             p.setTimeToNextInternalTransition(Math.min(p.getTimeToNextInternalTransition(), timeToNextPriority));
 
-                        change = true;
+                        if (oldExactDrift != null && oldChangeOfDrift != null && (Math.abs(p.getExactDrift() - oldExactDrift) >= 0.000001 || Math.abs(p.getChangeOfExactDrift() - oldChangeOfDrift) >= 0.000001))  
+                        	change = true;
 
                     }                        
                     
