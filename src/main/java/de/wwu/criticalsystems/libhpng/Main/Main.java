@@ -35,8 +35,9 @@ public class Main {
 //			handler.plotPlaces(4.0);
     		ModelHandlerVar testhandler = new ModelHandlerVar();
 //    		testhandler.readModel("examples/kibam/kibam2.xml");
+			testhandler.readModel("examples/heatedtank/heatedtank_v1_withT.xml");
 //			testhandler.readModel("examples/models-0-1/models/307800000/model_0_1_307800000_450_240000.xml");
-			testhandler.readModel("examples/heatedtank/heatedtank_v4.xml");
+//			testhandler.readModel("examples/Lisa2.xml");
 //    		testhandler.changeParameter((byte)9, true);
 //			testhandler.changeParameter((byte)5, 10);
             testhandler.loadParameters();
@@ -45,9 +46,11 @@ public class Main {
 //			testhandler.changeParameter((byte)5, 1);
 //			SimpleNode root2 = testhandler.readFormula("0.0:P=?(U[0.0,86400.0](tt,AND(tokens('inlot')=0,fluidlevel('ev')>=307800000.0)))");
 //			SimpleNode root2 = testhandler.readFormula("86400.0:P=?(tokens('robust')=1)");
-			SimpleNode root2 = testhandler.readFormula("0.0:P=?(U[0.0,500.0](tt,fluidlevel('H')<=97.0))");
+			SimpleNode root2 = testhandler.readFormula("0.0:P=?(U[0.0,300.0](tt,fluidlevel('T')>=100.0))");
+//			SimpleNode root2 = testhandler.readFormula("0.0:P=?(U[0.0,500.0](tt,fluidlevel('H')<=97.0))");
 //			SimpleNode root2 = testhandler.readFormula("24.0:P=?(tokens('pdproperty')<1)");
 //			SimpleNode root2 = testhandler.readFormula("0.0:P=?(U[0.0,24.0](tt,fluidlevel('pcavailable')<=0.0))");
+//			SimpleNode root2 = testhandler.readFormula("0.0:P=?(U[0.0,10.0](tt,AND(fluidlevel('pc1')>=9.0,fluidlevel('pc2')>=4.0)))");
 //			testhandler.checkFormula(root2);
 //			testhandler.plotPlaces(300.0, "tempFile.svg");//
 			testhandler.checkFormula(root2);

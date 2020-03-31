@@ -76,18 +76,27 @@ public class ODESystem implements FirstOrderDifferentialEquations {
     @Override
     public void computeDerivatives(double t, double[] x, double[] xDot) throws MaxCountExceededException, DimensionMismatchException {
         for (int i = 0; i < ode.size(); i++) {
+//            ode.get(i).removeAllArguments();
+//            String[] missing = ode.get(i).getMissingUserDefinedArguments();
+//            for (int j = 0; j < missing.length; j++) {
+//                for (Place place : model.getPlaces()) {
+//                    if (place.getClass().equals(ContinuousPlaceVar.class) && (place.getId().equals(missing[j]) || ("delta_" + place.getId()).equals(missing[j]))) {
+//
+//                        ode.get(i).addArguments(new Argument(missing[j], x[idToInt.get(missing[j])]));
+//                        break;
+//                    }
+//
+//                }
+//            }
             ode.get(i).removeAllArguments();
-            String[] missing = ode.get(i).getMissingUserDefinedArguments();
-            for (int j = 0; j < missing.length; j++) {
-                for (Place place : model.getPlaces()) {
-                    if (place.getClass().equals(ContinuousPlaceVar.class) && (place.getId().equals(missing[j]) || ("delta_" + place.getId()).equals(missing[j]))) {
-
-                        ode.get(i).addArguments(new Argument(missing[j], x[idToInt.get(missing[j])]));
-                        break;
-                    }
-
+            for (Place place : model.getPlaces()) {
+                if (place.getClass().equals(ContinuousPlaceVar.class)) {
+                    String placeId = place.getId();
+                    ode.get(i).addArguments(new Argument(placeId, x[idToInt.get(placeId)]));
                 }
+
             }
+
             xDot[i] = ode.get(i).calculate();
 //            System.out.println(xDot[i]);
         }

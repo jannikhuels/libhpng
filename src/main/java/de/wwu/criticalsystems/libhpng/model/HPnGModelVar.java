@@ -332,7 +332,7 @@ public class HPnGModelVar {
 //                    System.out.println("outflux " + outFlux + ", ausgewertet: " + computeCurrentExpressionValue(new Expression(outFlux)));
                     p.setCurrentDriftFromString(placeDriftString);
                     //TODO ordne placedrift aktuelle werte zu +1e-11 && computeCurrentExpressionValue(new Expression(placeDriftString))<0) terminationcounterwert
-                    if ((computeCurrentExpressionValue(new Expression(placeDriftString)) < 0 && p.getCurrentFluidLevel() <= 0.0) && terminationCounter < 20) {
+                    if ((computeCurrentExpressionValue(new Expression(placeDriftString)) < 0 && p.getCurrentFluidLevel() <= 0.0) && terminationCounter < 5) {
                         rateAdaption(p, ContinuousArcType.output, new Expression(inFlux));
                         change = true;
                         terminationCounter++;
@@ -725,17 +725,16 @@ public class HPnGModelVar {
 
     public double computeCurrentExpressionValue(Expression expression) {
         expression.removeAllArguments();
-        String[] missing = expression.getMissingUserDefinedArguments();
-        for (int j = 0; j < missing.length; j++) {
+//        String[] missing = expression.getMissingUserDefinedArguments();
+//        for (int j = 0; j < missing.length; j++) {
             for (Place place : this.getPlaces()) {
-                if (place.getClass().equals(ContinuousPlaceVar.class) && (place.getId().equals(missing[j]) || ("delta_" + place.getId()).equals(missing[j]))) {
-
-                    expression.addArguments(new Argument(missing[j], ((ContinuousPlaceVar) place).getCurrentFluidLevel()));
-                    break;
+                if (place.getClass().equals(ContinuousPlaceVar.class)) {
+                    String placeId = place.getId();
+                    expression.addArguments(new Argument(placeId, ((ContinuousPlaceVar) place).getCurrentFluidLevel()));
                 }
 
             }
-        }
+//        }
         return expression.calculate();
     }
 

@@ -36,8 +36,14 @@ public class ODEEventHandler implements EventHandler {
     public double g(double v, double[] doubles) {
 //        System.out.println(doubles[equation] - boundary);
         condition.removeAllArguments();
-        for (String argument : condition.getMissingUserDefinedArguments()) {
-            condition.addArguments(new Argument(argument, doubles[ode.getIdToInt().get(argument)]));
+//        for (String argument : condition.getMissingUserDefinedArguments()) {
+//            condition.addArguments(new Argument(argument, doubles[ode.getIdToInt().get(argument)]));
+//        }
+        for (Place place : ode.getModel().getPlaces()){
+            if(place.getClass().equals(ContinuousPlaceVar.class)){
+                String placeId = place.getId();
+                condition.addArguments(new Argument(placeId, doubles[ode.getIdToInt().get(placeId)]));
+            }
         }
         return condition.calculate();
     }
